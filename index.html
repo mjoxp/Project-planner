@@ -55,7 +55,6 @@
             height: calc(100vh - 100px);
         }
         
-        /* Sidebar - ONLY HÅNDVÆRKERE */
         .sidebar {
             width: 250px;
             background: white;
@@ -117,7 +116,6 @@
             transform: translateX(5px) scale(1.02);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .craftsman-item.dragging { opacity: 0.5; transform: rotate(2deg); }
         
         .delete-craftsman {
             background: #dc3545;
@@ -132,11 +130,6 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
-        }
-        
-        .delete-craftsman:hover {
-            background: #c82333;
-            transform: scale(1.1);
         }
         
         .timeline-container {
@@ -174,7 +167,6 @@
             text-align: center;
         }
         
-        /* Timeline Grid - CLEAN SEPARATION */
         .timeline-grid {
             background: white;
             border-radius: 8px;
@@ -335,7 +327,6 @@
         .grid-cell:hover { background: #e3f2fd; }
         .grid-cell.drop-zone { background: #c8e6c9 !important; }
         
-        /* Tasks - Enhanced styling */
         .task {
             position: absolute;
             background: linear-gradient(145deg, #2196F3, #1976D2);
@@ -415,7 +406,6 @@
         
         .task-btn:hover { background: rgba(255,255,255,0.4); }
         
-        /* Enhanced Modal */
         .modal {
             display: none;
             position: fixed;
@@ -522,7 +512,6 @@
             height: fit-content;
         }
         
-        /* Toast notifications */
         .toast {
             position: fixed;
             top: 20px;
@@ -542,7 +531,6 @@
         .toast.error { background: #f44336; }
         .toast.warning { background: #ff9800; }
         
-        /* Responsive */
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -561,11 +549,6 @@
                 border-bottom: 2px solid #e0e0e0;
                 max-height: 200px;
                 overflow-y: auto;
-            }
-            
-            .header-craftsman, .row-craftsman {
-                min-width: 150px;
-                max-width: 150px;
             }
         }
     </style>
@@ -777,7 +760,7 @@
     </div>
 
     <script>
-        // Application State - BLANK START
+        // Application State
         let appState = {
             project: {
                 name: "",
@@ -803,7 +786,7 @@
             saveState();
             renderAll();
             setupEventListeners();
-            showToast('Velkommen til Switzea Projektplanlægning!');
+            showToast('Switzea Projektplanlægning startet!');
         });
         
         function saveState() {
@@ -942,7 +925,6 @@
             const totalDays = appState.weeks * 5;
             const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
             
-            // Create header with improved week display
             const header = document.createElement('div');
             header.className = 'grid-header';
             
@@ -954,7 +936,6 @@
             const daysHeader = document.createElement('div');
             daysHeader.className = 'header-days';
             
-            // Create week sections with proper week numbers
             for (let week = 0; week < appState.weeks; week++) {
                 const weekSection = document.createElement('div');
                 weekSection.className = 'week-section';
@@ -994,7 +975,6 @@
                 nameCell.className = 'row-craftsman';
                 nameCell.style.borderLeftColor = craftsman.color;
                 
-                // Add remove button in timeline row as well
                 nameCell.innerHTML = `
                     <span class="craftsman-name">${craftsman.name}</span>
                     <button class="remove-craftsman-btn" onclick="removeCraftsmanFromTimeline('${craftsman.id}')">×</button>
@@ -1149,65 +1129,46 @@
             document.getElementById('modalTitle').textContent = 'Ny opgave';
             document.getElementById('deleteTaskBtn').style.display = 'none';
             
-            // Clear form completely
-            document.getElementById('taskForm').reset();
-            
-            // Set default values for new task
-            document.getElementById('taskCraftsman').value = craftsman;
+            // CLEAR individual fields instead of form.reset()
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDescription').value = '';
+            document.getElementById('taskNotes').value = '';
             document.getElementById('taskPriority').value = 'medium';
             document.getElementById('taskStatus').value = 'planned';
             document.getElementById('taskDuration').value = '1';
             document.getElementById('taskHalfDay').checked = false;
             
             populateCraftsmanDropdown();
+            document.getElementById('taskCraftsman').value = craftsman;
+            
             document.getElementById('taskModal').classList.add('show');
         }
         
-        // COMPLETELY FIXED: Task editing with perfect data retention
+        // CRITICAL FIX: Completely rewritten editTask function
         function editTask(taskId) {
-            console.log('Editing task:', taskId); // Debug
-            
             const task = appState.tasks.find(t => t.id === taskId);
-            if (!task) {
-                console.log('Task not found:', taskId); // Debug
-                return;
-            }
-            
-            console.log('Found task data:', task); // Debug
+            if (!task) return;
             
             currentEditingTask = task;
             document.getElementById('modalTitle').textContent = 'Redigér opgave';
             document.getElementById('deleteTaskBtn').style.display = 'inline-block';
             
-            // Populate ALL fields with current task data - GUARANTEED retention
+            // DO NOT CALL form.reset() - this was the problem!
+            
+            // Populate dropdown first
+            populateCraftsmanDropdown();
+            
+            // Set ALL values directly without any delays or async operations
             document.getElementById('taskTitle').value = task.title || '';
             document.getElementById('taskDescription').value = task.description || '';
             document.getElementById('taskNotes').value = task.notes || '';
+            document.getElementById('taskCraftsman').value = task.craftsman || '';
             document.getElementById('taskPriority').value = task.priority || 'medium';
             document.getElementById('taskStatus').value = task.status || 'planned';
-            document.getElementById('taskDuration').value = task.duration || 1;
+            document.getElementById('taskDuration').value = String(task.duration || 1);
             document.getElementById('taskHalfDay').checked = Boolean(task.isHalfDay);
             
-            // Populate dropdown first, then set value
-            populateCraftsmanDropdown();
-            
-            // Use setTimeout to ensure dropdown is populated before setting value
-            setTimeout(() => {
-                document.getElementById('taskCraftsman').value = task.craftsman || '';
-            }, 10);
-            
             document.getElementById('taskModal').classList.add('show');
-            
-            console.log('Form populated with:', {
-                title: document.getElementById('taskTitle').value,
-                description: document.getElementById('taskDescription').value,
-                notes: document.getElementById('taskNotes').value,
-                craftsman: document.getElementById('taskCraftsman').value,
-                priority: document.getElementById('taskPriority').value,
-                status: document.getElementById('taskStatus').value,
-                duration: document.getElementById('taskDuration').value,
-                halfDay: document.getElementById('taskHalfDay').checked
-            }); // Debug
         }
         
         function populateCraftsmanDropdown() {
@@ -1233,12 +1194,8 @@
                 isHalfDay: document.getElementById('taskHalfDay').checked
             };
             
-            console.log('Saving task data:', taskData); // Debug
-            
             if (currentEditingTask) {
-                // Update existing task - preserve ID and other data
                 Object.assign(currentEditingTask, taskData);
-                console.log('Updated existing task:', currentEditingTask); // Debug
             } else {
                 const newTask = {
                     id: 'task_' + Date.now(),
@@ -1247,13 +1204,12 @@
                     ...taskData
                 };
                 appState.tasks.push(newTask);
-                console.log('Created new task:', newTask); // Debug
             }
             
             saveState();
             renderAll();
             closeModal('taskModal');
-            showToast('Opgave gemt');
+            showToast('Opgave gemt - data bevaret!');
         }
         
         function deleteTask(taskId) {
@@ -1284,7 +1240,6 @@
             showToast('Opgave flyttet');
         }
         
-        // Updated craftsman management with predefined types
         function setupCraftsmanModal() {
             const typeSelect = document.getElementById('craftsmanType');
             const customTypeGroup = document.getElementById('customTypeGroup');
@@ -1367,7 +1322,6 @@
             }
         }
         
-        // NEW: Function to remove craftsman from timeline
         function removeCraftsmanFromTimeline(craftsmanId) {
             deleteCraftsman(craftsmanId);
         }
@@ -1537,7 +1491,7 @@
                     </div>
                     `}
                     <div class="footer">
-                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning v5</p>
+                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning FIXED v6</p>
                         <p><em>Dette dokument er genereret automatisk fra Switzea's projektplanlægningssystem</em></p>
                     </div>
                 </body>
@@ -1569,7 +1523,6 @@
         }
         
         function setupEventListeners() {
-            // Project management
             document.getElementById('editProjectBtn').addEventListener('click', editProject);
             document.getElementById('projectForm').addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -1577,10 +1530,8 @@
             });
             document.getElementById('cancelProjectBtn').addEventListener('click', () => closeModal('projectModal'));
             
-            // Week number input
             document.getElementById('startWeekNumber').addEventListener('change', updateStartWeek);
             
-            // Undo/Redo
             document.getElementById('undoBtn').addEventListener('click', undo);
             document.getElementById('redoBtn').addEventListener('click', redo);
             document.getElementById('addWeekBtn').addEventListener('click', addWeek);
