@@ -4,7 +4,7 @@
 
 ## 🚀 Demo
 
-**Live Demo:** [Klik her for at teste appen](https://DIT-BRUGERNAVN.github.io/switzea-demo/)
+**Live Demo:** [Klik her for at teste appen](https://mjoxp.github.io/Project-planner/)
 
 ## 📋 Funktioner
 
