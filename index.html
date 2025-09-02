@@ -25,6 +25,7 @@
         
         .header h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
         .header .project-info { font-size: 0.9rem; opacity: 0.9; }
+        .header .empty-project { font-style: italic; opacity: 0.7; }
         
         .header-buttons {
             display: flex;
@@ -79,6 +80,21 @@
         .craftsman-list {
             list-style: none;
             flex: 1;
+        }
+        
+        .empty-craftsmen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .empty-craftsmen p {
+            margin-bottom: 1rem;
+            text-align: center;
         }
         
         .craftsman-item {
@@ -152,6 +168,16 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+        }
+        
+        .empty-timeline {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            color: #666;
+            font-style: italic;
         }
         
         .grid-header {
@@ -432,16 +458,6 @@
         .toast.error { background: #f44336; }
         .toast.warning { background: #ff9800; }
         
-        /* Loading state */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-            font-size: 1.2rem;
-            color: #666;
-        }
-        
         /* Responsive */
         @media (max-width: 768px) {
             .header {
@@ -473,13 +489,13 @@
 <body>
     <header class="header">
         <div class="header-left">
-            <h1 id="projectTitle">Capellas Allé 38 Renovering</h1>
-            <div class="project-info">
-                <span id="projectAddress">Capellas Allé 38, 2770 Kastrup</span> • 
-                <span id="projectCustomer">Maria Josefina Herrera og Jose Eduardo Gran</span>
+            <h1 id="projectTitle">Nyt Projekt</h1>
+            <div class="project-info" id="projectInfo">
+                <span class="empty-project">Klik "Redigér Projekt" for at tilføje projekt information</span>
             </div>
         </div>
         <div class="header-buttons">
+            <button class="btn btn-outline" id="editProjectBtn">✏️ Redigér Projekt</button>
             <button class="btn btn-secondary" id="undoBtn">↺ Fortryd</button>
             <button class="btn btn-secondary" id="redoBtn">↻ Gendan</button>
             <button class="btn btn-primary" id="saveBtn">💾 Gem</button>
@@ -496,7 +512,10 @@
                 <button class="btn btn-primary" id="addCraftsmanBtn">+ Tilføj</button>
             </h3>
             <ul class="craftsman-list" id="craftsmanList">
-                <div class="loading">Indlæser håndværkere...</div>
+                <div class="empty-craftsmen">
+                    <p>Ingen håndværkere tilføjet endnu</p>
+                    <button class="btn btn-primary" onclick="document.getElementById('addCraftsmanBtn').click()">Tilføj første håndværker</button>
+                </div>
             </ul>
         </div>
 
@@ -508,8 +527,55 @@
             </div>
             
             <div class="timeline-grid" id="timelineGrid">
-                <div class="loading">Indlæser projekt...</div>
+                <div class="empty-timeline">
+                    <p>Tilføj håndværkere for at se tidslinjen</p>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <h3>Projekt Information</h3>
+            <form id="projectForm">
+                <div class="form-group">
+                    <label for="projectName">Projekt Navn</label>
+                    <input type="text" class="form-control" id="projectName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="customerName">Kunde Navn</label>
+                    <input type="text" class="form-control" id="customerName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="projectAddress">Adresse</label>
+                    <input type="text" class="form-control" id="projectAddress" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customerPhone">Telefon</label>
+                        <input type="tel" class="form-control" id="customerPhone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerEmail">E-mail</label>
+                        <input type="email" class="form-control" id="customerEmail">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="startDate">Start Dato</label>
+                    <input type="date" class="form-control" id="startDate">
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" id="cancelProjectBtn">Annullér</button>
+                    <button type="submit" class="btn btn-primary">Gem Projekt</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -528,10 +594,17 @@
                     <textarea class="form-control" id="taskDescription" rows="3"></textarea>
                 </div>
                 
+                <div class="form-group">
+                    <label for="taskNotes">Noter/Kommentarer</label>
+                    <textarea class="form-control" id="taskNotes" rows="3" placeholder="Tilføj noter om fremgang, problemer, materialer..."></textarea>
+                </div>
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="taskCraftsman">Håndværker</label>
-                        <select class="form-control" id="taskCraftsman" required></select>
+                        <select class="form-control" id="taskCraftsman" required>
+                            <option value="">Vælg håndværker...</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -600,32 +673,18 @@
     </div>
 
     <script>
-        // Application State - Capellas Allé Project
+        // Application State - BLANK START
         let appState = {
             project: {
-                name: "Capellas Allé 38 Renovering",
-                address: "Capellas Allé 38, 2770 Kastrup",
-                customer: "Maria Josefina Herrera og Jose Eduardo Gran",
-                startDate: "2025-09-08",
-                totalValue: "99.100 DKK",
-                phone: "+45 50 11 22 03"
+                name: "",
+                address: "",
+                customer: "",
+                phone: "",
+                email: "",
+                startDate: ""
             },
-            craftsmen: [
-                {id: "byggeleder", name: "Byggeleder", color: "#4A90E2", order: 0},
-                {id: "toemrer", name: "Tømrer", color: "#8B4513", order: 1},
-                {id: "elektriker", name: "Elektriker", color: "#FFD700", order: 2},
-                {id: "vvs", name: "VVS-montør", color: "#32CD32", order: 3}
-            ],
-            tasks: [
-                {id: "task1", title: "Nedrivning af vægge", description: "30 m² væg nedrivning", craftsman: "toemrer", startDay: 1, duration: 3, priority: "high", status: "planned", dependencies: [], isHalfDay: false},
-                {id: "task2", title: "Isolering og gipsplader", description: "200 mm mineraluld og nye gipsplader", craftsman: "toemrer", startDay: 4, duration: 4, priority: "high", status: "planned", dependencies: ["task1"], isHalfDay: false},
-                {id: "task3", title: "El-installation", description: "Alt el-arbejde til køkken", craftsman: "elektriker", startDay: 6, duration: 3, priority: "high", status: "planned", dependencies: ["task1"], isHalfDay: false},
-                {id: "task4", title: "VVS-installation", description: "Vand og afløb til køkken, ny radiator", craftsman: "vvs", startDay: 7, duration: 4, priority: "high", status: "planned", dependencies: ["task1"], isHalfDay: false},
-                {id: "task5", title: "Spartling og slibning", description: "Komplet spartling af indervægge", craftsman: "toemrer", startDay: 8, duration: 2, priority: "medium", status: "planned", dependencies: ["task2"], isHalfDay: true},
-                {id: "task6", title: "Maling", description: "Akrylmaling på alle vægge", craftsman: "toemrer", startDay: 11, duration: 3, priority: "medium", status: "planned", dependencies: ["task3", "task4", "task5"], isHalfDay: false},
-                {id: "task7", title: "Køkkeninstallation", description: "Levering og installation af køkken", craftsman: "toemrer", startDay: 14, duration: 2, priority: "high", status: "planned", dependencies: ["task6"], isHalfDay: false},
-                {id: "task8", title: "Projektovervågning", description: "Daglig koordination og kvalitetskontrol", craftsman: "byggeleder", startDay: 1, duration: 15, priority: "medium", status: "planned", dependencies: [], isHalfDay: false}
-            ],
+            craftsmen: [],
+            tasks: [],
             weeks: 3
         };
         
@@ -635,12 +694,10 @@
         let draggedElement = null;
         
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                saveState();
-                renderAll();
-                setupEventListeners();
-                showToast('Switzea Projektplanlægning indlæst - alle håndværkere i dedikeret kolonne!');
-            }, 500);
+            saveState();
+            renderAll();
+            setupEventListeners();
+            showToast('Velkommen til Switzea Projektplanlægning!');
         });
         
         function saveState() {
@@ -682,14 +739,46 @@
         }
         
         function renderAll() {
+            renderProjectInfo();
             renderCraftsmen();
             renderTimeline();
             updateWeekDisplay();
         }
         
+        function renderProjectInfo() {
+            const titleElement = document.getElementById('projectTitle');
+            const infoElement = document.getElementById('projectInfo');
+            
+            if (appState.project.name) {
+                titleElement.textContent = appState.project.name;
+                let infoText = '';
+                if (appState.project.address) infoText += appState.project.address;
+                if (appState.project.customer) infoText += (infoText ? ' • ' : '') + appState.project.customer;
+                if (appState.project.phone) infoText += (infoText ? ' • ' : '') + appState.project.phone;
+                if (appState.project.email) infoText += (infoText ? ' • ' : '') + appState.project.email;
+                
+                infoElement.innerHTML = infoText || '<span class="empty-project">Projektet mangler detaljer</span>';
+                infoElement.className = 'project-info';
+            } else {
+                titleElement.textContent = 'Nyt Projekt';
+                infoElement.innerHTML = '<span class="empty-project">Klik "Redigér Projekt" for at tilføje projekt information</span>';
+                infoElement.className = 'project-info';
+            }
+        }
+        
         function renderCraftsmen() {
             const list = document.getElementById('craftsmanList');
             list.innerHTML = '';
+            
+            if (appState.craftsmen.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-craftsmen">
+                        <p>Ingen håndværkere tilføjet endnu</p>
+                        <button class="btn btn-primary" onclick="document.getElementById('addCraftsmanBtn').click()">Tilføj første håndværker</button>
+                    </div>
+                `;
+                return;
+            }
             
             const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
             
@@ -733,6 +822,15 @@
         function renderTimeline() {
             const grid = document.getElementById('timelineGrid');
             grid.innerHTML = '';
+            
+            if (appState.craftsmen.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-timeline">
+                        <p>Tilføj håndværkere for at se tidslinjen</p>
+                    </div>
+                `;
+                return;
+            }
             
             const totalDays = appState.weeks * 5;
             const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
@@ -884,7 +982,37 @@
             });
         }
         
+        function editProject() {
+            document.getElementById('projectName').value = appState.project.name || '';
+            document.getElementById('customerName').value = appState.project.customer || '';
+            document.getElementById('projectAddress').value = appState.project.address || '';
+            document.getElementById('customerPhone').value = appState.project.phone || '';
+            document.getElementById('customerEmail').value = appState.project.email || '';
+            document.getElementById('startDate').value = appState.project.startDate || '';
+            
+            document.getElementById('projectModal').classList.add('show');
+        }
+        
+        function saveProject() {
+            appState.project.name = document.getElementById('projectName').value;
+            appState.project.customer = document.getElementById('customerName').value;
+            appState.project.address = document.getElementById('projectAddress').value;
+            appState.project.phone = document.getElementById('customerPhone').value;
+            appState.project.email = document.getElementById('customerEmail').value;
+            appState.project.startDate = document.getElementById('startDate').value;
+            
+            saveState();
+            renderProjectInfo();
+            closeModal('projectModal');
+            showToast('Projekt information gemt');
+        }
+        
         function createTask(craftsman, startDay) {
+            if (appState.craftsmen.length === 0) {
+                showToast('Tilføj først en håndværker', 'warning');
+                return;
+            }
+            
             currentEditingTask = null;
             document.getElementById('modalTitle').textContent = 'Ny opgave';
             document.getElementById('deleteTaskBtn').style.display = 'none';
@@ -904,12 +1032,14 @@
             document.getElementById('modalTitle').textContent = 'Redigér opgave';
             document.getElementById('deleteTaskBtn').style.display = 'inline-block';
             
-            document.getElementById('taskTitle').value = task.title;
-            document.getElementById('taskDescription').value = task.description;
-            document.getElementById('taskPriority').value = task.priority;
-            document.getElementById('taskStatus').value = task.status;
-            document.getElementById('taskDuration').value = task.duration;
-            document.getElementById('taskHalfDay').checked = task.isHalfDay;
+            // FIXED: Populate all fields with existing task data
+            document.getElementById('taskTitle').value = task.title || '';
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskNotes').value = task.notes || '';
+            document.getElementById('taskPriority').value = task.priority || 'medium';
+            document.getElementById('taskStatus').value = task.status || 'planned';
+            document.getElementById('taskDuration').value = task.duration || 1;
+            document.getElementById('taskHalfDay').checked = task.isHalfDay || false;
             
             populateCraftsmanDropdown();
             document.getElementById('taskCraftsman').value = task.craftsman;
@@ -919,7 +1049,7 @@
         
         function populateCraftsmanDropdown() {
             const select = document.getElementById('taskCraftsman');
-            select.innerHTML = '';
+            select.innerHTML = '<option value="">Vælg håndværker...</option>';
             appState.craftsmen.forEach(c => {
                 const option = document.createElement('option');
                 option.value = c.id;
@@ -932,6 +1062,7 @@
             const taskData = {
                 title: document.getElementById('taskTitle').value,
                 description: document.getElementById('taskDescription').value,
+                notes: document.getElementById('taskNotes').value, // NEW: Notes field
                 craftsman: document.getElementById('taskCraftsman').value,
                 priority: document.getElementById('taskPriority').value,
                 status: document.getElementById('taskStatus').value,
@@ -1059,7 +1190,7 @@
             document.getElementById('weekDisplay').textContent = `${appState.weeks} uger`;
         }
         
-        function saveProject() {
+        function saveProjectToStorage() {
             try {
                 localStorage.setItem('switzeaProject', JSON.stringify(appState));
                 showToast('Projekt gemt');
@@ -1068,7 +1199,7 @@
             }
         }
         
-        function loadProject() {
+        function loadProjectFromStorage() {
             try {
                 const saved = localStorage.getItem('switzeaProject');
                 if (saved) {
@@ -1086,11 +1217,12 @@
         
         function exportToPDF() {
             const printWindow = window.open('', '_blank');
+            const projectName = appState.project.name || 'Nyt Projekt';
             const content = `
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>${appState.project.name} - Projektplan</title>
+                    <title>${projectName} - Projektplan</title>
                     <style>
                         body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; }
                         .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #2196F3; padding-bottom: 20px; }
@@ -1114,24 +1246,27 @@
                         <h2>Projektplan & Tidsplan</h2>
                     </div>
                     <div class="project-info">
-                        <h3>${appState.project.name}</h3>
-                        <p><strong>📍 Adresse:</strong> ${appState.project.address}</p>
-                        <p><strong>👥 Kunde:</strong> ${appState.project.customer}</p>
-                        <p><strong>💰 Projektværdi:</strong> ${appState.project.totalValue}</p>
-                        <p><strong>📅 Startdato:</strong> ${appState.project.startDate}</p>
+                        <h3>${projectName}</h3>
+                        ${appState.project.address ? `<p><strong>📍 Adresse:</strong> ${appState.project.address}</p>` : ''}
+                        ${appState.project.customer ? `<p><strong>👥 Kunde:</strong> ${appState.project.customer}</p>` : ''}
+                        ${appState.project.phone ? `<p><strong>📞 Telefon:</strong> ${appState.project.phone}</p>` : ''}
+                        ${appState.project.email ? `<p><strong>📧 E-mail:</strong> ${appState.project.email}</p>` : ''}
+                        ${appState.project.startDate ? `<p><strong>📅 Startdato:</strong> ${appState.project.startDate}</p>` : ''}
                         <p><strong>⏱️ Projektperiode:</strong> ${appState.weeks} uger (${appState.weeks * 5} arbejdsdage)</p>
                     </div>
+                    ${appState.tasks.length > 0 ? `
                     <div class="timeline">
                         <h3>📋 Detaljeret Opgaveoversigt</h3>
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 30%">Opgave & Beskrivelse</th>
+                                    <th style="width: 25%">Opgave & Beskrivelse</th>
                                     <th style="width: 15%">Håndværker</th>
                                     <th style="width: 10%">Startdag</th>
                                     <th style="width: 15%">Varighed</th>
                                     <th style="width: 10%">Prioritet</th>
-                                    <th style="width: 20%">Status</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 10%">Noter</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1145,19 +1280,25 @@
                                                 <strong>${task.title}</strong>
                                                 ${task.description ? `<br><small style="color: #666;">${task.description}</small>` : ''}
                                             </td>
-                                            <td><strong>${craftsman ? craftsman.name : task.craftsman}</strong></td>
+                                            <td><strong>${craftsman ? craftsman.name : 'Ikke tildelt'}</strong></td>
                                             <td>Dag ${task.startDay}</td>
                                             <td>${task.duration} dag${task.duration !== 1 ? 'e' : ''}${task.isHalfDay ? ' <em>(halv dag)</em>' : ''}</td>
                                             <td>${priorityText}</td>
                                             <td>${statusText}</td>
+                                            <td>${task.notes || '-'}</td>
                                         </tr>
                                     `;
                                 }).join('')}
                             </tbody>
                         </table>
                     </div>
+                    ` : `
+                    <div class="timeline">
+                        <p><em>Ingen opgaver tilføjet endnu</em></p>
+                    </div>
+                    `}
                     <div class="footer">
-                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning v2</p>
+                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning v3</p>
                         <p><em>Dette dokument er genereret automatisk fra Switzea's projektplanlægningssystem</em></p>
                     </div>
                 </body>
@@ -1189,12 +1330,21 @@
         }
         
         function setupEventListeners() {
+            // Project management
+            document.getElementById('editProjectBtn').addEventListener('click', editProject);
+            document.getElementById('projectForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveProject();
+            });
+            document.getElementById('cancelProjectBtn').addEventListener('click', () => closeModal('projectModal'));
+            
+            // Undo/Redo
             document.getElementById('undoBtn').addEventListener('click', undo);
             document.getElementById('redoBtn').addEventListener('click', redo);
             document.getElementById('addWeekBtn').addEventListener('click', addWeek);
             document.getElementById('removeWeekBtn').addEventListener('click', removeWeek);
-            document.getElementById('saveBtn').addEventListener('click', saveProject);
-            document.getElementById('loadBtn').addEventListener('click', loadProject);
+            document.getElementById('saveBtn').addEventListener('click', saveProjectToStorage);
+            document.getElementById('loadBtn').addEventListener('click', loadProjectFromStorage);
             document.getElementById('pdfBtn').addEventListener('click', exportToPDF);
             
             document.getElementById('addCraftsmanBtn').addEventListener('click', () => {
@@ -1242,7 +1392,7 @@
                             break;
                         case 's':
                             e.preventDefault();
-                            saveProject();
+                            saveProjectToStorage();
                             break;
                     }
                 }
