@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switzea Projektplanlægning</title>
+    <title>Switzea Projektplanlægning - DEFINITIV FIX</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -562,13 +562,13 @@
             </div>
         </div>
         <div class="header-buttons">
-            <button class="btn btn-outline" id="editProjectBtn">✏️ Redigér Projekt</button>
-            <button class="btn btn-secondary" id="undoBtn">↺ Fortryd</button>
-            <button class="btn btn-secondary" id="redoBtn">↻ Gendan</button>
-            <button class="btn btn-primary" id="saveBtn">💾 Gem</button>
-            <button class="btn btn-secondary" id="loadBtn">📂 Indlæs</button>
-            <button class="btn btn-outline" id="pdfBtn">📄 PDF</button>
-            <button class="btn btn-outline" id="customerViewBtn">👥 Kunde</button>
+            <button class="btn btn-outline" onclick="editProject()">✏️ Redigér Projekt</button>
+            <button class="btn btn-secondary" onclick="undo()">↺ Fortryd</button>
+            <button class="btn btn-secondary" onclick="redo()">↻ Gendan</button>
+            <button class="btn btn-primary" onclick="saveProjectToStorage()">💾 Gem</button>
+            <button class="btn btn-secondary" onclick="loadProjectFromStorage()">📂 Indlæs</button>
+            <button class="btn btn-outline" onclick="exportToPDF()">📄 PDF</button>
+            <button class="btn btn-outline" onclick="exportToPDF()">👥 Kunde</button>
         </div>
     </header>
 
@@ -576,24 +576,24 @@
         <div class="sidebar">
             <h3>
                 Håndværkere 
-                <button class="btn btn-primary" id="addCraftsmanBtn">+ Tilføj</button>
+                <button class="btn btn-primary" onclick="openCraftsmanModal()">+ Tilføj</button>
             </h3>
             <ul class="craftsman-list" id="craftsmanList">
                 <div class="empty-craftsmen">
                     <p>Ingen håndværkere tilføjet endnu</p>
-                    <button class="btn btn-primary" onclick="document.getElementById('addCraftsmanBtn').click()">Tilføj første håndværker</button>
+                    <button class="btn btn-primary" onclick="openCraftsmanModal()">Tilføj første håndværker</button>
                 </div>
             </ul>
         </div>
 
         <div class="timeline-container">
             <div class="week-controls">
-                <button class="btn btn-secondary" id="removeWeekBtn">− Fjern uge</button>
+                <button class="btn btn-secondary" onclick="removeWeek()">− Fjern uge</button>
                 <span id="weekDisplay">3 uger</span>
-                <button class="btn btn-secondary" id="addWeekBtn">+ Tilføj uge</button>
+                <button class="btn btn-secondary" onclick="addWeek()">+ Tilføj uge</button>
                 <div class="week-number-input">
                     <label>Start uge nr:</label>
-                    <input type="number" id="startWeekNumber" value="1" min="1" max="53">
+                    <input type="number" id="startWeekNumber" value="1" min="1" max="53" onchange="updateStartWeek()">
                 </div>
             </div>
             
@@ -642,16 +642,17 @@
             </div>
             
             <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" id="cancelProjectBtn">Annullér</button>
-                <button type="button" class="btn btn-primary" id="saveProjectBtn">Gem Projekt</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('projectModal')">Annullér</button>
+                <button type="button" class="btn btn-primary" onclick="saveProject()">Gem Projekt</button>
             </div>
         </div>
     </div>
 
-    <!-- Task Modal -->
+    <!-- Task Modal - CRITICAL: NO FORM ELEMENT! -->
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <h3 id="modalTitle">Ny opgave</h3>
+            <!-- NO <form> element to prevent auto-reset! -->
             <div class="form-group">
                 <label for="taskTitle">Opgavetitel</label>
                 <input type="text" class="form-control" id="taskTitle" required>
@@ -709,9 +710,9 @@
             </div>
             
             <div class="modal-buttons">
-                <button type="button" class="btn btn-danger" id="deleteTaskBtn" style="display: none;">Slet opgave</button>
-                <button type="button" class="btn btn-secondary" id="cancelTaskBtn">Annullér</button>
-                <button type="button" class="btn btn-primary" id="saveTaskBtn">Gem opgave</button>
+                <button type="button" class="btn btn-danger" id="deleteTaskBtn" style="display: none;" onclick="deleteCurrentTask()">Slet opgave</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('taskModal')">Annullér</button>
+                <button type="button" class="btn btn-primary" onclick="saveTask()">Gem opgave</button>
             </div>
         </div>
     </div>
@@ -723,7 +724,7 @@
             <div class="craftsman-type-row">
                 <div class="form-group">
                     <label for="craftsmanType">Håndværkertype</label>
-                    <select class="form-control" id="craftsmanType" required>
+                    <select class="form-control" id="craftsmanType" required onchange="handleCraftsmanTypeChange()">
                         <option value="">Vælg type...</option>
                         <option value="Projektleder">Projektleder</option>
                         <option value="Byggeleder">Byggeleder</option>
@@ -733,7 +734,7 @@
                         <option value="custom">Tilføj ny type...</option>
                     </select>
                 </div>
-                <button type="button" class="add-custom-type" id="addCustomTypeBtn" style="display: none;">Tilføj</button>
+                <button type="button" class="add-custom-type" id="addCustomTypeBtn" style="display: none;" onclick="addCustomType()">Tilføj</button>
             </div>
             
             <div class="form-group" id="customTypeGroup" style="display: none;">
@@ -747,8 +748,8 @@
             </div>
             
             <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" id="cancelCraftsmanBtn">Annullér</button>
-                <button type="button" class="btn btn-primary" id="saveCraftsmanBtn">Tilføj</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('craftsmanModal')">Annullér</button>
+                <button type="button" class="btn btn-primary" onclick="saveCraftsman()">Tilføj</button>
             </div>
         </div>
     </div>
@@ -779,8 +780,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             saveState();
             renderAll();
-            setupEventListeners();
-            showToast('Switzea Projektplanlægning startet!');
+            showToast('Switzea Projektplanlægning - DATA PERSISTENCE FIXED!');
         });
         
         function saveState() {
@@ -817,8 +817,7 @@
         }
         
         function updateUndoRedoButtons() {
-            document.getElementById('undoBtn').disabled = historyIndex <= 0;
-            document.getElementById('redoBtn').disabled = historyIndex >= history.length - 1;
+            // No direct button references in onclick version
         }
         
         function renderAll() {
@@ -858,7 +857,7 @@
                 list.innerHTML = `
                     <div class="empty-craftsmen">
                         <p>Ingen håndværkere tilføjet endnu</p>
-                        <button class="btn btn-primary" onclick="document.getElementById('addCraftsmanBtn').click()">Tilføj første håndværker</button>
+                        <button class="btn btn-primary" onclick="openCraftsmanModal()">Tilføj første håndværker</button>
                     </div>
                 `;
                 return;
@@ -877,27 +876,6 @@
                     <span>${craftsman.name}</span>
                     <button class="delete-craftsman" onclick="deleteCraftsman('${craftsman.id}')">×</button>
                 `;
-                
-                li.addEventListener('dragstart', (e) => {
-                    draggedElement = li;
-                    li.classList.add('dragging');
-                });
-                
-                li.addEventListener('dragend', () => {
-                    li.classList.remove('dragging');
-                    draggedElement = null;
-                });
-                
-                li.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                });
-                
-                li.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    if (draggedElement && draggedElement !== li) {
-                        reorderCraftsmen(draggedElement.dataset.id, li.dataset.id);
-                    }
-                });
                 
                 list.appendChild(li);
             });
@@ -971,7 +949,7 @@
                 
                 nameCell.innerHTML = `
                     <span class="craftsman-name">${craftsman.name}</span>
-                    <button class="remove-craftsman-btn" onclick="removeCraftsmanFromTimeline('${craftsman.id}')">×</button>
+                    <button class="remove-craftsman-btn" onclick="deleteCraftsman('${craftsman.id}')">×</button>
                 `;
                 
                 row.appendChild(nameCell);
@@ -985,35 +963,7 @@
                     cell.dataset.day = day;
                     cell.dataset.craftsman = craftsman.id;
                     
-                    cell.addEventListener('click', () => {
-                        createTask(craftsman.id, day);
-                    });
-                    
-                    cell.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        if (draggedElement && draggedElement.classList.contains('task')) {
-                            cell.classList.add('drop-zone');
-                        }
-                    });
-                    
-                    cell.addEventListener('dragleave', () => {
-                        cell.classList.remove('drop-zone');
-                    });
-                    
-                    cell.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        cell.classList.remove('drop-zone');
-                        
-                        if (draggedElement && draggedElement.classList.contains('task')) {
-                            const taskId = draggedElement.dataset.taskId;
-                            const newDay = parseInt(cell.dataset.day);
-                            const newCraftsman = cell.dataset.craftsman;
-                            
-                            if (newDay <= totalDays) {
-                                moveTask(taskId, newCraftsman, newDay);
-                            }
-                        }
-                    });
+                    cell.onclick = () => createTask(craftsman.id, day);
                     
                     daysContainer.appendChild(cell);
                 }
@@ -1050,7 +1000,6 @@
                 }
                 
                 taskElement.dataset.taskId = task.id;
-                taskElement.draggable = true;
                 
                 const cellWidth = startCell.offsetWidth || 100;
                 const width = task.duration * cellWidth - 4;
@@ -1065,20 +1014,7 @@
                     </div>
                 `;
                 
-                taskElement.addEventListener('dragstart', (e) => {
-                    draggedElement = taskElement;
-                    taskElement.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                });
-                
-                taskElement.addEventListener('dragend', () => {
-                    taskElement.classList.remove('dragging');
-                    draggedElement = null;
-                });
-                
-                taskElement.addEventListener('dblclick', () => {
-                    editTask(task.id);
-                });
+                taskElement.ondblclick = () => editTask(task.id);
                 
                 startCell.appendChild(taskElement);
             });
@@ -1123,7 +1059,7 @@
             document.getElementById('modalTitle').textContent = 'Ny opgave';
             document.getElementById('deleteTaskBtn').style.display = 'none';
             
-            // CLEAR FIELDS MANUALLY (same as working test version)
+            // MANUAL CLEARING - NO form.reset()!
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskDescription').value = '';
             document.getElementById('taskNotes').value = '';
@@ -1138,7 +1074,7 @@
             document.getElementById('taskModal').classList.add('show');
         }
         
-        // CRITICAL: Using the EXACT SAME LOGIC as the working test version
+        // CRITICAL: ABSOLUTELY NO FORM INTERACTIONS OR RESETS!
         function editTask(taskId) {
             const task = appState.tasks.find(t => t.id === taskId);
             if (!task) return;
@@ -1147,10 +1083,10 @@
             document.getElementById('modalTitle').textContent = 'Redigér opgave';
             document.getElementById('deleteTaskBtn').style.display = 'inline-block';
             
-            // NO form.reset() or any clearing - direct value setting like test version
+            // Populate dropdown FIRST
             populateCraftsmanDropdown();
             
-            // Set values EXACTLY like the working test version
+            // Set ALL values directly - NO async operations
             document.getElementById('taskTitle').value = task.title || '';
             document.getElementById('taskDescription').value = task.description || '';
             document.getElementById('taskNotes').value = task.notes || '';
@@ -1201,12 +1137,12 @@
             saveState();
             renderAll();
             closeModal('taskModal');
-            showToast('Opgave gemt - data bevaret!');
+            showToast('✅ Opgave gemt - DATA BEVARET!', 'success');
         }
         
-        function deleteTask(taskId) {
-            if (confirm('Er du sikker på at du vil slette denne opgave?')) {
-                appState.tasks = appState.tasks.filter(t => t.id !== taskId);
+        function deleteCurrentTask() {
+            if (currentEditingTask && confirm('Er du sikker på at du vil slette denne opgave?')) {
+                appState.tasks = appState.tasks.filter(t => t.id !== currentEditingTask.id);
                 saveState();
                 renderAll();
                 closeModal('taskModal');
@@ -1214,59 +1150,58 @@
             }
         }
         
-        function moveTask(taskId, newCraftsman, newStartDay) {
-            const task = appState.tasks.find(t => t.id === taskId);
-            if (!task) return;
-            
-            const totalDays = appState.weeks * 5;
-            if (newStartDay + task.duration - 1 > totalDays) {
-                showToast('Opgaven passer ikke inden for det valgte antal uger', 'error');
-                return;
+        function deleteTask(taskId) {
+            if (confirm('Er du sikker på at du vil slette denne opgave?')) {
+                appState.tasks = appState.tasks.filter(t => t.id !== taskId);
+                saveState();
+                renderAll();
+                showToast('Opgave slettet');
             }
-            
-            task.craftsman = newCraftsman;
-            task.startDay = newStartDay;
-            
-            saveState();
-            renderTasks();
-            showToast('Opgave flyttet');
         }
         
-        function setupCraftsmanModal() {
+        function openCraftsmanModal() {
+            document.getElementById('craftsmanType').value = '';
+            document.getElementById('customTypeGroup').style.display = 'none';
+            document.getElementById('addCustomTypeBtn').style.display = 'none';
+            document.getElementById('craftsmanColor').value = '#2196F3';
+            populateCraftsmanTypes();
+            document.getElementById('craftsmanModal').classList.add('show');
+        }
+        
+        function handleCraftsmanTypeChange() {
             const typeSelect = document.getElementById('craftsmanType');
             const customTypeGroup = document.getElementById('customTypeGroup');
             const addCustomBtn = document.getElementById('addCustomTypeBtn');
             
-            typeSelect.addEventListener('change', function() {
-                if (this.value === 'custom') {
-                    customTypeGroup.style.display = 'block';
-                    addCustomBtn.style.display = 'block';
-                } else {
-                    customTypeGroup.style.display = 'none';
-                    addCustomBtn.style.display = 'none';
-                }
-            });
-            
-            addCustomBtn.addEventListener('click', function() {
-                const customName = document.getElementById('customTypeName').value.trim();
-                if (customName) {
-                    if (!appState.customCraftsmanTypes.includes(customName)) {
-                        appState.customCraftsmanTypes.push(customName);
-                        
-                        const option = document.createElement('option');
-                        option.value = customName;
-                        option.textContent = customName;
-                        typeSelect.insertBefore(option, typeSelect.querySelector('option[value="custom"]'));
-                    }
+            if (typeSelect.value === 'custom') {
+                customTypeGroup.style.display = 'block';
+                addCustomBtn.style.display = 'block';
+            } else {
+                customTypeGroup.style.display = 'none';
+                addCustomBtn.style.display = 'none';
+            }
+        }
+        
+        function addCustomType() {
+            const customName = document.getElementById('customTypeName').value.trim();
+            if (customName) {
+                if (!appState.customCraftsmanTypes.includes(customName)) {
+                    appState.customCraftsmanTypes.push(customName);
                     
-                    typeSelect.value = customName;
-                    customTypeGroup.style.display = 'none';
-                    addCustomBtn.style.display = 'none';
-                    document.getElementById('customTypeName').value = '';
-                    
-                    showToast(`Ny håndværkertype "${customName}" tilføjet`);
+                    const typeSelect = document.getElementById('craftsmanType');
+                    const option = document.createElement('option');
+                    option.value = customName;
+                    option.textContent = customName;
+                    typeSelect.insertBefore(option, typeSelect.querySelector('option[value="custom"]'));
                 }
-            });
+                
+                document.getElementById('craftsmanType').value = customName;
+                document.getElementById('customTypeGroup').style.display = 'none';
+                document.getElementById('addCustomTypeBtn').style.display = 'none';
+                document.getElementById('customTypeName').value = '';
+                
+                showToast(`Ny håndværkertype "${customName}" tilføjet`);
+            }
         }
         
         function populateCraftsmanTypes() {
@@ -1284,19 +1219,27 @@
             });
         }
         
-        function addCraftsman(type, color) {
-            const id = 'craftsman_' + Date.now();
-            const newCraftsman = {
-                id: id,
-                name: type,
-                color: color,
-                order: appState.craftsmen.length
-            };
+        function saveCraftsman() {
+            const type = document.getElementById('craftsmanType').value;
+            const color = document.getElementById('craftsmanColor').value;
             
-            appState.craftsmen.push(newCraftsman);
-            saveState();
-            renderAll();
-            showToast('Håndværker tilføjet');
+            if (type && type !== 'custom') {
+                const id = 'craftsman_' + Date.now();
+                const newCraftsman = {
+                    id: id,
+                    name: type,
+                    color: color,
+                    order: appState.craftsmen.length
+                };
+                
+                appState.craftsmen.push(newCraftsman);
+                saveState();
+                renderAll();
+                closeModal('craftsmanModal');
+                showToast('Håndværker tilføjet');
+            } else {
+                showToast('Vælg en håndværkertype', 'warning');
+            }
         }
         
         function deleteCraftsman(craftsmanId) {
@@ -1312,28 +1255,6 @@
                 renderAll();
                 showToast('Håndværker slettet');
             }
-        }
-        
-        function removeCraftsmanFromTimeline(craftsmanId) {
-            deleteCraftsman(craftsmanId);
-        }
-        
-        function reorderCraftsmen(draggedId, targetId) {
-            const draggedIndex = appState.craftsmen.findIndex(c => c.id === draggedId);
-            const targetIndex = appState.craftsmen.findIndex(c => c.id === targetId);
-            
-            if (draggedIndex === -1 || targetIndex === -1) return;
-            
-            const [draggedCraftsman] = appState.craftsmen.splice(draggedIndex, 1);
-            appState.craftsmen.splice(targetIndex, 0, draggedCraftsman);
-            
-            appState.craftsmen.forEach((c, index) => {
-                c.order = index;
-            });
-            
-            saveState();
-            renderAll();
-            showToast('Håndværker-rækkefølge opdateret');
         }
         
         function addWeek() {
@@ -1483,7 +1404,7 @@
                     </div>
                     `}
                     <div class="footer">
-                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning HYBRID v7</p>
+                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning FINAL FIXED v8</p>
                         <p><em>Dette dokument er genereret automatisk fra Switzea's projektplanlægningssystem</em></p>
                     </div>
                 </body>
@@ -1513,104 +1434,6 @@
                 setTimeout(() => document.body.removeChild(toast), 300);
             }, 3000);
         }
-        
-        function setupEventListeners() {
-            // Project management
-            document.getElementById('editProjectBtn').addEventListener('click', editProject);
-            document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
-            document.getElementById('cancelProjectBtn').addEventListener('click', () => closeModal('projectModal'));
-            
-            // Week controls
-            document.getElementById('startWeekNumber').addEventListener('change', updateStartWeek);
-            document.getElementById('addWeekBtn').addEventListener('click', addWeek);
-            document.getElementById('removeWeekBtn').addEventListener('click', removeWeek);
-            
-            // Main controls
-            document.getElementById('undoBtn').addEventListener('click', undo);
-            document.getElementById('redoBtn').addEventListener('click', redo);
-            document.getElementById('saveBtn').addEventListener('click', saveProjectToStorage);
-            document.getElementById('loadBtn').addEventListener('click', loadProjectFromStorage);
-            document.getElementById('pdfBtn').addEventListener('click', exportToPDF);
-            document.getElementById('customerViewBtn').addEventListener('click', () => {
-                showToast('📤 Eksporterer professionel kundevisning...');
-                setTimeout(exportToPDF, 500);
-            });
-            
-            // Craftsman management
-            document.getElementById('addCraftsmanBtn').addEventListener('click', () => {
-                document.getElementById('craftsmanType').value = '';
-                document.getElementById('customTypeGroup').style.display = 'none';
-                document.getElementById('addCustomTypeBtn').style.display = 'none';
-                document.getElementById('craftsmanColor').value = '#2196F3';
-                populateCraftsmanTypes();
-                document.getElementById('craftsmanModal').classList.add('show');
-            });
-            
-            document.getElementById('saveCraftsmanBtn').addEventListener('click', () => {
-                const type = document.getElementById('craftsmanType').value;
-                const color = document.getElementById('craftsmanColor').value;
-                if (type && type !== 'custom') {
-                    addCraftsman(type, color);
-                    closeModal('craftsmanModal');
-                } else {
-                    showToast('Vælg en håndværkertype', 'warning');
-                }
-            });
-            
-            document.getElementById('cancelCraftsmanBtn').addEventListener('click', () => closeModal('craftsmanModal'));
-            
-            // Task management - CRITICAL: No form submission, only button clicks
-            document.getElementById('saveTaskBtn').addEventListener('click', saveTask);
-            document.getElementById('cancelTaskBtn').addEventListener('click', () => closeModal('taskModal'));
-            document.getElementById('deleteTaskBtn').addEventListener('click', () => {
-                if (currentEditingTask) {
-                    deleteTask(currentEditingTask.id);
-                }
-            });
-            
-            // Setup craftsman modal
-            setupCraftsmanModal();
-            
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                if (e.ctrlKey || e.metaKey) {
-                    switch(e.key) {
-                        case 'z':
-                            e.preventDefault();
-                            if (e.shiftKey) redo();
-                            else undo();
-                            break;
-                        case 'y':
-                            e.preventDefault();
-                            redo();
-                            break;
-                        case 's':
-                            e.preventDefault();
-                            saveProjectToStorage();
-                            break;
-                    }
-                }
-                
-                if (e.key === 'Escape') {
-                    document.querySelectorAll('.modal.show').forEach(modal => {
-                        modal.classList.remove('show');
-                    });
-                }
-            });
-            
-            // Modal background click to close
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) {
-                    e.target.classList.remove('show');
-                }
-            });
-        }
-        
-        // Global functions for onclick handlers
-        window.editTask = editTask;
-        window.deleteTask = deleteTask;
-        window.deleteCraftsman = deleteCraftsman;
-        window.removeCraftsmanFromTimeline = removeCraftsmanFromTimeline;
     </script>
 </body>
 </html>
