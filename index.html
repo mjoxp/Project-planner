@@ -159,6 +159,21 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
+        .week-number-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+        
+        .week-number-input input {
+            width: 80px;
+            padding: 0.25rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
         /* Timeline Grid - CLEAN SEPARATION */
         .timeline-grid {
             background: white;
@@ -210,16 +225,41 @@
             display: flex;
         }
         
+        .week-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #dee2e6;
+        }
+        
+        .week-section:last-child {
+            border-right: none;
+        }
+        
+        .week-header {
+            padding: 0.5rem;
+            background: linear-gradient(145deg, #d6d8db, #c6c8ca);
+            border-bottom: 1px solid #dee2e6;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .days-row {
+            display: flex;
+            flex: 1;
+        }
+        
         .day-header {
             flex: 1;
-            padding: 0.75rem 0.5rem;
+            padding: 0.75rem 0.25rem;
             border-right: 1px solid #dee2e6;
             text-align: center;
-            min-height: 70px;
+            min-height: 50px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             background: linear-gradient(145deg, #f8f9fa, #e9ecef);
         }
         
@@ -438,6 +478,28 @@
             justify-content: flex-end;
         }
         
+        .craftsman-type-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: end;
+        }
+        
+        .craftsman-type-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .add-custom-type {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            height: fit-content;
+        }
+        
         /* Toast notifications */
         .toast {
             position: fixed;
@@ -524,6 +586,10 @@
                 <button class="btn btn-secondary" id="removeWeekBtn">− Fjern uge</button>
                 <span id="weekDisplay">3 uger</span>
                 <button class="btn btn-secondary" id="addWeekBtn">+ Tilføj uge</button>
+                <div class="week-number-input">
+                    <label>Start uge nr:</label>
+                    <input type="number" id="startWeekNumber" value="1" min="1" max="53">
+                </div>
             </div>
             
             <div class="timeline-grid" id="timelineGrid">
@@ -654,9 +720,25 @@
         <div class="modal-content">
             <h3>Tilføj håndværker</h3>
             <form id="craftsmanForm">
-                <div class="form-group">
-                    <label for="craftsmanName">Navn</label>
-                    <input type="text" class="form-control" id="craftsmanName" required>
+                <div class="craftsman-type-row">
+                    <div class="form-group">
+                        <label for="craftsmanType">Håndværkertype</label>
+                        <select class="form-control" id="craftsmanType" required>
+                            <option value="">Vælg type...</option>
+                            <option value="Projektleder">Projektleder</option>
+                            <option value="Byggeleder">Byggeleder</option>
+                            <option value="Elektriker">Elektriker</option>
+                            <option value="VVS-montør">VVS-montør</option>
+                            <option value="Maler">Maler</option>
+                            <option value="custom">Tilføj ny type...</option>
+                        </select>
+                    </div>
+                    <button type="button" class="add-custom-type" id="addCustomTypeBtn" style="display: none;">Tilføj</button>
+                </div>
+                
+                <div class="form-group" id="customTypeGroup" style="display: none;">
+                    <label for="customTypeName">Ny håndværkertype</label>
+                    <input type="text" class="form-control" id="customTypeName" placeholder="Indtast ny type...">
                 </div>
                 
                 <div class="form-group">
@@ -685,7 +767,9 @@
             },
             craftsmen: [],
             tasks: [],
-            weeks: 3
+            weeks: 3,
+            startWeekNumber: 1,
+            customCraftsmanTypes: [] // Store custom craftsman types
         };
         
         let history = [];
@@ -743,6 +827,7 @@
             renderCraftsmen();
             renderTimeline();
             updateWeekDisplay();
+            updateStartWeekNumber();
         }
         
         function renderProjectInfo() {
@@ -835,7 +920,7 @@
             const totalDays = appState.weeks * 5;
             const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
             
-            // Create header
+            // Create header with improved week display
             const header = document.createElement('div');
             header.className = 'grid-header';
             
@@ -847,14 +932,29 @@
             const daysHeader = document.createElement('div');
             daysHeader.className = 'header-days';
             
-            for (let week = 1; week <= appState.weeks; week++) {
-                const days = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag'];
+            // Create week sections with proper week numbers
+            for (let week = 0; week < appState.weeks; week++) {
+                const weekSection = document.createElement('div');
+                weekSection.className = 'week-section';
+                
+                const weekHeader = document.createElement('div');
+                weekHeader.className = 'week-header';
+                weekHeader.textContent = `Uge ${appState.startWeekNumber + week}`;
+                weekSection.appendChild(weekHeader);
+                
+                const daysRow = document.createElement('div');
+                daysRow.className = 'days-row';
+                
+                const days = ['Man', 'Tir', 'Ons', 'Tor', 'Fre'];
                 days.forEach(day => {
                     const dayHeader = document.createElement('div');
                     dayHeader.className = 'day-header';
-                    dayHeader.innerHTML = `<div><strong>Uge ${week}</strong></div><div>${day}</div>`;
-                    daysHeader.appendChild(dayHeader);
+                    dayHeader.textContent = day;
+                    daysRow.appendChild(dayHeader);
                 });
+                
+                weekSection.appendChild(daysRow);
+                daysHeader.appendChild(weekSection);
             }
             
             header.appendChild(daysHeader);
@@ -982,6 +1082,10 @@
             });
         }
         
+        function updateStartWeekNumber() {
+            document.getElementById('startWeekNumber').value = appState.startWeekNumber;
+        }
+        
         function editProject() {
             document.getElementById('projectName').value = appState.project.name || '';
             document.getElementById('customerName').value = appState.project.customer || '';
@@ -1024,6 +1128,7 @@
             document.getElementById('taskModal').classList.add('show');
         }
         
+        // FIXED: Task editing now properly retains all data
         function editTask(taskId) {
             const task = appState.tasks.find(t => t.id === taskId);
             if (!task) return;
@@ -1032,7 +1137,7 @@
             document.getElementById('modalTitle').textContent = 'Redigér opgave';
             document.getElementById('deleteTaskBtn').style.display = 'inline-block';
             
-            // FIXED: Populate all fields with existing task data
+            // Populate ALL fields with current task data
             document.getElementById('taskTitle').value = task.title || '';
             document.getElementById('taskDescription').value = task.description || '';
             document.getElementById('taskNotes').value = task.notes || '';
@@ -1042,7 +1147,7 @@
             document.getElementById('taskHalfDay').checked = task.isHalfDay || false;
             
             populateCraftsmanDropdown();
-            document.getElementById('taskCraftsman').value = task.craftsman;
+            document.getElementById('taskCraftsman').value = task.craftsman || '';
             
             document.getElementById('taskModal').classList.add('show');
         }
@@ -1062,7 +1167,7 @@
             const taskData = {
                 title: document.getElementById('taskTitle').value,
                 description: document.getElementById('taskDescription').value,
-                notes: document.getElementById('taskNotes').value, // NEW: Notes field
+                notes: document.getElementById('taskNotes').value,
                 craftsman: document.getElementById('taskCraftsman').value,
                 priority: document.getElementById('taskPriority').value,
                 status: document.getElementById('taskStatus').value,
@@ -1071,6 +1176,7 @@
             };
             
             if (currentEditingTask) {
+                // Update existing task - preserve all existing data
                 Object.assign(currentEditingTask, taskData);
             } else {
                 const newTask = {
@@ -1116,11 +1222,69 @@
             showToast('Opgave flyttet');
         }
         
-        function addCraftsman(name, color) {
+        // Updated craftsman management with predefined types
+        function setupCraftsmanModal() {
+            const typeSelect = document.getElementById('craftsmanType');
+            const customTypeGroup = document.getElementById('customTypeGroup');
+            const addCustomBtn = document.getElementById('addCustomTypeBtn');
+            
+            typeSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customTypeGroup.style.display = 'block';
+                    addCustomBtn.style.display = 'block';
+                } else {
+                    customTypeGroup.style.display = 'none';
+                    addCustomBtn.style.display = 'none';
+                }
+            });
+            
+            addCustomBtn.addEventListener('click', function() {
+                const customName = document.getElementById('customTypeName').value.trim();
+                if (customName) {
+                    // Add to custom types
+                    if (!appState.customCraftsmanTypes.includes(customName)) {
+                        appState.customCraftsmanTypes.push(customName);
+                        
+                        // Add to dropdown
+                        const option = document.createElement('option');
+                        option.value = customName;
+                        option.textContent = customName;
+                        typeSelect.insertBefore(option, typeSelect.querySelector('option[value="custom"]'));
+                    }
+                    
+                    // Select the new type
+                    typeSelect.value = customName;
+                    customTypeGroup.style.display = 'none';
+                    addCustomBtn.style.display = 'none';
+                    document.getElementById('customTypeName').value = '';
+                    
+                    showToast(`Ny håndværkertype "${customName}" tilføjet`);
+                }
+            });
+        }
+        
+        function populateCraftsmanTypes() {
+            const typeSelect = document.getElementById('craftsmanType');
+            
+            // Clear existing custom options
+            const customOptions = typeSelect.querySelectorAll('option:not([value=""]):not([value="Projektleder"]):not([value="Byggeleder"]):not([value="Elektriker"]):not([value="VVS-montør"]):not([value="Maler"]):not([value="custom"])');
+            customOptions.forEach(option => option.remove());
+            
+            // Add custom types
+            const customOption = typeSelect.querySelector('option[value="custom"]');
+            appState.customCraftsmanTypes.forEach(customType => {
+                const option = document.createElement('option');
+                option.value = customType;
+                option.textContent = customType;
+                typeSelect.insertBefore(option, customOption);
+            });
+        }
+        
+        function addCraftsman(type, color) {
             const id = 'craftsman_' + Date.now();
             const newCraftsman = {
                 id: id,
-                name: name,
+                name: type,
                 color: color,
                 order: appState.craftsmen.length
             };
@@ -1190,6 +1354,16 @@
             document.getElementById('weekDisplay').textContent = `${appState.weeks} uger`;
         }
         
+        function updateStartWeek() {
+            const newStartWeek = parseInt(document.getElementById('startWeekNumber').value);
+            if (newStartWeek >= 1 && newStartWeek <= 53) {
+                appState.startWeekNumber = newStartWeek;
+                saveState();
+                renderTimeline();
+                showToast(`Start uge ændret til uge ${newStartWeek}`);
+            }
+        }
+        
         function saveProjectToStorage() {
             try {
                 localStorage.setItem('switzeaProject', JSON.stringify(appState));
@@ -1204,6 +1378,10 @@
                 const saved = localStorage.getItem('switzeaProject');
                 if (saved) {
                     appState = JSON.parse(saved);
+                    // Ensure backward compatibility
+                    if (!appState.startWeekNumber) appState.startWeekNumber = 1;
+                    if (!appState.customCraftsmanTypes) appState.customCraftsmanTypes = [];
+                    
                     saveState();
                     renderAll();
                     showToast('Projekt indlæst');
@@ -1252,7 +1430,7 @@
                         ${appState.project.phone ? `<p><strong>📞 Telefon:</strong> ${appState.project.phone}</p>` : ''}
                         ${appState.project.email ? `<p><strong>📧 E-mail:</strong> ${appState.project.email}</p>` : ''}
                         ${appState.project.startDate ? `<p><strong>📅 Startdato:</strong> ${appState.project.startDate}</p>` : ''}
-                        <p><strong>⏱️ Projektperiode:</strong> ${appState.weeks} uger (${appState.weeks * 5} arbejdsdage)</p>
+                        <p><strong>⏱️ Projektperiode:</strong> ${appState.weeks} uger (uge ${appState.startWeekNumber} - uge ${appState.startWeekNumber + appState.weeks - 1})</p>
                     </div>
                     ${appState.tasks.length > 0 ? `
                     <div class="timeline">
@@ -1298,7 +1476,7 @@
                     </div>
                     `}
                     <div class="footer">
-                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning v3</p>
+                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning v4</p>
                         <p><em>Dette dokument er genereret automatisk fra Switzea's projektplanlægningssystem</em></p>
                     </div>
                 </body>
@@ -1338,6 +1516,9 @@
             });
             document.getElementById('cancelProjectBtn').addEventListener('click', () => closeModal('projectModal'));
             
+            // Week number input
+            document.getElementById('startWeekNumber').addEventListener('change', updateStartWeek);
+            
             // Undo/Redo
             document.getElementById('undoBtn').addEventListener('click', undo);
             document.getElementById('redoBtn').addEventListener('click', redo);
@@ -1349,6 +1530,7 @@
             
             document.getElementById('addCraftsmanBtn').addEventListener('click', () => {
                 document.getElementById('craftsmanForm').reset();
+                populateCraftsmanTypes();
                 document.getElementById('craftsmanModal').classList.add('show');
             });
             
@@ -1359,10 +1541,14 @@
             
             document.getElementById('craftsmanForm').addEventListener('submit', (e) => {
                 e.preventDefault();
-                const name = document.getElementById('craftsmanName').value;
+                const type = document.getElementById('craftsmanType').value;
                 const color = document.getElementById('craftsmanColor').value;
-                addCraftsman(name, color);
-                closeModal('craftsmanModal');
+                if (type && type !== 'custom') {
+                    addCraftsman(type, color);
+                    closeModal('craftsmanModal');
+                } else {
+                    showToast('Vælg en håndværkertype', 'warning');
+                }
             });
             
             document.getElementById('cancelBtn').addEventListener('click', () => closeModal('taskModal'));
@@ -1377,6 +1563,9 @@
                 showToast('📤 Eksporterer professionel kundevisning...');
                 setTimeout(exportToPDF, 500);
             });
+            
+            // Setup craftsman modal
+            setupCraftsmanModal();
             
             document.addEventListener('keydown', (e) => {
                 if (e.ctrlKey || e.metaKey) {
