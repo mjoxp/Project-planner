@@ -609,44 +609,42 @@
     <div class="modal" id="projectModal">
         <div class="modal-content">
             <h3>Projekt Information</h3>
-            <form id="projectForm">
+            <div class="form-group">
+                <label for="projectName">Projekt Navn</label>
+                <input type="text" class="form-control" id="projectName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="customerName">Kunde Navn</label>
+                <input type="text" class="form-control" id="customerName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="projectAddress">Adresse</label>
+                <input type="text" class="form-control" id="projectAddress" required>
+            </div>
+            
+            <div class="form-row">
                 <div class="form-group">
-                    <label for="projectName">Projekt Navn</label>
-                    <input type="text" class="form-control" id="projectName" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="customerName">Kunde Navn</label>
-                    <input type="text" class="form-control" id="customerName" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="projectAddress">Adresse</label>
-                    <input type="text" class="form-control" id="projectAddress" required>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="customerPhone">Telefon</label>
-                        <input type="tel" class="form-control" id="customerPhone">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="customerEmail">E-mail</label>
-                        <input type="email" class="form-control" id="customerEmail">
-                    </div>
+                    <label for="customerPhone">Telefon</label>
+                    <input type="tel" class="form-control" id="customerPhone">
                 </div>
                 
                 <div class="form-group">
-                    <label for="startDate">Start Dato</label>
-                    <input type="date" class="form-control" id="startDate">
+                    <label for="customerEmail">E-mail</label>
+                    <input type="email" class="form-control" id="customerEmail">
                 </div>
-                
-                <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" id="cancelProjectBtn">Annullér</button>
-                    <button type="submit" class="btn btn-primary">Gem Projekt</button>
-                </div>
-            </form>
+            </div>
+            
+            <div class="form-group">
+                <label for="startDate">Start Dato</label>
+                <input type="date" class="form-control" id="startDate">
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" id="cancelProjectBtn">Annullér</button>
+                <button type="button" class="btn btn-primary" id="saveProjectBtn">Gem Projekt</button>
+            </div>
         </div>
     </div>
 
@@ -654,69 +652,67 @@
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <h3 id="modalTitle">Ny opgave</h3>
-            <form id="taskForm">
+            <div class="form-group">
+                <label for="taskTitle">Opgavetitel</label>
+                <input type="text" class="form-control" id="taskTitle" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="taskDescription">Beskrivelse</label>
+                <textarea class="form-control" id="taskDescription" rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="taskNotes">Noter/Kommentarer</label>
+                <textarea class="form-control" id="taskNotes" rows="3" placeholder="Tilføj noter om fremgang, problemer, materialer..."></textarea>
+            </div>
+            
+            <div class="form-row">
                 <div class="form-group">
-                    <label for="taskTitle">Opgavetitel</label>
-                    <input type="text" class="form-control" id="taskTitle" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="taskDescription">Beskrivelse</label>
-                    <textarea class="form-control" id="taskDescription" rows="3"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="taskNotes">Noter/Kommentarer</label>
-                    <textarea class="form-control" id="taskNotes" rows="3" placeholder="Tilføj noter om fremgang, problemer, materialer..."></textarea>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="taskCraftsman">Håndværker</label>
-                        <select class="form-control" id="taskCraftsman" required>
-                            <option value="">Vælg håndværker...</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskPriority">Prioritet</label>
-                        <select class="form-control" id="taskPriority">
-                            <option value="low">Lav</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="high">Høj</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="taskStatus">Status</label>
-                        <select class="form-control" id="taskStatus">
-                            <option value="planned" selected>Planlagt</option>
-                            <option value="in-progress">I gang</option>
-                            <option value="completed">Udført</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="taskDuration">Varighed (dage)</label>
-                        <input type="number" class="form-control" id="taskDuration" min="0.5" step="0.5" value="1">
-                    </div>
+                    <label for="taskCraftsman">Håndværker</label>
+                    <select class="form-control" id="taskCraftsman" required>
+                        <option value="">Vælg håndværker...</option>
+                    </select>
                 </div>
                 
                 <div class="form-group">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="taskHalfDay">
-                        <label for="taskHalfDay">Halv dag opgave</label>
-                    </div>
+                    <label for="taskPriority">Prioritet</label>
+                    <select class="form-control" id="taskPriority">
+                        <option value="low">Lav</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">Høj</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="taskStatus">Status</label>
+                    <select class="form-control" id="taskStatus">
+                        <option value="planned" selected>Planlagt</option>
+                        <option value="in-progress">I gang</option>
+                        <option value="completed">Udført</option>
+                    </select>
                 </div>
                 
-                <div class="modal-buttons">
-                    <button type="button" class="btn btn-danger" id="deleteTaskBtn" style="display: none;">Slet opgave</button>
-                    <button type="button" class="btn btn-secondary" id="cancelBtn">Annullér</button>
-                    <button type="submit" class="btn btn-primary">Gem opgave</button>
+                <div class="form-group">
+                    <label for="taskDuration">Varighed (dage)</label>
+                    <input type="number" class="form-control" id="taskDuration" min="0.5" step="0.5" value="1">
                 </div>
-            </form>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="taskHalfDay">
+                    <label for="taskHalfDay">Halv dag opgave</label>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-danger" id="deleteTaskBtn" style="display: none;">Slet opgave</button>
+                <button type="button" class="btn btn-secondary" id="cancelTaskBtn">Annullér</button>
+                <button type="button" class="btn btn-primary" id="saveTaskBtn">Gem opgave</button>
+            </div>
         </div>
     </div>
 
@@ -724,38 +720,36 @@
     <div class="modal" id="craftsmanModal">
         <div class="modal-content">
             <h3>Tilføj håndværker</h3>
-            <form id="craftsmanForm">
-                <div class="craftsman-type-row">
-                    <div class="form-group">
-                        <label for="craftsmanType">Håndværkertype</label>
-                        <select class="form-control" id="craftsmanType" required>
-                            <option value="">Vælg type...</option>
-                            <option value="Projektleder">Projektleder</option>
-                            <option value="Byggeleder">Byggeleder</option>
-                            <option value="Elektriker">Elektriker</option>
-                            <option value="VVS-montør">VVS-montør</option>
-                            <option value="Maler">Maler</option>
-                            <option value="custom">Tilføj ny type...</option>
-                        </select>
-                    </div>
-                    <button type="button" class="add-custom-type" id="addCustomTypeBtn" style="display: none;">Tilføj</button>
-                </div>
-                
-                <div class="form-group" id="customTypeGroup" style="display: none;">
-                    <label for="customTypeName">Ny håndværkertype</label>
-                    <input type="text" class="form-control" id="customTypeName" placeholder="Indtast ny type...">
-                </div>
-                
+            <div class="craftsman-type-row">
                 <div class="form-group">
-                    <label for="craftsmanColor">Farve</label>
-                    <input type="color" class="form-control" id="craftsmanColor" value="#2196F3">
+                    <label for="craftsmanType">Håndværkertype</label>
+                    <select class="form-control" id="craftsmanType" required>
+                        <option value="">Vælg type...</option>
+                        <option value="Projektleder">Projektleder</option>
+                        <option value="Byggeleder">Byggeleder</option>
+                        <option value="Elektriker">Elektriker</option>
+                        <option value="VVS-montør">VVS-montør</option>
+                        <option value="Maler">Maler</option>
+                        <option value="custom">Tilføj ny type...</option>
+                    </select>
                 </div>
-                
-                <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" id="cancelCraftsmanBtn">Annullér</button>
-                    <button type="submit" class="btn btn-primary">Tilføj</button>
-                </div>
-            </form>
+                <button type="button" class="add-custom-type" id="addCustomTypeBtn" style="display: none;">Tilføj</button>
+            </div>
+            
+            <div class="form-group" id="customTypeGroup" style="display: none;">
+                <label for="customTypeName">Ny håndværkertype</label>
+                <input type="text" class="form-control" id="customTypeName" placeholder="Indtast ny type...">
+            </div>
+            
+            <div class="form-group">
+                <label for="craftsmanColor">Farve</label>
+                <input type="color" class="form-control" id="craftsmanColor" value="#2196F3">
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" id="cancelCraftsmanBtn">Annullér</button>
+                <button type="button" class="btn btn-primary" id="saveCraftsmanBtn">Tilføj</button>
+            </div>
         </div>
     </div>
 
@@ -1129,7 +1123,7 @@
             document.getElementById('modalTitle').textContent = 'Ny opgave';
             document.getElementById('deleteTaskBtn').style.display = 'none';
             
-            // CLEAR individual fields instead of form.reset()
+            // CLEAR FIELDS MANUALLY (same as working test version)
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskDescription').value = '';
             document.getElementById('taskNotes').value = '';
@@ -1144,7 +1138,7 @@
             document.getElementById('taskModal').classList.add('show');
         }
         
-        // CRITICAL FIX: Completely rewritten editTask function
+        // CRITICAL: Using the EXACT SAME LOGIC as the working test version
         function editTask(taskId) {
             const task = appState.tasks.find(t => t.id === taskId);
             if (!task) return;
@@ -1153,12 +1147,10 @@
             document.getElementById('modalTitle').textContent = 'Redigér opgave';
             document.getElementById('deleteTaskBtn').style.display = 'inline-block';
             
-            // DO NOT CALL form.reset() - this was the problem!
-            
-            // Populate dropdown first
+            // NO form.reset() or any clearing - direct value setting like test version
             populateCraftsmanDropdown();
             
-            // Set ALL values directly without any delays or async operations
+            // Set values EXACTLY like the working test version
             document.getElementById('taskTitle').value = task.title || '';
             document.getElementById('taskDescription').value = task.description || '';
             document.getElementById('taskNotes').value = task.notes || '';
@@ -1491,7 +1483,7 @@
                     </div>
                     `}
                     <div class="footer">
-                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning FIXED v6</p>
+                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | Projektplanlægning HYBRID v7</p>
                         <p><em>Dette dokument er genereret automatisk fra Switzea's projektplanlægningssystem</em></p>
                     </div>
                 </body>
@@ -1523,36 +1515,38 @@
         }
         
         function setupEventListeners() {
+            // Project management
             document.getElementById('editProjectBtn').addEventListener('click', editProject);
-            document.getElementById('projectForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                saveProject();
-            });
+            document.getElementById('saveProjectBtn').addEventListener('click', saveProject);
             document.getElementById('cancelProjectBtn').addEventListener('click', () => closeModal('projectModal'));
             
+            // Week controls
             document.getElementById('startWeekNumber').addEventListener('change', updateStartWeek);
-            
-            document.getElementById('undoBtn').addEventListener('click', undo);
-            document.getElementById('redoBtn').addEventListener('click', redo);
             document.getElementById('addWeekBtn').addEventListener('click', addWeek);
             document.getElementById('removeWeekBtn').addEventListener('click', removeWeek);
+            
+            // Main controls
+            document.getElementById('undoBtn').addEventListener('click', undo);
+            document.getElementById('redoBtn').addEventListener('click', redo);
             document.getElementById('saveBtn').addEventListener('click', saveProjectToStorage);
             document.getElementById('loadBtn').addEventListener('click', loadProjectFromStorage);
             document.getElementById('pdfBtn').addEventListener('click', exportToPDF);
+            document.getElementById('customerViewBtn').addEventListener('click', () => {
+                showToast('📤 Eksporterer professionel kundevisning...');
+                setTimeout(exportToPDF, 500);
+            });
             
+            // Craftsman management
             document.getElementById('addCraftsmanBtn').addEventListener('click', () => {
-                document.getElementById('craftsmanForm').reset();
+                document.getElementById('craftsmanType').value = '';
+                document.getElementById('customTypeGroup').style.display = 'none';
+                document.getElementById('addCustomTypeBtn').style.display = 'none';
+                document.getElementById('craftsmanColor').value = '#2196F3';
                 populateCraftsmanTypes();
                 document.getElementById('craftsmanModal').classList.add('show');
             });
             
-            document.getElementById('taskForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                saveTask();
-            });
-            
-            document.getElementById('craftsmanForm').addEventListener('submit', (e) => {
-                e.preventDefault();
+            document.getElementById('saveCraftsmanBtn').addEventListener('click', () => {
                 const type = document.getElementById('craftsmanType').value;
                 const color = document.getElementById('craftsmanColor').value;
                 if (type && type !== 'custom') {
@@ -1563,21 +1557,21 @@
                 }
             });
             
-            document.getElementById('cancelBtn').addEventListener('click', () => closeModal('taskModal'));
             document.getElementById('cancelCraftsmanBtn').addEventListener('click', () => closeModal('craftsmanModal'));
+            
+            // Task management - CRITICAL: No form submission, only button clicks
+            document.getElementById('saveTaskBtn').addEventListener('click', saveTask);
+            document.getElementById('cancelTaskBtn').addEventListener('click', () => closeModal('taskModal'));
             document.getElementById('deleteTaskBtn').addEventListener('click', () => {
                 if (currentEditingTask) {
                     deleteTask(currentEditingTask.id);
                 }
             });
             
-            document.getElementById('customerViewBtn').addEventListener('click', () => {
-                showToast('📤 Eksporterer professionel kundevisning...');
-                setTimeout(exportToPDF, 500);
-            });
-            
+            // Setup craftsman modal
             setupCraftsmanModal();
             
+            // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 if (e.ctrlKey || e.metaKey) {
                     switch(e.key) {
@@ -1604,6 +1598,7 @@
                 }
             });
             
+            // Modal background click to close
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal')) {
                     e.target.classList.remove('show');
@@ -1611,7 +1606,7 @@
             });
         }
         
-        // Global functions
+        // Global functions for onclick handlers
         window.editTask = editTask;
         window.deleteTask = deleteTask;
         window.deleteCraftsman = deleteCraftsman;
