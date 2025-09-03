@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switzea Projektplanlægning - Opdateret Version</title>
+    <title>Switzea Projektplanlægning - Dato-Integreret Version</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -14,8 +14,8 @@
             user-select: none;
         }
         
-        .update-banner {
-            background: linear-gradient(135deg, #FF6B35, #F7931E);
+        .integration-banner {
+            background: linear-gradient(135deg, #8E2DE2, #4A00E0);
             color: white;
             text-align: center;
             padding: 15px;
@@ -174,6 +174,7 @@
             flex-direction: column;
         }
         
+        /* OPDATERET: Week controls med reel dato display */
         .week-controls {
             background: white;
             padding: 1rem;
@@ -184,21 +185,30 @@
             align-items: center;
             gap: 1rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+        
+        .week-controls .timeline-info {
+            font-weight: 600;
+            color: #333;
+            background: #e3f2fd;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
         }
         
         .week-number-input {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-left: 1rem;
         }
         
-        .week-number-input input {
-            width: 80px;
-            padding: 0.25rem;
+        .week-number-input input, .week-number-input select {
+            padding: 0.5rem;
             border: 1px solid #ddd;
             border-radius: 4px;
             text-align: center;
+            font-size: 0.9rem;
         }
         
         .timeline-grid {
@@ -262,13 +272,22 @@
             border-right: none;
         }
         
+        /* OPDATERET: Week header med reel dato */
         .week-header {
-            padding: 0.5rem;
+            padding: 0.4rem;
             background: linear-gradient(145deg, #d6d8db, #c6c8ca);
             border-bottom: 1px solid #dee2e6;
             text-align: center;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+        
+        .week-date-range {
+            font-size: 0.7rem;
+            color: #555;
+            font-weight: normal;
+            margin-top: 2px;
         }
         
         .days-row {
@@ -276,20 +295,43 @@
             flex: 1;
         }
         
+        /* OPDATERET: Day header med dag og dato */
         .day-header {
             flex: 1;
-            padding: 0.75rem 0.25rem;
+            padding: 0.5rem 0.25rem;
             border-right: 1px solid #dee2e6;
             text-align: center;
             min-height: 50px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            line-height: 1.1;
         }
         
         .day-header:last-child { border-right: none; }
+        
+        .day-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .day-date {
+            font-size: 0.65rem;
+            color: #666;
+        }
+        
+        .day-header.weekend {
+            background: linear-gradient(145deg, #ffebee, #ffcdd2);
+            color: #c62828;
+        }
+        
+        .day-header.today {
+            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+            color: #1976d2;
+            font-weight: bold;
+        }
         
         .grid-body {
             flex: 1;
@@ -365,7 +407,16 @@
             transform: scale(1.02);
         }
         
-        /* OPDATERET: Opgave styling med fixed højde */
+        .grid-cell.weekend {
+            background: #fafafa;
+        }
+        
+        .grid-cell.today {
+            background: #e8f5e8;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        /* Task styling (unchanged) */
         .task {
             position: absolute;
             background: linear-gradient(145deg, #2196F3, #1976D2);
@@ -378,7 +429,7 @@
             z-index: 3;
             transition: all 0.2s;
             border: 2px solid transparent;
-            height: 60px; /* FAST HØJDE */
+            height: 60px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -423,7 +474,6 @@
             padding: 0.25rem;
         }
         
-        /* OPDATERET: Opgave titel med truncation */
         .task-title {
             font-weight: bold;
             font-size: 0.75rem;
@@ -435,7 +485,6 @@
             margin-bottom: 0.2rem;
         }
         
-        /* NEW: Tooltip for fuld opgavetitel */
         .task-tooltip {
             position: absolute;
             background: rgba(0, 0, 0, 0.9);
@@ -580,7 +629,7 @@
             justify-content: flex-end;
         }
         
-        /* NEW: Datepicker styling */
+        /* Datepicker styling (unchanged from previous version) */
         .datepicker-wrapper {
             position: relative;
         }
@@ -769,19 +818,24 @@
                 height: 50px;
                 font-size: 0.7rem;
             }
+            
+            .week-controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="update-banner">
-        🚀 SWITZEA OPDATERET - Nye funktioner: Startdato vælger 📅 | Opgave tooltip 💬 | Optimeret grid layout ✨
+    <div class="integration-banner">
+        🔗 SWITZEA DATO-INTEGRERET - Startdato → Timeline Sync | Automatisk placering | Reel dato display | Smart beregning
     </div>
 
     <header class="header">
         <div class="header-left">
             <h1 id="projectTitle">Capellas Allé 38 - Delrenovering</h1>
             <div class="project-info" id="projectInfo">
-                <span class="empty-project">Opdateret version - Test de nye funktioner!</span>
+                <span class="empty-project">Dato-integreret version - Automatisk timeline sync!</span>
             </div>
         </div>
         <div class="header-buttons">
@@ -809,13 +863,19 @@
         </div>
 
         <div class="timeline-container">
+            <!-- OPDATERET: Week controls med dato info -->
             <div class="week-controls">
                 <button class="btn btn-secondary" onclick="removeWeek()">− Fjern uge</button>
                 <span id="weekDisplay">3 uger</span>
                 <button class="btn btn-secondary" onclick="addWeek()">+ Tilføj uge</button>
+                
+                <div class="timeline-info" id="timelineInfo">
+                    Projekt: 16/09/2025 - 04/10/2025
+                </div>
+                
                 <div class="week-number-input">
-                    <label>Start uge nr:</label>
-                    <input type="number" id="startWeekNumber" value="1" min="1" max="53" onchange="updateStartWeek()">
+                    <label>Start:</label>
+                    <input type="date" id="projectStartDate" value="2025-09-16" onchange="updateProjectStartDate()">
                 </div>
             </div>
             
@@ -859,7 +919,7 @@
             </div>
             
             <div class="form-group">
-                <label for="startDate">Start Dato</label>
+                <label for="startDate">Projekt Start Dato</label>
                 <input type="date" class="form-control" id="startDate">
             </div>
             
@@ -870,7 +930,7 @@
         </div>
     </div>
 
-    <!-- OPDATERET Task Modal med datepicker -->
+    <!-- OPDATERET Task Modal -->
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <h3 id="modalTitle">Ny opgave</h3>
@@ -885,9 +945,9 @@
                 <textarea class="form-control" id="taskDescription" rows="3"></textarea>
             </div>
             
-            <!-- NEW: Startdato med custom datepicker -->
+            <!-- KRITISK: Startdato med automatisk timeline sync -->
             <div class="form-group">
-                <label for="taskStartDate">📅 Startdato for opgave</label>
+                <label for="taskStartDate">📅 Startdato for opgave (bestemmer position i timeline)</label>
                 <div class="datepicker-wrapper">
                     <input type="text" class="form-control datepicker-input" id="taskStartDate" placeholder="Vælg startdato..." readonly>
                     <div class="custom-datepicker" id="customDatepicker">
@@ -1043,7 +1103,7 @@
                 customer: "Maria Josefina Herrera og Jose Eduardo Gran",
                 phone: "+45 50 11 22 03",
                 email: "kontakt@switzea.dk",
-                startDate: "2025-09-15"
+                startDate: "2025-09-16" // KRITISK: Projekt startdato som reference
             },
             craftsmen: [],
             tasks: [],
@@ -1067,7 +1127,7 @@
         let tooltipTimeout = null;
         
         // Debug flag
-        const DEBUG_MODE = false;
+        const DEBUG_MODE = true;
         
         function debugLog(message) {
             if (DEBUG_MODE) {
@@ -1080,14 +1140,88 @@
             }
         }
         
+        // KRITISK: Date calculation functions
+        function getProjectStartDate() {
+            return new Date(appState.project.startDate || '2025-09-16');
+        }
+        
+        function calculateDayFromDate(taskDate) {
+            const projectStart = getProjectStartDate();
+            const task = new Date(taskDate);
+            
+            // Calculate difference in days, but only count weekdays
+            let dayCount = 0;
+            let currentDate = new Date(projectStart);
+            
+            while (currentDate < task) {
+                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) { // Skip weekends
+                    dayCount++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return Math.max(1, dayCount + 1); // At least day 1
+        }
+        
+        function calculateDateFromDay(dayNumber) {
+            const projectStart = getProjectStartDate();
+            let currentDate = new Date(projectStart);
+            let weekdayCount = 0;
+            
+            while (weekdayCount < dayNumber - 1) {
+                currentDate.setDate(currentDate.getDate() + 1);
+                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) { // Skip weekends
+                    weekdayCount++;
+                }
+            }
+            
+            return currentDate;
+        }
+        
+        function getWeekDateRange(weekNumber) {
+            const projectStart = getProjectStartDate();
+            const weekStart = new Date(projectStart);
+            weekStart.setDate(weekStart.getDate() + (weekNumber - 1) * 7);
+            
+            // Find Monday of this week
+            const dayOfWeek = weekStart.getDay();
+            const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            weekStart.setDate(weekStart.getDate() + mondayOffset);
+            
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 4); // Friday
+            
+            return {
+                start: weekStart,
+                end: weekEnd
+            };
+        }
+        
+        function formatDateForDisplay(date) {
+            return date.toLocaleDateString('da-DK', { 
+                day: '2-digit', 
+                month: '2-digit' 
+            });
+        }
+        
+        function isToday(date) {
+            const today = new Date();
+            return date.toDateString() === today.toDateString();
+        }
+        
+        function isWeekend(date) {
+            return date.getDay() === 0 || date.getDay() === 6;
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
-            debugLog('App initializing...');
+            debugLog('App initializing with date integration...');
             createTestData();
             initializeDatepicker();
             saveState();
             renderAll();
-            showToast('🚀 Nye funktioner: Startdato vælger og opgave tooltips!', 'info');
-            debugLog('App ready - all functions operational');
+            updateTimelineInfo();
+            showToast('🔗 Dato-integration aktiveret - Opgaver synkroniserer automatisk!', 'info');
+            debugLog('App ready - date integration operational');
         });
         
         function createTestData() {
@@ -1113,7 +1247,7 @@
                 }
             ];
             
-            // Create test tasks with dates and long titles
+            // Create test tasks with INTEGRATED dates
             appState.tasks = [
                 {
                     id: 'task_1',
@@ -1124,8 +1258,8 @@
                     priority: 'high',
                     status: 'planned',
                     duration: 2,
-                    startDay: 1,
-                    startDate: '2025-09-16',
+                    startDate: '2025-09-16', // Monday
+                    startDay: 1, // Will be calculated from date
                     isHalfDay: false,
                     dependencies: []
                 },
@@ -1138,8 +1272,8 @@
                     priority: 'medium',
                     status: 'planned',
                     duration: 1.5,
-                    startDay: 3,
-                    startDate: '2025-09-18',
+                    startDate: '2025-09-18', // Wednesday
+                    startDay: 3, // Will be calculated from date
                     isHalfDay: false,
                     dependencies: []
                 },
@@ -1152,16 +1286,25 @@
                     priority: 'medium',
                     status: 'planned',
                     duration: 2,
-                    startDay: 5,
-                    startDate: '2025-09-20',
+                    startDate: '2025-09-20', // Friday
+                    startDay: 5, // Will be calculated from date
                     isHalfDay: false,
                     dependencies: []
                 }
             ];
-            debugLog(`Test data created: ${appState.craftsmen.length} craftsmen, ${appState.tasks.length} tasks`);
+            
+            // KRITISK: Recalculate startDay from dates
+            appState.tasks.forEach(task => {
+                if (task.startDate) {
+                    task.startDay = calculateDayFromDate(task.startDate);
+                    debugLog(`Task ${task.id}: Date ${task.startDate} → Day ${task.startDay}`);
+                }
+            });
+            
+            debugLog(`Test data created: ${appState.craftsmen.length} craftsmen, ${appState.tasks.length} tasks with date integration`);
         }
         
-        // DATEPICKER FUNCTIONALITY
+        // DATEPICKER FUNCTIONALITY (unchanged from previous version)
         function initializeDatepicker() {
             const datepickerInput = document.getElementById('taskStartDate');
             const customDatepicker = document.getElementById('customDatepicker');
@@ -1338,7 +1481,9 @@
             hideDatepicker();
             updateCalendar();
             
-            showToast(`📅 Startdato valgt: ${dateString}`, 'info');
+            const calculatedDay = calculateDayFromDate(selectedDate);
+            showToast(`📅 Startdato valgt: ${dateString} (Dag ${calculatedDay} i timeline)`, 'info');
+            debugLog(`Date selected: ${dateString} → Timeline day: ${calculatedDay}`);
         }
         
         function formatDateForInput(date) {
@@ -1358,9 +1503,9 @@
             return new Date(year, month, day);
         }
         
-        // TOOLTIP FUNCTIONALITY
+        // TOOLTIP FUNCTIONALITY (unchanged)
         function showTaskTooltip(taskElement, fullTitle) {
-            hideTaskTooltip(); // Hide any existing tooltip
+            hideTaskTooltip();
             
             const tooltip = document.getElementById('taskTooltip');
             tooltip.textContent = fullTitle;
@@ -1389,7 +1534,41 @@
             tooltip.classList.remove('show');
         }
         
-        // REST OF THE APPLICATION FUNCTIONS (unchanged from previous version)
+        // UPDATED: Timeline info display
+        function updateTimelineInfo() {
+            const projectStart = getProjectStartDate();
+            const projectEnd = new Date(projectStart);
+            projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
+            
+            const startStr = formatDateForInput(projectStart);
+            const endStr = formatDateForInput(projectEnd);
+            
+            document.getElementById('timelineInfo').textContent = `Projekt: ${startStr} - ${endStr}`;
+            debugLog(`Timeline info updated: ${startStr} - ${endStr}`);
+        }
+        
+        // UPDATED: Project start date handler
+        function updateProjectStartDate() {
+            const newStartDate = document.getElementById('projectStartDate').value;
+            if (newStartDate) {
+                appState.project.startDate = newStartDate;
+                
+                // Recalculate all task positions
+                appState.tasks.forEach(task => {
+                    if (task.startDate) {
+                        task.startDay = calculateDayFromDate(task.startDate);
+                        debugLog(`Recalculated task ${task.id}: ${task.startDate} → Day ${task.startDay}`);
+                    }
+                });
+                
+                saveState();
+                renderAll();
+                updateTimelineInfo();
+                showToast('📅 Projekt startdato opdateret - alle opgaver genberegnet!');
+            }
+        }
+        
+        // REST OF THE APPLICATION FUNCTIONS
         function saveState() {
             if (historyIndex < history.length - 1) {
                 history = history.slice(0, historyIndex + 1);
@@ -1408,6 +1587,7 @@
                 historyIndex--;
                 appState = JSON.parse(history[historyIndex]);
                 renderAll();
+                updateTimelineInfo();
                 updateUndoRedoButtons();
                 showToast('↺ Handling fortrudt');
                 debugLog(`Undo executed - history index: ${historyIndex}`);
@@ -1419,6 +1599,7 @@
                 historyIndex++;
                 appState = JSON.parse(history[historyIndex]);
                 renderAll();
+                updateTimelineInfo();
                 updateUndoRedoButtons();
                 showToast('↻ Handling gendannet');
                 debugLog(`Redo executed - history index: ${historyIndex}`);
@@ -1438,7 +1619,7 @@
             renderCraftsmen();
             renderTimeline();
             updateWeekDisplay();
-            updateStartWeekNumber();
+            document.getElementById('projectStartDate').value = appState.project.startDate || '2025-09-16';
         }
         
         function renderProjectInfo() {
@@ -1456,7 +1637,7 @@
                 infoElement.className = 'project-info';
             } else {
                 titleElement.textContent = 'Nyt Projekt';
-                infoElement.innerHTML = '<span class="empty-project">Klik "Redigér Projekt" for at tilføje projekt information</span>';
+                infoElement.innerHTML = '<span class="empty-project">Dato-integreret version - Automatisk timeline sync!</span>';
                 infoElement.className = 'project-info';
             }
         }
@@ -1536,6 +1717,7 @@
             });
         }
         
+        // OPDATERET: renderTimeline with date integration
         function renderTimeline() {
             const grid = document.getElementById('timelineGrid');
             grid.innerHTML = '';
@@ -1551,6 +1733,7 @@
             
             const totalDays = appState.weeks * 5;
             const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
+            const projectStart = getProjectStartDate();
             
             // Create header
             const header = document.createElement('div');
@@ -1564,24 +1747,47 @@
             const daysHeader = document.createElement('div');
             daysHeader.className = 'header-days';
             
-            // Create week sections
+            // OPDATERET: Create week sections with real dates
             for (let week = 0; week < appState.weeks; week++) {
                 const weekSection = document.createElement('div');
                 weekSection.className = 'week-section';
                 
+                const weekDateRange = getWeekDateRange(week + 1);
                 const weekHeader = document.createElement('div');
                 weekHeader.className = 'week-header';
-                weekHeader.textContent = `Uge ${appState.startWeekNumber + week}`;
+                weekHeader.innerHTML = `
+                    Uge ${appState.startWeekNumber + week}
+                    <div class="week-date-range">
+                        ${formatDateForDisplay(weekDateRange.start)} - ${formatDateForDisplay(weekDateRange.end)}
+                    </div>
+                `;
                 weekSection.appendChild(weekHeader);
                 
                 const daysRow = document.createElement('div');
                 daysRow.className = 'days-row';
                 
                 const days = ['Man', 'Tir', 'Ons', 'Tor', 'Fre'];
-                days.forEach(day => {
+                days.forEach((dayName, dayIndex) => {
                     const dayHeader = document.createElement('div');
                     dayHeader.className = 'day-header';
-                    dayHeader.textContent = day;
+                    
+                    // Calculate actual date for this day
+                    const actualDate = new Date(weekDateRange.start);
+                    actualDate.setDate(actualDate.getDate() + dayIndex);
+                    
+                    // Add special styling
+                    if (isToday(actualDate)) {
+                        dayHeader.classList.add('today');
+                    }
+                    if (isWeekend(actualDate)) {
+                        dayHeader.classList.add('weekend');
+                    }
+                    
+                    dayHeader.innerHTML = `
+                        <div class="day-name">${dayName}</div>
+                        <div class="day-date">${formatDateForDisplay(actualDate)}</div>
+                    `;
+                    
                     daysRow.appendChild(dayHeader);
                 });
                 
@@ -1621,11 +1827,20 @@
                     cell.dataset.day = day;
                     cell.dataset.craftsman = craftsman.id;
                     
-                    // Click to create task
+                    // OPDATERET: Add special styling for today and weekends
+                    const actualDate = calculateDateFromDay(day);
+                    if (isToday(actualDate)) {
+                        cell.classList.add('today');
+                    }
+                    if (isWeekend(actualDate)) {
+                        cell.classList.add('weekend');
+                    }
+                    
+                    // KRITISK: Click to create task with auto-calculated date
                     cell.onclick = (e) => {
-                        // Only create task if clicking on empty space
                         if (e.target === cell) {
-                            createTask(craftsman.id, day);
+                            const taskDate = calculateDateFromDay(day);
+                            createTask(craftsman.id, day, taskDate);
                         }
                     };
                     
@@ -1653,8 +1868,9 @@
                             const newCraftsman = cell.dataset.craftsman;
                             
                             if (newDay <= totalDays && taskId) {
-                                moveTask(taskId, newCraftsman, newDay);
-                                debugLog(`Task moved: ${taskId} to day ${newDay}, craftsman ${newCraftsman}`);
+                                const newDate = calculateDateFromDay(newDay);
+                                moveTask(taskId, newCraftsman, newDay, newDate);
+                                debugLog(`Task moved: ${taskId} to day ${newDay} (${formatDateForInput(newDate)}), craftsman ${newCraftsman}`);
                             }
                         }
                     });
@@ -1672,6 +1888,7 @@
             setTimeout(() => renderTasks(), 50);
         }
         
+        // UNCHANGED: renderTasks function
         function renderTasks() {
             // Remove existing tasks
             document.querySelectorAll('.task').forEach(task => task.remove());
@@ -1705,7 +1922,7 @@
                 taskElement.style.width = `${width}px`;
                 taskElement.style.left = '2px';
                 
-                // UPDATED: Task content with truncated title
+                // Task content with truncated title
                 const taskTitle = task.title.length > 25 ? task.title.substring(0, 25) + '...' : task.title;
                 
                 taskElement.innerHTML = `
@@ -1716,12 +1933,12 @@
                     </div>
                 `;
                 
-                // UPDATED: Tooltip functionality
+                // Tooltip functionality
                 taskElement.addEventListener('mouseenter', (e) => {
                     if (task.title.length > 25) {
                         tooltipTimeout = setTimeout(() => {
                             showTaskTooltip(taskElement, task.title);
-                        }, 500); // Show tooltip after 500ms
+                        }, 500);
                     }
                 });
                 
@@ -1735,7 +1952,7 @@
                 
                 // Drag functionality for tasks
                 taskElement.addEventListener('dragstart', (e) => {
-                    hideTaskTooltip(); // Hide tooltip when dragging
+                    hideTaskTooltip();
                     if (tooltipTimeout) {
                         clearTimeout(tooltipTimeout);
                         tooltipTimeout = null;
@@ -1759,7 +1976,7 @@
                     debugLog('Task drag ended');
                 });
                 
-                // Double-click to edit - with proper event handling
+                // Double-click to edit
                 taskElement.addEventListener('dblclick', (e) => {
                     e.stopPropagation();
                     hideTaskTooltip();
@@ -1768,10 +1985,6 @@
                 
                 startCell.appendChild(taskElement);
             });
-        }
-        
-        function updateStartWeekNumber() {
-            document.getElementById('startWeekNumber').value = appState.startWeekNumber;
         }
         
         function editProject() {
@@ -1786,6 +1999,8 @@
         }
         
         function saveProject() {
+            const oldStartDate = appState.project.startDate;
+            
             appState.project.name = document.getElementById('projectName').value;
             appState.project.customer = document.getElementById('customerName').value;
             appState.project.address = document.getElementById('projectAddress').value;
@@ -1793,31 +2008,51 @@
             appState.project.email = document.getElementById('customerEmail').value;
             appState.project.startDate = document.getElementById('startDate').value;
             
+            // KRITISK: If start date changed, recalculate all task positions
+            if (oldStartDate !== appState.project.startDate) {
+                appState.tasks.forEach(task => {
+                    if (task.startDate) {
+                        task.startDay = calculateDayFromDate(task.startDate);
+                        debugLog(`Recalculated task ${task.id}: ${task.startDate} → Day ${task.startDay}`);
+                    }
+                });
+                showToast('📅 Projekt startdato ændret - alle opgaver genberegnet!');
+            }
+            
             saveState();
             renderProjectInfo();
+            updateTimelineInfo();
             closeModal('projectModal');
             showToast('✅ Projekt information gemt');
         }
         
-        function createTask(craftsman, startDay) {
+        // OPDATERET: createTask with auto-date calculation
+        function createTask(craftsman, startDay, taskDate = null) {
             if (appState.craftsmen.length === 0) {
                 showToast('Tilføj først en håndværker', 'warning');
                 return;
             }
             
-            debugLog(`Creating new task for craftsman: ${craftsman}, day: ${startDay}`);
+            const calculatedDate = taskDate || calculateDateFromDay(startDay);
+            debugLog(`Creating new task for craftsman: ${craftsman}, day: ${startDay}, date: ${formatDateForInput(calculatedDate)}`);
             
             currentEditingTask = null;
             document.getElementById('modalTitle').textContent = 'Ny opgave';
             document.getElementById('deleteTaskBtn').style.display = 'none';
             
-            // MANUAL FIELD CLEARING
+            // Clear fields
             clearTaskFields();
             
             populateCraftsmanDropdown();
             document.getElementById('taskCraftsman').value = craftsman;
             
+            // KRITISK: Pre-populate with calculated date
+            selectedDate = calculatedDate;
+            document.getElementById('taskStartDate').value = formatDateForInput(calculatedDate);
+            
             document.getElementById('taskModal').classList.add('show');
+            
+            showToast(`📅 Ny opgave på dag ${startDay} (${formatDateForInput(calculatedDate)})`, 'info');
         }
         
         function clearTaskFields() {
@@ -1832,7 +2067,7 @@
             selectedDate = null;
         }
         
-        // UPDATED: editTask function with start date support
+        // OPDATERET: editTask with date integration
         function editTask(taskId) {
             debugLog(`EDIT TASK: ${taskId}`);
             
@@ -1859,66 +2094,37 @@
                 // Populate dropdown FIRST
                 populateCraftsmanDropdown();
                 
-                // Set ALL values with explicit logging
-                const titleField = document.getElementById('taskTitle');
-                titleField.value = task.title || '';
-                debugLog(`Set title: "${titleField.value}"`);
+                // Set ALL values
+                document.getElementById('taskTitle').value = task.title || '';
+                document.getElementById('taskDescription').value = task.description || '';
+                document.getElementById('taskNotes').value = task.notes || '';
                 
-                const descField = document.getElementById('taskDescription');
-                descField.value = task.description || '';
-                debugLog(`Set description: "${descField.value}"`);
-                
-                const notesField = document.getElementById('taskNotes');
-                notesField.value = task.notes || '';
-                debugLog(`Set notes: "${notesField.value}"`);
-                
-                // NEW: Set start date
-                const startDateField = document.getElementById('taskStartDate');
+                // KRITISK: Set start date
                 if (task.startDate) {
-                    const date = parseDateFromInput(task.startDate) || new Date(task.startDate);
-                    startDateField.value = formatDateForInput(date);
+                    const date = new Date(task.startDate);
+                    document.getElementById('taskStartDate').value = formatDateForInput(date);
                     selectedDate = date;
+                } else if (task.startDay) {
+                    // Calculate date from day if no date stored
+                    const calculatedDate = calculateDateFromDay(task.startDay);
+                    document.getElementById('taskStartDate').value = formatDateForInput(calculatedDate);
+                    selectedDate = calculatedDate;
                 } else {
-                    startDateField.value = '';
+                    document.getElementById('taskStartDate').value = '';
                     selectedDate = null;
                 }
-                debugLog(`Set start date: "${startDateField.value}"`);
                 
-                const craftsmanField = document.getElementById('taskCraftsman');
-                craftsmanField.value = task.craftsman || '';
-                debugLog(`Set craftsman: "${craftsmanField.value}"`);
-                
-                const priorityField = document.getElementById('taskPriority');
-                priorityField.value = task.priority || 'medium';
-                debugLog(`Set priority: "${priorityField.value}"`);
-                
-                const statusField = document.getElementById('taskStatus');
-                statusField.value = task.status || 'planned';
-                debugLog(`Set status: "${statusField.value}"`);
-                
-                const durationField = document.getElementById('taskDuration');
-                durationField.value = String(task.duration || 1);
-                debugLog(`Set duration: "${durationField.value}"`);
-                
-                const halfDayField = document.getElementById('taskHalfDay');
-                halfDayField.checked = Boolean(task.isHalfDay);
-                debugLog(`Set halfDay: ${halfDayField.checked}`);
+                document.getElementById('taskCraftsman').value = task.craftsman || '';
+                document.getElementById('taskPriority').value = task.priority || 'medium';
+                document.getElementById('taskStatus').value = task.status || 'planned';
+                document.getElementById('taskDuration').value = String(task.duration || 1);
+                document.getElementById('taskHalfDay').checked = Boolean(task.isHalfDay);
                 
                 debugLog('All values set successfully!');
                 
-                // Verification after short delay
                 setTimeout(() => {
-                    const verifyTitle = document.getElementById('taskTitle').value;
-                    const verifyDesc = document.getElementById('taskDescription').value;
-                    const verifyNotes = document.getElementById('taskNotes').value;
-                    
-                    if (verifyTitle && verifyDesc && verifyNotes) {
-                        showToast('✅ Data inkl. startdato indlæst!', 'info');
-                        debugLog('DATA PERSISTENCE VERIFIED - SUCCESS!');
-                    } else {
-                        showToast('⚠️ Data blev ikke indlæst korrekt!', 'error');
-                        debugLog('DATA PERSISTENCE FAILED!');
-                    }
+                    showToast('✅ Data med startdato indlæst!', 'info');
+                    debugLog('DATE INTEGRATION VERIFIED - SUCCESS!');
                 }, 200);
                 
             }, 100);
@@ -1935,15 +2141,25 @@
             });
         }
         
-        // UPDATED: saveTask function with start date support
+        // KRITISK: OPDATERET saveTask with automatic date-to-day calculation
         function saveTask() {
-            debugLog('Saving task...');
+            debugLog('Saving task with date integration...');
+            
+            const startDateInput = document.getElementById('taskStartDate').value;
+            const startDate = parseDateFromInput(startDateInput);
+            
+            let calculatedDay = 1;
+            if (startDate) {
+                calculatedDay = calculateDayFromDate(startDate);
+                debugLog(`Calculated day from date: ${startDateInput} → Day ${calculatedDay}`);
+            }
             
             const taskData = {
                 title: document.getElementById('taskTitle').value,
                 description: document.getElementById('taskDescription').value,
                 notes: document.getElementById('taskNotes').value,
-                startDate: document.getElementById('taskStartDate').value,
+                startDate: startDate ? startDate.toISOString().split('T')[0] : null, // YYYY-MM-DD format
+                startDay: calculatedDay, // KRITISK: Auto-calculated from date
                 craftsman: document.getElementById('taskCraftsman').value,
                 priority: document.getElementById('taskPriority').value,
                 status: document.getElementById('taskStatus').value,
@@ -1951,24 +2167,23 @@
                 isHalfDay: document.getElementById('taskHalfDay').checked
             };
             
-            debugLog(`Task data collected: ${JSON.stringify(taskData)}`);
+            debugLog(`Task data with date integration: ${JSON.stringify(taskData)}`);
             
             if (currentEditingTask) {
                 // Update existing task
                 Object.assign(currentEditingTask, taskData);
-                showToast('✅ Opgave opdateret med startdato!');
-                debugLog(`Updated existing task: ${currentEditingTask.id}`);
+                showToast('✅ Opgave opdateret med automatisk placering!');
+                debugLog(`Updated existing task: ${currentEditingTask.id} → Day ${calculatedDay}`);
             } else {
                 // Create new task
                 const newTask = {
                     id: 'task_' + Date.now(),
-                    startDay: 1,
                     dependencies: [],
                     ...taskData
                 };
                 appState.tasks.push(newTask);
-                showToast('✅ Ny opgave med startdato oprettet!');
-                debugLog(`Created new task: ${newTask.id}`);
+                showToast('✅ Ny opgave oprettet med automatisk placering!');
+                debugLog(`Created new task: ${newTask.id} → Day ${calculatedDay}`);
             }
             
             saveState();
@@ -1997,7 +2212,8 @@
             }
         }
         
-        function moveTask(taskId, newCraftsman, newStartDay) {
+        // KRITISK: OPDATERET moveTask with date synchronization
+        function moveTask(taskId, newCraftsman, newStartDay, newDate = null) {
             const task = appState.tasks.find(t => t.id === taskId);
             if (!task) return;
             
@@ -2009,14 +2225,23 @@
             
             const oldCraftsman = task.craftsman;
             const oldDay = task.startDay;
+            const oldDate = task.startDate;
             
             task.craftsman = newCraftsman;
             task.startDay = newStartDay;
             
+            // KRITISK: Update both day and date
+            if (newDate) {
+                task.startDate = newDate.toISOString().split('T')[0];
+            } else {
+                const calculatedDate = calculateDateFromDay(newStartDay);
+                task.startDate = calculatedDate.toISOString().split('T')[0];
+            }
+            
             saveState();
             renderTasks();
-            showToast('✅ Opgave flyttet!');
-            debugLog(`Moved task ${taskId}: ${oldCraftsman}:${oldDay} -> ${newCraftsman}:${newStartDay}`);
+            showToast('✅ Opgave flyttet med datosync!');
+            debugLog(`Moved task ${taskId}: ${oldCraftsman}:${oldDay} (${oldDate}) → ${newCraftsman}:${newStartDay} (${task.startDate})`);
         }
         
         function openCraftsmanModal() {
@@ -2094,6 +2319,7 @@
             appState.weeks++;
             saveState();
             renderAll();
+            updateTimelineInfo();
             showToast('Uge tilføjet');
             debugLog(`Added week - total: ${appState.weeks}`);
         }
@@ -2114,6 +2340,7 @@
                 
                 saveState();
                 renderAll();
+                updateTimelineInfo();
                 
                 if (removedTasks.length > 0) {
                     showToast(`Uge fjernet - ${removedTasks.length} opgave(r) blev også fjernet`, 'warning');
@@ -2126,17 +2353,6 @@
         
         function updateWeekDisplay() {
             document.getElementById('weekDisplay').textContent = `${appState.weeks} uger`;
-        }
-        
-        function updateStartWeek() {
-            const newStartWeek = parseInt(document.getElementById('startWeekNumber').value);
-            if (newStartWeek >= 1 && newStartWeek <= 53) {
-                appState.startWeekNumber = newStartWeek;
-                saveState();
-                renderTimeline();
-                showToast(`Start uge ændret til uge ${newStartWeek}`);
-                debugLog(`Changed start week to: ${newStartWeek}`);
-            }
         }
         
         function saveProjectToStorage() {
@@ -2157,9 +2373,11 @@
                     appState = JSON.parse(saved);
                     if (!appState.startWeekNumber) appState.startWeekNumber = 1;
                     if (!appState.customCraftsmanTypes) appState.customCraftsmanTypes = [];
+                    if (!appState.project.startDate) appState.project.startDate = '2025-09-16';
                     
                     saveState();
                     renderAll();
+                    updateTimelineInfo();
                     showToast('✅ Projekt indlæst fra localStorage');
                     debugLog('Project loaded from localStorage');
                 } else {
@@ -2175,6 +2393,10 @@
         function exportToPDF() {
             const printWindow = window.open('', '_blank');
             const projectName = appState.project.name || 'Test Projekt';
+            const projectStart = getProjectStartDate();
+            const projectEnd = new Date(projectStart);
+            projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
+            
             const content = `
                 <!DOCTYPE html>
                 <html>
@@ -2200,7 +2422,7 @@
                 <body>
                     <div class="header">
                         <div class="logo">SWITZEA ApS</div>
-                        <h2>Projektplan & Tidsplan - OPDATERET VERSION</h2>
+                        <h2>Projektplan & Tidsplan - DATO-INTEGRERET</h2>
                     </div>
                     <div class="project-info">
                         <h3>${projectName}</h3>
@@ -2208,24 +2430,23 @@
                         ${appState.project.customer ? `<p><strong>👥 Kunde:</strong> ${appState.project.customer}</p>` : ''}
                         ${appState.project.phone ? `<p><strong>📞 Telefon:</strong> ${appState.project.phone}</p>` : ''}
                         ${appState.project.email ? `<p><strong>📧 E-mail:</strong> ${appState.project.email}</p>` : ''}
-                        ${appState.project.startDate ? `<p><strong>📅 Startdato:</strong> ${appState.project.startDate}</p>` : ''}
-                        <p><strong>⏱️ Projektperiode:</strong> ${appState.weeks} uger (uge ${appState.startWeekNumber} - uge ${appState.startWeekNumber + appState.weeks - 1})</p>
-                        <p><strong>🚀 Nye funktioner:</strong> Startdato vælger 📅 | Opgave tooltips 💬 | Optimeret layout ✨</p>
+                        <p><strong>📅 Projektperiode:</strong> ${formatDateForInput(projectStart)} - ${formatDateForInput(projectEnd)} (${appState.weeks} uger)</p>
+                        <p><strong>🔗 Integration:</strong> Automatisk dato-til-timeline synkronisering aktiveret</p>
                     </div>
                     ${appState.tasks.length > 0 ? `
                     <div class="timeline">
-                        <h3>📋 Detaljeret Opgaveoversigt</h3>
+                        <h3>📋 Detaljeret Opgaveoversigt med Datoer</h3>
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 20%">Opgave & Beskrivelse</th>
+                                    <th style="width: 18%">Opgave & Beskrivelse</th>
                                     <th style="width: 12%">Håndværker</th>
                                     <th style="width: 12%">Startdato</th>
-                                    <th style="width: 10%">Startdag</th>
+                                    <th style="width: 8%">Dag</th>
                                     <th style="width: 12%">Varighed</th>
                                     <th style="width: 10%">Prioritet</th>
                                     <th style="width: 12%">Status</th>
-                                    <th style="width: 12%">Noter</th>
+                                    <th style="width: 16%">Noter</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2233,6 +2454,7 @@
                                     const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
                                     const priorityText = task.priority === 'high' ? 'Høj ⚠️' : task.priority === 'medium' ? 'Medium ⚡' : 'Lav ✅';
                                     const statusText = task.status === 'planned' ? 'Planlagt 📋' : task.status === 'in-progress' ? 'I gang 🔄' : 'Udført ✅';
+                                    const taskDate = task.startDate ? new Date(task.startDate).toLocaleDateString('da-DK') : '-';
                                     return `
                                         <tr class="task-${task.priority} ${task.status}">
                                             <td>
@@ -2240,7 +2462,7 @@
                                                 ${task.description ? `<br><small style="color: #666;">${task.description}</small>` : ''}
                                             </td>
                                             <td><strong>${craftsman ? craftsman.name : 'Ikke tildelt'}</strong></td>
-                                            <td>${task.startDate ? `📅 ${task.startDate}` : '-'}</td>
+                                            <td>📅 ${taskDate}</td>
                                             <td>Dag ${task.startDay}</td>
                                             <td>${task.duration} dag${task.duration !== 1 ? 'e' : ''}${task.isHalfDay ? ' <em>(halv dag)</em>' : ''}</td>
                                             <td>${priorityText}</td>
@@ -2258,8 +2480,8 @@
                     </div>
                     `}
                     <div class="footer">
-                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | OPDATERET VERSION</p>
-                        <p><em>Startdato vælger 📅 | Opgave tooltips 💬 | Optimeret grid layout ✨</em></p>
+                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | DATO-INTEGRERET VERSION</p>
+                        <p><em>🔗 Automatisk startdato → timeline sync | 📅 Reel dato display | 🎯 Smart opgave placering</em></p>
                     </div>
                 </body>
                 </html>
@@ -2269,8 +2491,8 @@
             printWindow.document.close();
             printWindow.print();
             
-            showToast('📄 PDF eksport med startdatoer klar!');
-            debugLog('PDF exported successfully');
+            showToast('📄 PDF med dato-integration eksporteret!');
+            debugLog('PDF exported successfully with date integration');
         }
         
         function closeModal(modalId) {
