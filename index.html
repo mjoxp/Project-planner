@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switzea Projektplanlægning - FIXED Version</title>
+    <title>Switzea Projektplanlægning - Opdateret Version</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -14,8 +14,8 @@
             user-select: none;
         }
         
-        .fixed-banner {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
+        .update-banner {
+            background: linear-gradient(135deg, #FF6B35, #F7931E);
             color: white;
             text-align: center;
             padding: 15px;
@@ -365,24 +365,26 @@
             transform: scale(1.02);
         }
         
+        /* OPDATERET: Opgave styling med fixed højde */
         .task {
             position: absolute;
             background: linear-gradient(145deg, #2196F3, #1976D2);
             color: white;
             border-radius: 6px;
-            padding: 0.5rem;
+            padding: 0.4rem;
             cursor: move;
-            font-size: 0.8rem;
-            line-height: 1.2;
+            font-size: 0.75rem;
+            line-height: 1.1;
             z-index: 3;
             transition: all 0.2s;
             border: 2px solid transparent;
-            min-height: 50px;
+            height: 60px; /* FAST HØJDE */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             top: 10px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            overflow: hidden;
         }
         
         .task:hover:not(.dragging) {
@@ -416,31 +418,72 @@
         .task.completed { background: linear-gradient(145deg, #4CAF50, #388E3C); }
         
         .task.half-day {
-            min-height: 35px !important;
+            height: 40px !important;
             font-size: 0.7rem;
             padding: 0.25rem;
         }
         
+        /* OPDATERET: Opgave titel med truncation */
         .task-title {
             font-weight: bold;
-            margin-bottom: 0.25rem;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             pointer-events: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+            margin-bottom: 0.2rem;
+        }
+        
+        /* NEW: Tooltip for fuld opgavetitel */
+        .task-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: normal;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 300px;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+        
+        .task-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .task-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
         }
         
         .task-controls {
             display: flex;
             gap: 0.25rem;
-            margin-top: 0.25rem;
+            margin-top: auto;
         }
         
         .task-btn {
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
-            padding: 3px 7px;
+            padding: 2px 5px;
             border-radius: 3px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             cursor: pointer;
             transition: background 0.2s;
             position: relative;
@@ -471,8 +514,8 @@
             background: white;
             padding: 2rem;
             border-radius: 12px;
-            width: 500px;
-            max-width: 90vw;
+            width: 520px;
+            max-width: 95vw;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
@@ -537,6 +580,132 @@
             justify-content: flex-end;
         }
         
+        /* NEW: Datepicker styling */
+        .datepicker-wrapper {
+            position: relative;
+        }
+        
+        .datepicker-input {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23666" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>') no-repeat right 10px center;
+            padding-right: 40px;
+        }
+        
+        .custom-datepicker {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: none;
+            padding: 20px;
+        }
+        
+        .custom-datepicker.show {
+            display: block;
+        }
+        
+        .datepicker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .datepicker-nav {
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .datepicker-nav:hover {
+            background: #1976D2;
+        }
+        
+        .datepicker-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .year-month-selectors {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        
+        .year-month-selectors select {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .datepicker-calendar {
+            width: 100%;
+        }
+        
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 5px;
+        }
+        
+        .calendar-weekday {
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            font-size: 0.8rem;
+            padding: 5px;
+        }
+        
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .calendar-day:hover {
+            background: #e3f2fd;
+        }
+        
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+        
+        .calendar-day.selected {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .calendar-day.today {
+            background: #f0f8ff;
+            border: 2px solid #2196F3;
+            font-weight: bold;
+        }
+        
         .toast {
             position: fixed;
             top: 80px;
@@ -595,19 +764,24 @@
                 min-width: 120px;
                 max-width: 120px;
             }
+            
+            .task {
+                height: 50px;
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="fixed-banner">
-        🔧 SWITZEA FIXED VERSION - Alle kritiske fejl løst: Data Persistence ✅ | Drag & Drop ✅ | Undo/Redo ✅
+    <div class="update-banner">
+        🚀 SWITZEA OPDATERET - Nye funktioner: Startdato vælger 📅 | Opgave tooltip 💬 | Optimeret grid layout ✨
     </div>
 
     <header class="header">
         <div class="header-left">
-            <h1 id="projectTitle">Test Projekt</h1>
+            <h1 id="projectTitle">Capellas Allé 38 - Delrenovering</h1>
             <div class="project-info" id="projectInfo">
-                <span class="empty-project">Fixed version - Test alle funktioner nu</span>
+                <span class="empty-project">Opdateret version - Test de nye funktioner!</span>
             </div>
         </div>
         <div class="header-buttons">
@@ -696,7 +870,7 @@
         </div>
     </div>
 
-    <!-- Task Modal - ZERO FORM ELEMENTS -->
+    <!-- OPDATERET Task Modal med datepicker -->
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <h3 id="modalTitle">Ny opgave</h3>
@@ -711,9 +885,64 @@
                 <textarea class="form-control" id="taskDescription" rows="3"></textarea>
             </div>
             
+            <!-- NEW: Startdato med custom datepicker -->
+            <div class="form-group">
+                <label for="taskStartDate">📅 Startdato for opgave</label>
+                <div class="datepicker-wrapper">
+                    <input type="text" class="form-control datepicker-input" id="taskStartDate" placeholder="Vælg startdato..." readonly>
+                    <div class="custom-datepicker" id="customDatepicker">
+                        <div class="datepicker-header">
+                            <button type="button" class="datepicker-nav" id="prevMonth">‹</button>
+                            <div class="datepicker-title" id="datepickerTitle">September 2025</div>
+                            <button type="button" class="datepicker-nav" id="nextMonth">›</button>
+                        </div>
+                        
+                        <div class="year-month-selectors">
+                            <select id="yearSelector">
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                            </select>
+                            <select id="monthSelector">
+                                <option value="0">Januar</option>
+                                <option value="1">Februar</option>
+                                <option value="2">Marts</option>
+                                <option value="3">April</option>
+                                <option value="4">Maj</option>
+                                <option value="5">Juni</option>
+                                <option value="6">Juli</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">Oktober</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                        
+                        <div class="datepicker-calendar">
+                            <div class="calendar-weekdays">
+                                <div class="calendar-weekday">Ma</div>
+                                <div class="calendar-weekday">Ti</div>
+                                <div class="calendar-weekday">On</div>
+                                <div class="calendar-weekday">To</div>
+                                <div class="calendar-weekday">Fr</div>
+                                <div class="calendar-weekday">Lø</div>
+                                <div class="calendar-weekday">Sø</div>
+                            </div>
+                            <div class="calendar-days" id="calendarDays">
+                                <!-- Days will be generated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="form-group">
                 <label for="taskNotes">Noter/Kommentarer</label>
-                <textarea class="form-control" id="taskNotes" rows="3" placeholder="Tilføj noter om fremgang, problemer, materialer..."></textarea>
+                <textarea class="form-control" id="taskNotes" rows="2" placeholder="Tilføj noter om fremgang, problemer, materialer..."></textarea>
             </div>
             
             <div class="form-row">
@@ -797,6 +1026,9 @@
         </div>
     </div>
 
+    <!-- Tooltip element -->
+    <div class="task-tooltip" id="taskTooltip"></div>
+
     <!-- Debug Info -->
     <div class="debug-info" id="debugInfo" style="display: none;">
         Status: Ready
@@ -824,10 +1056,18 @@
         let historyIndex = -1;
         let currentEditingTask = null;
         let draggedElement = null;
-        let draggedType = null; // 'task' or 'craftsman'
+        let draggedType = null;
+        
+        // Datepicker state
+        let currentDate = new Date();
+        let selectedDate = null;
+        let isDatepickerOpen = false;
+        
+        // Tooltip state
+        let tooltipTimeout = null;
         
         // Debug flag
-        const DEBUG_MODE = true;
+        const DEBUG_MODE = false;
         
         function debugLog(message) {
             if (DEBUG_MODE) {
@@ -843,9 +1083,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             debugLog('App initializing...');
             createTestData();
+            initializeDatepicker();
             saveState();
             renderAll();
-            showToast('✅ Switzea Fixed Version - Alle fejl løst!', 'info');
+            showToast('🚀 Nye funktioner: Startdato vælger og opgave tooltips!', 'info');
             debugLog('App ready - all functions operational');
         });
         
@@ -872,11 +1113,11 @@
                 }
             ];
             
-            // Create test tasks with FULL data
+            // Create test tasks with dates and long titles
             appState.tasks = [
                 {
                     id: 'task_1',
-                    title: 'Nedrivning af eksisterende vægge',
+                    title: 'Nedrivning af eksisterende vægge og isolering med mineraluld',
                     description: 'Nedrivning af eksisterende vægge (30 m²) som beskrevet i tilbuddet. Inkluderer isolering med 200 mm mineraluld.',
                     notes: 'VIGTIGT: Tjek for ledninger før nedrivning! Koordinér med elektriker. Materialer skal bortskaffes miljørigtigt.',
                     craftsman: 'craftsman_1',
@@ -884,12 +1125,13 @@
                     status: 'planned',
                     duration: 2,
                     startDay: 1,
+                    startDate: '2025-09-16',
                     isHalfDay: false,
                     dependencies: []
                 },
                 {
                     id: 'task_2',
-                    title: 'Elektrisk arbejde - køkken installation',
+                    title: 'Komplet elektrisk installation og ledningsføring i køkkenet',
                     description: 'Udførelse af alt elektrisk arbejde relateret til køkkenprojektet. DKK 12.600 jf. tilbud.',
                     notes: 'Koordinér med VVS-montør om placering af udtag. Husk at teste alle forbindelser før aflevering.',
                     craftsman: 'craftsman_2',
@@ -897,12 +1139,13 @@
                     status: 'planned',
                     duration: 1.5,
                     startDay: 3,
+                    startDate: '2025-09-18',
                     isHalfDay: false,
                     dependencies: []
                 },
                 {
                     id: 'task_3',
-                    title: 'VVS installation og radiator',
+                    title: 'VVS installation med ny radiator og rørføring fra kælder',
                     description: 'Etablering af nye vand- og afløbsinstallationer til køkkenet. Inkluderer ny radiator (1000x500 pk2).',
                     notes: 'Fjernelse af eksisterende radiator og installation af ny. Alle materialer inkluderet jf. DKK 31.500 pris.',
                     craftsman: 'craftsman_3',
@@ -910,6 +1153,7 @@
                     status: 'planned',
                     duration: 2,
                     startDay: 5,
+                    startDate: '2025-09-20',
                     isHalfDay: false,
                     dependencies: []
                 }
@@ -917,6 +1161,235 @@
             debugLog(`Test data created: ${appState.craftsmen.length} craftsmen, ${appState.tasks.length} tasks`);
         }
         
+        // DATEPICKER FUNCTIONALITY
+        function initializeDatepicker() {
+            const datepickerInput = document.getElementById('taskStartDate');
+            const customDatepicker = document.getElementById('customDatepicker');
+            const yearSelector = document.getElementById('yearSelector');
+            const monthSelector = document.getElementById('monthSelector');
+            const prevMonthBtn = document.getElementById('prevMonth');
+            const nextMonthBtn = document.getElementById('nextMonth');
+            
+            // Set current year as default
+            yearSelector.value = currentDate.getFullYear().toString();
+            monthSelector.value = currentDate.getMonth().toString();
+            
+            // Event listeners
+            datepickerInput.addEventListener('click', toggleDatepicker);
+            yearSelector.addEventListener('change', updateCalendar);
+            monthSelector.addEventListener('change', updateCalendar);
+            prevMonthBtn.addEventListener('click', previousMonth);
+            nextMonthBtn.addEventListener('click', nextMonth);
+            
+            // Close datepicker when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!datepickerInput.contains(e.target) && !customDatepicker.contains(e.target)) {
+                    hideDatepicker();
+                }
+            });
+            
+            updateCalendar();
+        }
+        
+        function toggleDatepicker() {
+            const customDatepicker = document.getElementById('customDatepicker');
+            if (isDatepickerOpen) {
+                hideDatepicker();
+            } else {
+                customDatepicker.classList.add('show');
+                isDatepickerOpen = true;
+                updateCalendar();
+            }
+        }
+        
+        function hideDatepicker() {
+            const customDatepicker = document.getElementById('customDatepicker');
+            customDatepicker.classList.remove('show');
+            isDatepickerOpen = false;
+        }
+        
+        function previousMonth() {
+            const yearSelector = document.getElementById('yearSelector');
+            const monthSelector = document.getElementById('monthSelector');
+            
+            let year = parseInt(yearSelector.value);
+            let month = parseInt(monthSelector.value);
+            
+            month--;
+            if (month < 0) {
+                month = 11;
+                year--;
+                if (year < 2025) year = 2025;
+            }
+            
+            yearSelector.value = year.toString();
+            monthSelector.value = month.toString();
+            updateCalendar();
+        }
+        
+        function nextMonth() {
+            const yearSelector = document.getElementById('yearSelector');
+            const monthSelector = document.getElementById('monthSelector');
+            
+            let year = parseInt(yearSelector.value);
+            let month = parseInt(monthSelector.value);
+            
+            month++;
+            if (month > 11) {
+                month = 0;
+                year++;
+                if (year > 2030) year = 2030;
+            }
+            
+            yearSelector.value = year.toString();
+            monthSelector.value = month.toString();
+            updateCalendar();
+        }
+        
+        function updateCalendar() {
+            const yearSelector = document.getElementById('yearSelector');
+            const monthSelector = document.getElementById('monthSelector');
+            const datepickerTitle = document.getElementById('datepickerTitle');
+            const calendarDays = document.getElementById('calendarDays');
+            
+            const year = parseInt(yearSelector.value);
+            const month = parseInt(monthSelector.value);
+            
+            const monthNames = [
+                'Januar', 'Februar', 'Marts', 'April', 'Maj', 'Juni',
+                'Juli', 'August', 'September', 'Oktober', 'November', 'December'
+            ];
+            
+            datepickerTitle.textContent = `${monthNames[month]} ${year}`;
+            
+            // Clear calendar
+            calendarDays.innerHTML = '';
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            
+            // Get day of week (Monday = 0)
+            let firstDayOfWeek = firstDay.getDay() - 1;
+            if (firstDayOfWeek < 0) firstDayOfWeek = 6;
+            
+            // Add empty cells for previous month
+            const prevMonth = month === 0 ? 11 : month - 1;
+            const prevYear = month === 0 ? year - 1 : year;
+            const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate();
+            
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const dayDiv = createCalendarDay(daysInPrevMonth - i, prevYear, prevMonth, true);
+                calendarDays.appendChild(dayDiv);
+            }
+            
+            // Add days for current month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDiv = createCalendarDay(day, year, month, false);
+                calendarDays.appendChild(dayDiv);
+            }
+            
+            // Add days for next month to fill grid
+            const totalCells = calendarDays.children.length;
+            const remainingCells = 42 - totalCells;
+            const nextMonth = month === 11 ? 0 : month + 1;
+            const nextYear = month === 11 ? year + 1 : year;
+            
+            for (let day = 1; day <= Math.min(remainingCells, 14); day++) {
+                const dayDiv = createCalendarDay(day, nextYear, nextMonth, true);
+                calendarDays.appendChild(dayDiv);
+            }
+        }
+        
+        function createCalendarDay(day, year, month, isOtherMonth) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'calendar-day';
+            dayDiv.textContent = day;
+            
+            if (isOtherMonth) {
+                dayDiv.classList.add('other-month');
+            }
+            
+            // Check if it's today
+            const today = new Date();
+            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                dayDiv.classList.add('today');
+            }
+            
+            // Check if it's selected
+            if (selectedDate && 
+                selectedDate.getFullYear() === year && 
+                selectedDate.getMonth() === month && 
+                selectedDate.getDate() === day) {
+                dayDiv.classList.add('selected');
+            }
+            
+            dayDiv.addEventListener('click', () => selectDate(year, month, day));
+            
+            return dayDiv;
+        }
+        
+        function selectDate(year, month, day) {
+            selectedDate = new Date(year, month, day);
+            const dateString = formatDateForInput(selectedDate);
+            document.getElementById('taskStartDate').value = dateString;
+            
+            hideDatepicker();
+            updateCalendar();
+            
+            showToast(`📅 Startdato valgt: ${dateString}`, 'info');
+        }
+        
+        function formatDateForInput(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        function parseDateFromInput(dateString) {
+            if (!dateString) return null;
+            const parts = dateString.split('/');
+            if (parts.length !== 3) return null;
+            const day = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1;
+            const year = parseInt(parts[2]);
+            return new Date(year, month, day);
+        }
+        
+        // TOOLTIP FUNCTIONALITY
+        function showTaskTooltip(taskElement, fullTitle) {
+            hideTaskTooltip(); // Hide any existing tooltip
+            
+            const tooltip = document.getElementById('taskTooltip');
+            tooltip.textContent = fullTitle;
+            tooltip.classList.add('show');
+            
+            // Position tooltip
+            const rect = taskElement.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+            
+            tooltip.style.left = (rect.left + scrollLeft + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+            tooltip.style.top = (rect.top + scrollTop - tooltip.offsetHeight - 10) + 'px';
+            
+            // Ensure tooltip stays within viewport
+            const tooltipRect = tooltip.getBoundingClientRect();
+            if (tooltipRect.left < 0) {
+                tooltip.style.left = '10px';
+            }
+            if (tooltipRect.right > window.innerWidth) {
+                tooltip.style.left = (window.innerWidth - tooltip.offsetWidth - 10) + 'px';
+            }
+        }
+        
+        function hideTaskTooltip() {
+            const tooltip = document.getElementById('taskTooltip');
+            tooltip.classList.remove('show');
+        }
+        
+        // REST OF THE APPLICATION FUNCTIONS (unchanged from previous version)
         function saveState() {
             if (historyIndex < history.length - 1) {
                 history = history.slice(0, historyIndex + 1);
@@ -1016,7 +1489,7 @@
                     <button class="delete-craftsman" onclick="deleteCraftsman('${craftsman.id}')">×</button>
                 `;
                 
-                // FIXED: Proper drag and drop for craftsmen reordering
+                // Drag and drop for craftsmen reordering
                 li.addEventListener('dragstart', (e) => {
                     draggedElement = li;
                     draggedType = 'craftsman';
@@ -1156,7 +1629,7 @@
                         }
                     };
                     
-                    // FIXED: Proper drag and drop for tasks
+                    // Drag and drop for tasks
                     cell.addEventListener('dragover', (e) => {
                         e.preventDefault();
                         if (draggedType === 'task') {
@@ -1232,16 +1705,42 @@
                 taskElement.style.width = `${width}px`;
                 taskElement.style.left = '2px';
                 
+                // UPDATED: Task content with truncated title
+                const taskTitle = task.title.length > 25 ? task.title.substring(0, 25) + '...' : task.title;
+                
                 taskElement.innerHTML = `
-                    <div class="task-title">${task.title}</div>
+                    <div class="task-title" title="${task.title}">${taskTitle}</div>
                     <div class="task-controls">
                         <button class="task-btn" onclick="event.stopPropagation(); editTask('${task.id}')">✏️</button>
                         <button class="task-btn" onclick="event.stopPropagation(); deleteTask('${task.id}')">🗑️</button>
                     </div>
                 `;
                 
-                // FIXED: Proper drag functionality for tasks
+                // UPDATED: Tooltip functionality
+                taskElement.addEventListener('mouseenter', (e) => {
+                    if (task.title.length > 25) {
+                        tooltipTimeout = setTimeout(() => {
+                            showTaskTooltip(taskElement, task.title);
+                        }, 500); // Show tooltip after 500ms
+                    }
+                });
+                
+                taskElement.addEventListener('mouseleave', (e) => {
+                    if (tooltipTimeout) {
+                        clearTimeout(tooltipTimeout);
+                        tooltipTimeout = null;
+                    }
+                    hideTaskTooltip();
+                });
+                
+                // Drag functionality for tasks
                 taskElement.addEventListener('dragstart', (e) => {
+                    hideTaskTooltip(); // Hide tooltip when dragging
+                    if (tooltipTimeout) {
+                        clearTimeout(tooltipTimeout);
+                        tooltipTimeout = null;
+                    }
+                    
                     draggedElement = taskElement;
                     draggedType = 'task';
                     taskElement.classList.add('dragging');
@@ -1263,6 +1762,7 @@
                 // Double-click to edit - with proper event handling
                 taskElement.addEventListener('dblclick', (e) => {
                     e.stopPropagation();
+                    hideTaskTooltip();
                     editTask(task.id);
                 });
                 
@@ -1311,7 +1811,7 @@
             document.getElementById('modalTitle').textContent = 'Ny opgave';
             document.getElementById('deleteTaskBtn').style.display = 'none';
             
-            // MANUAL FIELD CLEARING - NO form elements!
+            // MANUAL FIELD CLEARING
             clearTaskFields();
             
             populateCraftsmanDropdown();
@@ -1324,13 +1824,15 @@
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskDescription').value = '';
             document.getElementById('taskNotes').value = '';
+            document.getElementById('taskStartDate').value = '';
             document.getElementById('taskPriority').value = 'medium';
             document.getElementById('taskStatus').value = 'planned';
             document.getElementById('taskDuration').value = '1';
             document.getElementById('taskHalfDay').checked = false;
+            selectedDate = null;
         }
         
-        // CRITICAL: COMPLETELY REWRITTEN editTask function with GUARANTEED data persistence
+        // UPDATED: editTask function with start date support
         function editTask(taskId) {
             debugLog(`EDIT TASK: ${taskId}`);
             
@@ -1350,7 +1852,7 @@
             // Show modal FIRST
             document.getElementById('taskModal').classList.add('show');
             
-            // CRITICAL FIX: Use setTimeout to ensure modal is rendered before setting values
+            // Set values after modal is rendered
             setTimeout(() => {
                 debugLog('Setting task values after modal render...');
                 
@@ -1369,6 +1871,18 @@
                 const notesField = document.getElementById('taskNotes');
                 notesField.value = task.notes || '';
                 debugLog(`Set notes: "${notesField.value}"`);
+                
+                // NEW: Set start date
+                const startDateField = document.getElementById('taskStartDate');
+                if (task.startDate) {
+                    const date = parseDateFromInput(task.startDate) || new Date(task.startDate);
+                    startDateField.value = formatDateForInput(date);
+                    selectedDate = date;
+                } else {
+                    startDateField.value = '';
+                    selectedDate = null;
+                }
+                debugLog(`Set start date: "${startDateField.value}"`);
                 
                 const craftsmanField = document.getElementById('taskCraftsman');
                 craftsmanField.value = task.craftsman || '';
@@ -1399,7 +1913,7 @@
                     const verifyNotes = document.getElementById('taskNotes').value;
                     
                     if (verifyTitle && verifyDesc && verifyNotes) {
-                        showToast('✅ Data indlæst korrekt - TEST GENÅBNING NU!', 'info');
+                        showToast('✅ Data inkl. startdato indlæst!', 'info');
                         debugLog('DATA PERSISTENCE VERIFIED - SUCCESS!');
                     } else {
                         showToast('⚠️ Data blev ikke indlæst korrekt!', 'error');
@@ -1407,7 +1921,7 @@
                     }
                 }, 200);
                 
-            }, 100); // Critical delay to ensure modal is fully rendered
+            }, 100);
         }
         
         function populateCraftsmanDropdown() {
@@ -1421,6 +1935,7 @@
             });
         }
         
+        // UPDATED: saveTask function with start date support
         function saveTask() {
             debugLog('Saving task...');
             
@@ -1428,6 +1943,7 @@
                 title: document.getElementById('taskTitle').value,
                 description: document.getElementById('taskDescription').value,
                 notes: document.getElementById('taskNotes').value,
+                startDate: document.getElementById('taskStartDate').value,
                 craftsman: document.getElementById('taskCraftsman').value,
                 priority: document.getElementById('taskPriority').value,
                 status: document.getElementById('taskStatus').value,
@@ -1440,7 +1956,7 @@
             if (currentEditingTask) {
                 // Update existing task
                 Object.assign(currentEditingTask, taskData);
-                showToast('✅ Opgave opdateret - data bevaret permanent!');
+                showToast('✅ Opgave opdateret med startdato!');
                 debugLog(`Updated existing task: ${currentEditingTask.id}`);
             } else {
                 // Create new task
@@ -1451,7 +1967,7 @@
                     ...taskData
                 };
                 appState.tasks.push(newTask);
-                showToast('✅ Ny opgave oprettet!');
+                showToast('✅ Ny opgave med startdato oprettet!');
                 debugLog(`Created new task: ${newTask.id}`);
             }
             
@@ -1684,7 +2200,7 @@
                 <body>
                     <div class="header">
                         <div class="logo">SWITZEA ApS</div>
-                        <h2>Projektplan & Tidsplan - FIXED VERSION</h2>
+                        <h2>Projektplan & Tidsplan - OPDATERET VERSION</h2>
                     </div>
                     <div class="project-info">
                         <h3>${projectName}</h3>
@@ -1694,7 +2210,7 @@
                         ${appState.project.email ? `<p><strong>📧 E-mail:</strong> ${appState.project.email}</p>` : ''}
                         ${appState.project.startDate ? `<p><strong>📅 Startdato:</strong> ${appState.project.startDate}</p>` : ''}
                         <p><strong>⏱️ Projektperiode:</strong> ${appState.weeks} uger (uge ${appState.startWeekNumber} - uge ${appState.startWeekNumber + appState.weeks - 1})</p>
-                        <p><strong>🔧 Status:</strong> Alle kritiske fejl løst - Data persistence ✅ | Drag & Drop ✅ | Undo/Redo ✅</p>
+                        <p><strong>🚀 Nye funktioner:</strong> Startdato vælger 📅 | Opgave tooltips 💬 | Optimeret layout ✨</p>
                     </div>
                     ${appState.tasks.length > 0 ? `
                     <div class="timeline">
@@ -1702,13 +2218,14 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 25%">Opgave & Beskrivelse</th>
-                                    <th style="width: 15%">Håndværker</th>
+                                    <th style="width: 20%">Opgave & Beskrivelse</th>
+                                    <th style="width: 12%">Håndværker</th>
+                                    <th style="width: 12%">Startdato</th>
                                     <th style="width: 10%">Startdag</th>
-                                    <th style="width: 15%">Varighed</th>
+                                    <th style="width: 12%">Varighed</th>
                                     <th style="width: 10%">Prioritet</th>
-                                    <th style="width: 15%">Status</th>
-                                    <th style="width: 10%">Noter</th>
+                                    <th style="width: 12%">Status</th>
+                                    <th style="width: 12%">Noter</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1723,6 +2240,7 @@
                                                 ${task.description ? `<br><small style="color: #666;">${task.description}</small>` : ''}
                                             </td>
                                             <td><strong>${craftsman ? craftsman.name : 'Ikke tildelt'}</strong></td>
+                                            <td>${task.startDate ? `📅 ${task.startDate}` : '-'}</td>
                                             <td>Dag ${task.startDay}</td>
                                             <td>${task.duration} dag${task.duration !== 1 ? 'e' : ''}${task.isHalfDay ? ' <em>(halv dag)</em>' : ''}</td>
                                             <td>${priorityText}</td>
@@ -1740,8 +2258,8 @@
                     </div>
                     `}
                     <div class="footer">
-                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | FIXED VERSION - Alle fejl løst</p>
-                        <p><em>Data Persistence ✅ | Drag & Drop ✅ | Undo/Redo ✅ | Complete functionality verified</em></p>
+                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | OPDATERET VERSION</p>
+                        <p><em>Startdato vælger 📅 | Opgave tooltips 💬 | Optimeret grid layout ✨</em></p>
                     </div>
                 </body>
                 </html>
@@ -1751,12 +2269,13 @@
             printWindow.document.close();
             printWindow.print();
             
-            showToast('📄 PDF eksport klar - alle funktioner verificeret!');
+            showToast('📄 PDF eksport med startdatoer klar!');
             debugLog('PDF exported successfully');
         }
         
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
+            hideDatepicker();
         }
         
         function showToast(message, type = 'success') {
@@ -1788,6 +2307,9 @@
             e.returnValue = '';
             return 'Er du sikker på du vil forlade appen?';
         });
+        
+        // Hide tooltip when scrolling
+        window.addEventListener('scroll', hideTaskTooltip);
     </script>
 </body>
 </html>
