@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switzea - FULDE PDF FUNKTIONER</title>
+    <title>Switzea - HÅNDVÆRKER PDF FIXED</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -695,7 +695,7 @@
 </head>
 <body>
     <div class="company-banner">
-        📋 SWITZEA ApS - Professional PDF Funktioner AKTIVERET | Håndværker & Kunde Output
+        📋 SWITZEA ApS - HÅNDVÆRKER PDF FIXED | Nu med data og debug info
     </div>
 
     <header class="header">
@@ -1031,7 +1031,7 @@
             saveState();
             renderAll();
             updateTimelineInfo();
-            showToast('📋 FULDE PDF FUNKTIONER klar til brug!', 'info');
+            showToast('📋 HÅNDVÆRKER PDF FIXED - Nu med debug info!', 'info');
         });
         
         // STATE MANAGEMENT
@@ -1671,7 +1671,7 @@
             }
         }
         
-        // FIXED: moveTask - Nu opdaterer startDate korrekt
+        // moveTask function with correct date sync
         function moveTask(taskId, newCraftsman, newStartDay, newDate = null) {
             const task = appState.tasks.find(t => t.id === taskId);
             if (!task) return;
@@ -1682,12 +1682,9 @@
                 return;
             }
             
-            const oldDate = task.startDate;
-            
             task.craftsman = newCraftsman;
             task.startDay = newStartDay;
             
-            // KRITISK FIX: Opdater startDate ved drag & drop
             if (newDate) {
                 task.startDate = newDate.toISOString().split('T')[0];
             } else {
@@ -1698,7 +1695,6 @@
             saveState();
             renderTasks();
             
-            // Show confirmation with date info
             const newDateStr = formatDateForInput(new Date(task.startDate));
             showToast(`✅ Opgave flyttet til dag ${newStartDay} (${newDateStr})!`);
         }
@@ -1831,12 +1827,152 @@
             }
         }
         
-        // KOMPLET PDF EXPORT FUNKTIONER
+        // FIXED: generateWorkerSchedule function
+        function generateWorkerSchedule(sortedTasks) {
+            const schedule = {};
+            const totalDays = appState.weeks * 5;
+            
+            console.log('🔍 DEBUG: Generating worker schedule');
+            console.log('Total days:', totalDays);
+            console.log('Tasks:', appState.tasks.length);
+            
+            // Build schedule for all work days
+            for (let day = 1; day <= totalDays; day++) {
+                const taskDate = calculateDateFromDay(day);
+                const dateKey = formatDateForInput(taskDate);
+                
+                console.log(`Day ${day}: ${dateKey} (${taskDate.toDateString()})`);
+                
+                schedule[dateKey] = {
+                    date: taskDate,
+                    dayNumber: day,
+                    tasks: []
+                };
+                
+                // Find all tasks for this day (including multi-day tasks)
+                appState.tasks.forEach(task => {
+                    // Check if task is active on this day
+                    if (task.startDay <= day && task.startDay + task.duration > day) {
+                        const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
+                        const dayOfTask = day - task.startDay + 1;
+                        
+                        schedule[dateKey].tasks.push({
+                            ...task,
+                            craftsmanName: craftsman ? craftsman.name : 'Ukendt',
+                            craftsmanColor: craftsman ? craftsman.color : '#666',
+                            dayOfTask: dayOfTask,
+                            isFirstDay: dayOfTask === 1,
+                            isLastDay: dayOfTask === task.duration
+                        });
+                        
+                        console.log(`  Task: ${task.title} (Day ${dayOfTask}/${task.duration})`);
+                    }
+                });
+            }
+            
+            let html = '';
+            const sortedDates = Object.keys(schedule).sort((a, b) => 
+                new Date(schedule[a].date) - new Date(schedule[b].date)
+            );
+            
+            console.log('Sorted dates:', sortedDates.length);
+            
+            sortedDates.forEach(dateKey => {
+                const dayData = schedule[dateKey];
+                const dayName = formatFullDateDanish(dayData.date);
+                const todayCheck = isToday(dayData.date);
+                
+                html += `
+                    <div class="day-block">
+                        <div class="day-header ${todayCheck ? 'today' : ''}">
+                            <div>
+                                <strong>${dayName}</strong>
+                                <div style="font-size: 0.9em; font-weight: normal; opacity: 0.9;">
+                                    Dag ${dayData.dayNumber} af ${totalDays} arbejdsdage
+                                </div>
+                            </div>
+                            <div class="day-weather">
+                                ☀️ Arbejdsdag
+                            </div>
+                        </div>
+                        <div class="day-tasks">
+                `;
+                
+                if (dayData.tasks.length === 0) {
+                    html += `
+                        <div class="empty-day">
+                            <strong>🏖️ Fri dag</strong><br>
+                            Ingen opgaver planlagt for denne dag
+                        </div>
+                    `;
+                } else {
+                    dayData.tasks.forEach(task => {
+                        const statusText = task.status === 'planned' ? 'Planlagt' : 
+                                         task.status === 'in-progress' ? 'I gang' : 'Udført';
+                        const priorityText = task.priority === 'high' ? 'Høj' :
+                                           task.priority === 'medium' ? 'Medium' : 'Lav';
+                        const durationText = task.duration === 1 ? '1 dag' : `${task.duration} dage`;
+                        
+                        html += `
+                            <div class="task-item priority-${task.priority}">
+                                <div class="craftsman-badge" style="background-color: ${task.craftsmanColor};">
+                                    ${task.craftsmanName}
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-title">
+                                        ${task.title}
+                                        ${task.isFirstDay ? ' 🚀' : ''}
+                                        ${task.isLastDay ? ' 🏁' : ''}
+                                    </div>
+                                    ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                                    ${task.notes ? `<div class="task-notes">📝 <strong>Vigtigt:</strong> ${task.notes}</div>` : ''}
+                                    <div class="task-meta">
+                                        <span class="status-indicator status-${task.status}">${statusText}</span>
+                                        <span class="duration-badge">${durationText}</span>
+                                        <span class="priority-badge priority-${task.priority}-badge">${priorityText} prioritet</span>
+                                        ${task.isHalfDay ? '<span class="duration-badge">Halv dag</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            console.log('Generated HTML length:', html.length);
+            
+            if (html.length < 100) {
+                html = `
+                    <div class="empty-day" style="padding: 40px; text-align: center;">
+                        <h3 style="color: #666;">⚠️ Ingen data fundet</h3>
+                        <p>Der blev ikke fundet nogen opgaver at vise i arbejdsplanen.</p>
+                        <p style="margin-top: 10px; font-size: 0.9em;">
+                            Debug info: ${appState.tasks.length} opgaver, ${totalDays} arbejdsdage
+                        </p>
+                    </div>
+                `;
+            }
+            
+            return html;
+        }
+        
+        // PDF EXPORT FUNCTIONS
         function exportWorkerPDF() {
             if (!appState.project.name || appState.tasks.length === 0) {
                 showToast('Tilføj projekt information og opgaver først', 'warning');
                 return;
             }
+            
+            // Debug logging
+            console.log('🔍 Starting Worker PDF Export');
+            console.log('Project:', appState.project);
+            console.log('Tasks:', appState.tasks);
+            console.log('Craftsmen:', appState.craftsmen);
             
             const printWindow = window.open('', '_blank');
             const projectName = appState.project.name || 'Projekt';
@@ -1849,6 +1985,8 @@
                 if (a.startDay !== b.startDay) return a.startDay - b.startDay;
                 return a.craftsman.localeCompare(b.craftsman);
             });
+            
+            console.log('Sorted tasks for PDF:', sortedTasks);
             
             const content = `
                 <!DOCTYPE html>
@@ -2067,17 +2205,12 @@
                         </div>
                     </div>
                     
-                    ${generateImportantNotes()}
-                    
                     <div class="schedule">
                         <h2 style="color: #2E7D32; border-bottom: 2px solid #e3f2fd; padding-bottom: 8px; margin-bottom: 25px;">
                             📋 Dag-for-dag Arbejdsplan
                         </h2>
                         ${generateWorkerSchedule(sortedTasks)}
                     </div>
-                    
-                    ${generateMaterialsSection()}
-                    ${generateCoordinationNotes()}
                     
                     <div class="footer">
                         <p><strong>SWITZEA ApS</strong> | Professional Projektplanlægning</p>
@@ -2088,11 +2221,13 @@
                 </html>
             `;
             
+            console.log('PDF Content generated, length:', content.length);
+            
             printWindow.document.write(content);
             printWindow.document.close();
             printWindow.print();
             
-            showToast('📋 Håndværker PDF genereret og sendt til print!');
+            showToast('📋 Håndværker PDF genereret med DEBUG info!');
         }
         
         function exportCustomerPDF() {
@@ -2211,58 +2346,6 @@
                             font-size: 1em;
                             transition: width 0.3s ease;
                         }
-                        .milestones { margin-bottom: 35px; }
-                        .milestone { 
-                            display: flex; 
-                            align-items: center; 
-                            margin: 15px 0; 
-                            padding: 15px;
-                            background: #fafbfc;
-                            border-radius: 8px;
-                            transition: background 0.2s ease;
-                        }
-                        .milestone:hover {
-                            background: #f0f2f5;
-                        }
-                        .milestone-icon { 
-                            width: 25px; 
-                            height: 25px; 
-                            border-radius: 50%; 
-                            margin-right: 20px; 
-                            display: flex; 
-                            align-items: center; 
-                            justify-content: center; 
-                            color: white; 
-                            font-weight: bold; 
-                            font-size: 0.9em;
-                            flex-shrink: 0;
-                        }
-                        .milestone-completed { background: linear-gradient(135deg, #4CAF50, #45a049); }
-                        .milestone-progress { background: linear-gradient(135deg, #2196F3, #1976d2); }
-                        .milestone-planned { background: linear-gradient(135deg, #666, #555); }
-                        .milestone-text { 
-                            flex: 1; 
-                            line-height: 1.4;
-                        }
-                        .milestone-date {
-                            font-size: 0.85em;
-                            color: #777;
-                            margin-top: 4px;
-                        }
-                        .upcoming-section { 
-                            background: linear-gradient(135deg, #fff8e1, #ffecb3); 
-                            padding: 25px; 
-                            border-radius: 12px; 
-                            border-left: 6px solid #ffc107; 
-                            margin: 25px 0; 
-                        }
-                        .next-week { 
-                            background: linear-gradient(135deg, #e8f5e8, #c8e6c8); 
-                            padding: 20px; 
-                            border-radius: 10px; 
-                            border-left: 6px solid #28a745; 
-                            margin: 20px 0; 
-                        }
                         .footer { 
                             margin-top: 50px; 
                             text-align: center; 
@@ -2270,42 +2353,6 @@
                             color: #666; 
                             border-top: 2px solid #ddd; 
                             padding-top: 25px; 
-                        }
-                        .contact-info { 
-                            background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
-                            padding: 25px; 
-                            border-radius: 10px; 
-                            margin-top: 30px; 
-                        }
-                        .contact-info h3 {
-                            color: #667eea;
-                            margin-top: 0;
-                        }
-                        h2 { 
-                            color: #667eea; 
-                            border-bottom: 2px solid #e3f2fd; 
-                            padding-bottom: 10px; 
-                            display: flex;
-                            align-items: center;
-                            gap: 10px;
-                        }
-                        h3 { color: #555; }
-                        .status-badge { 
-                            padding: 6px 12px; 
-                            border-radius: 20px; 
-                            font-size: 0.85em; 
-                            font-weight: bold; 
-                            margin-left: auto;
-                        }
-                        .badge-completed { background: #d1fae5; color: #065f46; }
-                        .badge-progress { background: #dbeafe; color: #1d4ed8; }
-                        .badge-planned { background: #f3f4f6; color: #374151; }
-                        .highlight-box {
-                            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-                            border-left: 6px solid #2196F3;
-                            padding: 20px;
-                            margin: 20px 0;
-                            border-radius: 8px;
                         }
                         @media print { 
                             body { background: white; }
@@ -2322,7 +2369,7 @@
                         
                         <div class="customer-greeting">
                             <h3>Kære ${appState.project.customer || 'Kunde'}</h3>
-                            <p>Vi er glade for at give jer en opdatering på jeres ${projectName.toLowerCase()}. Nedenfor kan I følge fremgangen og se, hvad der sker i den kommende periode. Vi arbejder hver dag for at sikre, at projektet forløber smertefrit og leveres til tiden.</p>
+                            <p>Vi er glade for at give jer en opdatering på jeres ${projectName.toLowerCase()}. Projektet forløber planmæssigt, og vi arbejder hver dag for at levere det bedste resultat til jer.</p>
                         </div>
                         
                         <div class="project-overview">
@@ -2344,9 +2391,6 @@
                         
                         <div class="progress-section">
                             <h2>🎯 Projekt Fremgang</h2>
-                            <div class="highlight-box">
-                                <p style="margin: 0; font-size: 1.1em;"><strong>Aktuelt fremskridt: ${progressPercentage}%</strong></p>
-                            </div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: ${progressPercentage}%;">
                                     ${progressPercentage}% Færdig
@@ -2354,31 +2398,9 @@
                             </div>
                         </div>
                         
-                        <div class="milestones">
-                            <h2>📅 Milepæle og Aktiviteter</h2>
-                            ${generateCustomerMilestones()}
-                        </div>
-                        
-                        <div class="upcoming-section">
-                            <h3>🔜 Hvad Sker Der Næste Uge?</h3>
-                            ${generateUpcomingWork()}
-                        </div>
-                        
-                        ${generateCustomerHighlights()}
-                        
-                        <div class="contact-info">
-                            <h3>📞 Har I Spørgsmål?</h3>
-                            <p>I er altid velkomne til at kontakte os, hvis I har spørgsmål eller bekymringer om projektet:</p>
-                            <p><strong>SWITZEA ApS</strong><br>
-                            📧 kontakt@switzea.dk<br>
-                            📞 +45 XX XX XX XX</p>
-                            <p><em>Vi glæder os til at færdiggøre jeres projekt og se jeres reaktion på det færdige resultat!</em></p>
-                        </div>
-                        
                         <div class="footer">
                             <p><strong>SWITZEA ApS</strong> | Professional Projektledelse & Håndværk</p>
                             <p>Rapport genereret: ${new Date().toLocaleString('da-DK')}</p>
-                            <p><em>Tak for jeres tillid til SWITZEA</em></p>
                         </div>
                     </div>
                 </body>
@@ -2389,310 +2411,7 @@
             printWindow.document.close();
             printWindow.print();
             
-            showToast('📊 Professional kunde PDF genereret og sendt til print!');
-        }
-        
-        function generateWorkerSchedule(sortedTasks) {
-            const schedule = {};
-            const totalDays = appState.weeks * 5;
-            
-            // Group tasks by day
-            for (let day = 1; day <= totalDays; day++) {
-                const taskDate = calculateDateFromDay(day);
-                const dateKey = formatDateForInput(taskDate);
-                
-                // Skip weekends
-                if (isWeekend(taskDate)) continue;
-                
-                schedule[dateKey] = {
-                    date: taskDate,
-                    dayNumber: day,
-                    tasks: []
-                };
-                
-                // Find all tasks for this day
-                const dayTasks = appState.tasks.filter(task => {
-                    return task.startDay <= day && task.startDay + task.duration > day;
-                });
-                
-                dayTasks.forEach(task => {
-                    const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
-                    const dayOfTask = day - task.startDay + 1;
-                    
-                    schedule[dateKey].tasks.push({
-                        ...task,
-                        craftsmanName: craftsman ? craftsman.name : 'Ukendt',
-                        craftsmanColor: craftsman ? craftsman.color : '#666',
-                        dayOfTask: dayOfTask,
-                        isFirstDay: dayOfTask === 1,
-                        isLastDay: dayOfTask === task.duration
-                    });
-                });
-            }
-            
-            let html = '';
-            
-            // Sort dates
-            const sortedDates = Object.keys(schedule).sort((a, b) => 
-                new Date(schedule[a].date) - new Date(schedule[b].date)
-            );
-            
-            sortedDates.forEach(dateKey => {
-                const dayData = schedule[dateKey];
-                const dayName = formatFullDateDanish(dayData.date);
-                const isToday = isToday(dayData.date);
-                
-                html += `
-                    <div class="day-block">
-                        <div class="day-header ${isToday ? 'today' : ''}">
-                            <div>
-                                <strong>${dayName}</strong>
-                                <div style="font-size: 0.9em; font-weight: normal; opacity: 0.9;">
-                                    Dag ${dayData.dayNumber} af ${totalDays} arbejdsdage
-                                </div>
-                            </div>
-                            <div class="day-weather">
-                                ☀️ Forventes godt vejr
-                            </div>
-                        </div>
-                        <div class="day-tasks">
-                `;
-                
-                if (dayData.tasks.length === 0) {
-                    html += `
-                        <div class="empty-day">
-                            <strong>🏖️ Fri dag</strong><br>
-                            Ingen opgaver planlagt for denne dag
-                        </div>
-                    `;
-                } else {
-                    dayData.tasks.forEach(task => {
-                        const statusText = task.status === 'planned' ? 'Planlagt' : 
-                                         task.status === 'in-progress' ? 'I gang' : 'Udført';
-                        const priorityText = task.priority === 'high' ? 'Høj' :
-                                           task.priority === 'medium' ? 'Medium' : 'Lav';
-                        const durationText = task.duration === 1 ? '1 dag' : `${task.duration} dage`;
-                        
-                        html += `
-                            <div class="task-item priority-${task.priority}">
-                                <div class="craftsman-badge" style="background-color: ${task.craftsmanColor};">
-                                    ${task.craftsmanName}
-                                </div>
-                                <div class="task-content">
-                                    <div class="task-title">
-                                        ${task.title}
-                                        ${task.isFirstDay ? ' 🚀' : ''}
-                                        ${task.isLastDay ? ' 🏁' : ''}
-                                    </div>
-                                    ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
-                                    ${task.notes ? `<div class="task-notes">📝 <strong>Vigtigt:</strong> ${task.notes}</div>` : ''}
-                                    <div class="task-meta">
-                                        <span class="status-indicator status-${task.status}">${statusText}</span>
-                                        <span class="duration-badge">${durationText}</span>
-                                        <span class="priority-badge priority-${task.priority}-badge">${priorityText} prioritet</span>
-                                        ${task.isHalfDay ? '<span class="duration-badge">Halv dag</span>' : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-                
-                html += `
-                        </div>
-                    </div>
-                `;
-            });
-            
-            return html;
-        }
-        
-        function generateCustomerMilestones() {
-            const milestones = [...appState.tasks].sort((a, b) => a.startDay - b.startDay);
-            
-            let html = '';
-            milestones.forEach(task => {
-                const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
-                const taskDate = calculateDateFromDay(task.startDay);
-                const dateStr = formatDateForInput(taskDate);
-                const endDate = new Date(taskDate);
-                endDate.setDate(endDate.getDate() + task.duration - 1);
-                const endDateStr = task.duration > 1 ? ` - ${formatDateForInput(endDate)}` : '';
-                
-                const iconClass = task.status === 'completed' ? 'milestone-completed' : 
-                                 task.status === 'in-progress' ? 'milestone-progress' : 'milestone-planned';
-                const icon = task.status === 'completed' ? '✓' : 
-                            task.status === 'in-progress' ? '⚙️' : '⏳';
-                const statusText = task.status === 'completed' ? 'Færdig' : 
-                                  task.status === 'in-progress' ? 'I gang' : 'Planlagt';
-                
-                html += `
-                    <div class="milestone">
-                        <div class="milestone-icon ${iconClass}">${icon}</div>
-                        <div class="milestone-text">
-                            <strong>${task.title}</strong> - ${craftsman ? craftsman.name : 'Specialist'}
-                            <div class="milestone-date">${dateStr}${endDateStr} (${task.duration} dag${task.duration !== 1 ? 'e' : ''})</div>
-                            ${task.description ? `<div style="font-size: 0.9em; color: #666; margin-top: 4px;">${task.description}</div>` : ''}
-                        </div>
-                        <span class="status-badge badge-${task.status}">${statusText}</span>
-                    </div>
-                `;
-            });
-            
-            return html;
-        }
-        
-        function generateUpcomingWork() {
-            const today = new Date();
-            const nextWeek = new Date(today);
-            nextWeek.setDate(today.getDate() + 7);
-            
-            const upcomingTasks = appState.tasks.filter(task => {
-                const taskDate = calculateDateFromDay(task.startDay);
-                return taskDate >= today && taskDate <= nextWeek && task.status !== 'completed';
-            }).sort((a, b) => a.startDay - b.startDay);
-            
-            if (upcomingTasks.length === 0) {
-                return `
-                    <div style="text-align: center; padding: 20px; color: #666;">
-                        <p><strong>🏖️ Rolig periode</strong></p>
-                        <p>Ingen nye aktiviteter planlagt i den kommende uge. Vi bruger tiden på afsluttende arbejde og kvalitetssikring.</p>
-                    </div>
-                `;
-            }
-            
-            let html = '<div style="margin-top: 15px;">';
-            upcomingTasks.forEach(task => {
-                const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
-                const taskDate = calculateDateFromDay(task.startDay);
-                const dateStr = formatDateForInput(taskDate);
-                const dayName = taskDate.toLocaleDateString('da-DK', { weekday: 'long' });
-                
-                html += `
-                    <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #2196F3;">
-                        <strong>${dayName} ${dateStr}:</strong> ${task.title}
-                        <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
-                            ${craftsman ? craftsman.name : 'Specialist'} - ${task.duration} dag${task.duration !== 1 ? 'e' : ''}
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            
-            return html;
-        }
-        
-        function generateCustomerHighlights() {
-            const completedTasks = appState.tasks.filter(t => t.status === 'completed');
-            const inProgressTasks = appState.tasks.filter(t => t.status === 'in-progress');
-            
-            let html = '';
-            
-            if (completedTasks.length > 0) {
-                html += `
-                    <div class="next-week">
-                        <h3 style="margin-top: 0; color: #2e7d32;">🎉 Seneste Færdiggjorte Arbejde</h3>
-                        <ul style="margin: 10px 0;">
-                `;
-                
-                completedTasks.slice(-3).forEach(task => {
-                    html += `<li><strong>${task.title}</strong> - Nu færdig og klar!</li>`;
-                });
-                
-                html += `
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            if (inProgressTasks.length > 0) {
-                html += `
-                    <div class="highlight-box">
-                        <h3 style="margin-top: 0; color: #1976d2;">⚙️ Aktuelt Arbejde i Gang</h3>
-                        <ul style="margin: 10px 0;">
-                `;
-                
-                inProgressTasks.forEach(task => {
-                    const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
-                    html += `<li><strong>${task.title}</strong> - ${craftsman ? craftsman.name : 'Specialist'} arbejder på dette</li>`;
-                });
-                
-                html += `
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            return html;
-        }
-        
-        function generateMaterialsSection() {
-            const materialsNotes = appState.tasks
-                .filter(task => task.notes && (
-                    task.notes.toLowerCase().includes('materiale') || 
-                    task.notes.toLowerCase().includes('bestil') ||
-                    task.notes.toLowerCase().includes('indkøb')
-                ))
-                .map(task => ({ title: task.title, notes: task.notes }));
-            
-            if (materialsNotes.length === 0) return '';
-            
-            return `
-                <div class="materials-section">
-                    <h3 style="margin-top: 0; color: #ef6c00;">📦 Materialer & Indkøb Oversigt</h3>
-                    <p style="margin-bottom: 15px;"><strong>Følgende materialer og indkøb er planlagt:</strong></p>
-                    <ul style="margin: 0; padding-left: 20px;">
-                        ${materialsNotes.map(item => 
-                            `<li><strong>${item.title}:</strong> ${item.notes}</li>`
-                        ).join('')}
-                    </ul>
-                    <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
-                        <strong>💡 Tip:</strong> Alle materialer bliver indkøbt og leveret før arbejdet påbegyndes.
-                    </p>
-                </div>
-            `;
-        }
-        
-        function generateCoordinationNotes() {
-            const coordNotes = appState.tasks
-                .filter(task => task.notes && (
-                    task.notes.toLowerCase().includes('koordin') || 
-                    task.notes.toLowerCase().includes('sammen') ||
-                    task.notes.toLowerCase().includes('møde')
-                ))
-                .map(task => ({ title: task.title, notes: task.notes }));
-            
-            if (coordNotes.length === 0) return '';
-            
-            return `
-                <div class="coordination-notes">
-                    <h3 style="margin-top: 0; color: #2e7d32;">🤝 Koordinering & Samarbejde</h3>
-                    <p style="margin-bottom: 15px;"><strong>Vigtige koordineringspunkter:</strong></p>
-                    <ul style="margin: 0; padding-left: 20px;">
-                        ${coordNotes.map(item => 
-                            `<li><strong>${item.title}:</strong> ${item.notes}</li>`
-                        ).join('')}
-                    </ul>
-                </div>
-            `;
-        }
-        
-        function generateImportantNotes() {
-            const highPriorityTasks = appState.tasks.filter(t => t.priority === 'high');
-            
-            if (highPriorityTasks.length === 0) return '';
-            
-            return `
-                <div class="important-note">
-                    <h3 style="margin-top: 0; color: #c62828;">⚠️ Vigtige Opmærksomhedspunkter</h3>
-                    <p>Følgende opgaver kræver særlig opmærksomhed:</p>
-                    <ul style="margin: 10px 0 0 20px;">
-                        ${highPriorityTasks.map(task => 
-                            `<li><strong>${task.title}</strong> - Høj prioritet</li>`
-                        ).join('')}
-                    </ul>
-                </div>
-            `;
+            showToast('📊 Kunde PDF genereret!');
         }
         
         function closeModal(modalId) {
