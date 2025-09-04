@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switzea - HÅNDVÆRKER PDF FIXED</title>
+    <title>Switzea - ENHANCED HÅNDVÆRKER PDF</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -695,7 +695,7 @@
 </head>
 <body>
     <div class="company-banner">
-        📋 SWITZEA ApS - HÅNDVÆRKER PDF FIXED | Nu med data og debug info
+        📋 SWITZEA ApS - ENHANCED HÅNDVÆRKER PDF | Timeline + Dag-for-dag + Håndværker sektioner
     </div>
 
     <header class="header">
@@ -1031,7 +1031,7 @@
             saveState();
             renderAll();
             updateTimelineInfo();
-            showToast('📋 HÅNDVÆRKER PDF FIXED - Nu med debug info!', 'info');
+            showToast('📋 ENHANCED HÅNDVÆRKER PDF klar - nu med 3 sektioner!', 'info');
         });
         
         // STATE MANAGEMENT
@@ -1827,12 +1827,12 @@
             }
         }
         
-        // FIXED: generateWorkerSchedule function
+        // ENHANCED: generateWorkerSchedule function with timeline and craftsman sections
         function generateWorkerSchedule(sortedTasks) {
             const schedule = {};
             const totalDays = appState.weeks * 5;
             
-            console.log('🔍 DEBUG: Generating worker schedule');
+            console.log('🔍 DEBUG: Generating enhanced worker schedule');
             console.log('Total days:', totalDays);
             console.log('Tasks:', appState.tasks.length);
             
@@ -1870,7 +1870,11 @@
                 });
             }
             
-            let html = '';
+            // Generate Timeline Overview
+            let timelineHtml = generateTimelineOverview();
+            
+            // Generate Day-by-day schedule
+            let dayScheduleHtml = '';
             const sortedDates = Object.keys(schedule).sort((a, b) => 
                 new Date(schedule[a].date) - new Date(schedule[b].date)
             );
@@ -1882,7 +1886,7 @@
                 const dayName = formatFullDateDanish(dayData.date);
                 const todayCheck = isToday(dayData.date);
                 
-                html += `
+                dayScheduleHtml += `
                     <div class="day-block">
                         <div class="day-header ${todayCheck ? 'today' : ''}">
                             <div>
@@ -1899,7 +1903,7 @@
                 `;
                 
                 if (dayData.tasks.length === 0) {
-                    html += `
+                    dayScheduleHtml += `
                         <div class="empty-day">
                             <strong>🏖️ Fri dag</strong><br>
                             Ingen opgaver planlagt for denne dag
@@ -1913,7 +1917,7 @@
                                            task.priority === 'medium' ? 'Medium' : 'Lav';
                         const durationText = task.duration === 1 ? '1 dag' : `${task.duration} dage`;
                         
-                        html += `
+                        dayScheduleHtml += `
                             <div class="task-item priority-${task.priority}">
                                 <div class="craftsman-badge" style="background-color: ${task.craftsmanColor};">
                                     ${task.craftsmanName}
@@ -1938,16 +1942,22 @@
                     });
                 }
                 
-                html += `
+                dayScheduleHtml += `
                         </div>
                     </div>
                 `;
             });
             
-            console.log('Generated HTML length:', html.length);
+            // Generate Craftsman Sections
+            let craftsmanSectionsHtml = generateCraftsmanSections();
             
-            if (html.length < 100) {
-                html = `
+            console.log('Generated HTML length:', timelineHtml.length + dayScheduleHtml.length + craftsmanSectionsHtml.length);
+            
+            // Combine all sections
+            let fullHtml = timelineHtml + dayScheduleHtml + craftsmanSectionsHtml;
+            
+            if (fullHtml.length < 100) {
+                fullHtml = `
                     <div class="empty-day" style="padding: 40px; text-align: center;">
                         <h3 style="color: #666;">⚠️ Ingen data fundet</h3>
                         <p>Der blev ikke fundet nogen opgaver at vise i arbejdsplanen.</p>
@@ -1958,6 +1968,135 @@
                 `;
             }
             
+            return fullHtml;
+        }
+        
+        // NEW: Generate Timeline Overview
+        function generateTimelineOverview() {
+            if (appState.tasks.length === 0) return '';
+            
+            const totalDays = appState.weeks * 5;
+            let html = `
+                <div class="timeline-overview">
+                    <h2 style="color: #2E7D32; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                        📊 Timeline Oversigt
+                    </h2>
+                    <div class="timeline-visual">
+            `;
+            
+            // Create visual timeline
+            for (let week = 1; week <= appState.weeks; week++) {
+                html += `<div class="timeline-week">`;
+                html += `<div class="week-label">Uge ${week}</div>`;
+                html += `<div class="week-days">`;
+                
+                for (let dayInWeek = 1; dayInWeek <= 5; dayInWeek++) {
+                    const day = (week - 1) * 5 + dayInWeek;
+                    if (day > totalDays) break;
+                    
+                    const taskDate = calculateDateFromDay(day);
+                    const dayTasks = appState.tasks.filter(task => 
+                        task.startDay <= day && task.startDay + task.duration > day
+                    );
+                    
+                    html += `
+                        <div class="timeline-day ${dayTasks.length > 0 ? 'has-tasks' : 'empty-day-timeline'}">
+                            <div class="day-number">${day}</div>
+                            <div class="day-date">${formatDateForDisplay(taskDate)}</div>
+                            <div class="day-task-count">${dayTasks.length} opgave${dayTasks.length !== 1 ? 'r' : ''}</div>
+                        </div>
+                    `;
+                }
+                
+                html += `</div></div>`;
+            }
+            
+            html += `
+                    </div>
+                </div>
+                <div class="page-break"></div>
+            `;
+            
+            return html;
+        }
+        
+        // NEW: Generate Craftsman Sections
+        function generateCraftsmanSections() {
+            if (appState.craftsmen.length === 0 || appState.tasks.length === 0) return '';
+            
+            let html = `
+                <div class="page-break"></div>
+                <div class="craftsman-sections">
+                    <h2 style="color: #2E7D32; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                        👷 Opgaver Sorteret på Håndværker
+                    </h2>
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #2196F3;">
+                        <p><strong>💡 Hurtig Reference:</strong> Find nemt alle dine opgaver samlet på ét sted.</p>
+                    </div>
+            `;
+            
+            const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
+            
+            sortedCraftsmen.forEach(craftsman => {
+                const craftsmanTasks = appState.tasks.filter(task => task.craftsman === craftsman.id);
+                
+                if (craftsmanTasks.length === 0) return;
+                
+                // Sort tasks by start day
+                craftsmanTasks.sort((a, b) => a.startDay - b.startDay);
+                
+                html += `
+                    <div class="craftsman-section">
+                        <div class="craftsman-header" style="background-color: ${craftsman.color};">
+                            <h3 style="margin: 0; color: white; display: flex; align-items: center; gap: 10px;">
+                                👤 ${craftsman.name}
+                                <span style="font-size: 0.8em; opacity: 0.9;">(${craftsmanTasks.length} opgave${craftsmanTasks.length !== 1 ? 'r' : ''})</span>
+                            </h3>
+                        </div>
+                        <div class="craftsman-tasks">
+                `;
+                
+                craftsmanTasks.forEach((task, index) => {
+                    const taskStartDate = calculateDateFromDay(task.startDay);
+                    const taskEndDate = new Date(taskStartDate);
+                    taskEndDate.setDate(taskEndDate.getDate() + task.duration - 1);
+                    
+                    const statusText = task.status === 'planned' ? 'Planlagt' : 
+                                     task.status === 'in-progress' ? 'I gang' : 'Udført';
+                    const priorityText = task.priority === 'high' ? 'Høj' :
+                                       task.priority === 'medium' ? 'Medium' : 'Lav';
+                    
+                    html += `
+                        <div class="craftsman-task priority-${task.priority}">
+                            <div class="task-number">${index + 1}</div>
+                            <div class="task-details">
+                                <div class="task-title-section">
+                                    <strong>${task.title}</strong>
+                                    <div class="task-date-range">
+                                        📅 ${formatDateForInput(taskStartDate)}${task.duration > 1 ? ` - ${formatDateForInput(taskEndDate)}` : ''} 
+                                        (Dag ${task.startDay}${task.duration > 1 ? `-${task.startDay + task.duration - 1}` : ''})
+                                    </div>
+                                </div>
+                                ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                                ${task.notes ? `<div class="task-notes">📝 <strong>Noter:</strong> ${task.notes}</div>` : ''}
+                                <div class="task-meta-craftsman">
+                                    <span class="status-indicator status-${task.status}">${statusText}</span>
+                                    <span class="priority-badge priority-${task.priority}-badge">${priorityText} prioritet</span>
+                                    <span class="duration-badge">${task.duration} dag${task.duration !== 1 ? 'e' : ''}</span>
+                                    ${task.isHalfDay ? '<span class="duration-badge">Halv dag</span>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
             return html;
         }
         
@@ -1968,8 +2107,7 @@
                 return;
             }
             
-            // Debug logging
-            console.log('🔍 Starting Worker PDF Export');
+            console.log('🔍 Starting Enhanced Worker PDF Export');
             console.log('Project:', appState.project);
             console.log('Tasks:', appState.tasks);
             console.log('Craftsmen:', appState.craftsmen);
@@ -2025,6 +2163,71 @@
                             font-size: 12px;
                             font-weight: bold;
                         }
+                        
+                        /* Timeline Overview Styles */
+                        .timeline-overview {
+                            margin: 25px 0;
+                            background: #f8f9fa;
+                            padding: 20px;
+                            border-radius: 8px;
+                            border-left: 5px solid #4CAF50;
+                        }
+                        .timeline-visual {
+                            display: flex;
+                            gap: 10px;
+                            overflow-x: auto;
+                        }
+                        .timeline-week {
+                            flex: 1;
+                            min-width: 150px;
+                        }
+                        .week-label {
+                            background: #4CAF50;
+                            color: white;
+                            padding: 8px;
+                            text-align: center;
+                            font-weight: bold;
+                            border-radius: 4px 4px 0 0;
+                        }
+                        .week-days {
+                            display: flex;
+                            flex-direction: column;
+                            border: 1px solid #ddd;
+                            border-top: none;
+                            border-radius: 0 0 4px 4px;
+                        }
+                        .timeline-day {
+                            padding: 8px;
+                            border-bottom: 1px solid #eee;
+                            text-align: center;
+                            font-size: 0.8em;
+                        }
+                        .timeline-day:last-child {
+                            border-bottom: none;
+                        }
+                        .timeline-day.has-tasks {
+                            background: #e8f5e8;
+                            font-weight: bold;
+                        }
+                        .timeline-day.empty-day-timeline {
+                            background: #fafafa;
+                            color: #999;
+                        }
+                        .day-number {
+                            font-weight: bold;
+                            color: #2E7D32;
+                        }
+                        .day-date {
+                            font-size: 0.75em;
+                            color: #666;
+                            margin: 2px 0;
+                        }
+                        .day-task-count {
+                            font-size: 0.7em;
+                            color: #4CAF50;
+                        }
+                        
+                        /* Day Schedule Styles */
                         .schedule { margin-top: 25px; }
                         .day-block { margin-bottom: 25px; page-break-inside: avoid; }
                         .day-header { 
@@ -2126,6 +2329,71 @@
                         .priority-high-badge { background: #ffebee; color: #c62828; }
                         .priority-medium-badge { background: #fff3e0; color: #ef6c00; }
                         .priority-low-badge { background: #e8f5e8; color: #2e7d32; }
+                        .empty-day {
+                            padding: 20px;
+                            text-align: center;
+                            color: #999;
+                            font-style: italic;
+                            background: #f8f9fa;
+                        }
+                        
+                        /* Craftsman Sections Styles */
+                        .craftsman-sections {
+                            margin-top: 30px;
+                        }
+                        .craftsman-section {
+                            margin-bottom: 30px;
+                            background: white;
+                            border-radius: 8px;
+                            overflow: hidden;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        .craftsman-header {
+                            padding: 15px 20px;
+                        }
+                        .craftsman-tasks {
+                            padding: 0;
+                        }
+                        .craftsman-task {
+                            padding: 15px 20px;
+                            border-bottom: 1px solid #eee;
+                            display: flex;
+                            gap: 15px;
+                            align-items: flex-start;
+                        }
+                        .craftsman-task:last-child {
+                            border-bottom: none;
+                        }
+                        .task-number {
+                            background: #2196F3;
+                            color: white;
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: bold;
+                            flex-shrink: 0;
+                        }
+                        .task-details {
+                            flex: 1;
+                        }
+                        .task-title-section {
+                            margin-bottom: 8px;
+                        }
+                        .task-date-range {
+                            font-size: 0.9em;
+                            color: #666;
+                            margin-top: 4px;
+                        }
+                        .task-meta-craftsman {
+                            display: flex;
+                            gap: 10px;
+                            margin-top: 10px;
+                            flex-wrap: wrap;
+                        }
+                        
                         .footer { 
                             margin-top: 40px; 
                             font-size: 0.9em; 
@@ -2134,45 +2402,18 @@
                             padding-top: 20px; 
                             text-align: center; 
                         }
-                        .materials-section { 
-                            margin-top: 30px; 
-                            background: #fff8e1; 
-                            padding: 20px; 
-                            border-radius: 8px; 
-                            border-left: 5px solid #ffc107; 
-                        }
-                        .coordination-notes { 
-                            margin-top: 20px; 
-                            background: #e8f5e8; 
-                            padding: 20px; 
-                            border-radius: 8px; 
-                            border-left: 5px solid #4caf50; 
-                        }
-                        .important-note {
-                            background: #ffebee;
-                            border-left: 5px solid #f44336;
-                            padding: 15px;
-                            margin: 20px 0;
-                            border-radius: 5px;
-                        }
-                        .empty-day {
-                            padding: 20px;
-                            text-align: center;
-                            color: #999;
-                            font-style: italic;
-                            background: #f8f9fa;
-                        }
                         @media print { 
                             .page-break { page-break-before: always; } 
                             body { font-size: 12px; }
                             .day-block { break-inside: avoid; }
+                            .craftsman-section { break-inside: avoid; }
                         }
                     </style>
                 </head>
                 <body>
                     <div class="header">
                         <div class="logo">🏗️ SWITZEA ApS</div>
-                        <div class="subtitle">Håndværker Arbejdsplan</div>
+                        <div class="subtitle">Håndværker Arbejdsplan - Enhanced</div>
                     </div>
                     
                     <div class="project-info">
@@ -2207,7 +2448,7 @@
                     
                     <div class="schedule">
                         <h2 style="color: #2E7D32; border-bottom: 2px solid #e3f2fd; padding-bottom: 8px; margin-bottom: 25px;">
-                            📋 Dag-for-dag Arbejdsplan
+                            📋 Komplet Arbejdsplan
                         </h2>
                         ${generateWorkerSchedule(sortedTasks)}
                     </div>
@@ -2221,13 +2462,13 @@
                 </html>
             `;
             
-            console.log('PDF Content generated, length:', content.length);
+            console.log('Enhanced PDF Content generated, length:', content.length);
             
             printWindow.document.write(content);
             printWindow.document.close();
             printWindow.print();
             
-            showToast('📋 Håndværker PDF genereret med DEBUG info!');
+            showToast('📋 Enhanced Håndværker PDF med 3 sektioner genereret!');
         }
         
         function exportCustomerPDF() {
