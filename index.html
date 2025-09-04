@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switzea Projektplanlægning - DRAG DATE FIXED</title>
+    <title>Switzea - FULDE PDF FUNKTIONER</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -14,21 +14,14 @@
             user-select: none;
         }
         
-        .fix-alert {
-            background: linear-gradient(135deg, #FF6B35, #F7931E);
+        .company-banner {
+            background: linear-gradient(135deg, #2E7D32, #4CAF50);
             color: white;
             text-align: center;
             padding: 12px;
             font-weight: bold;
             font-size: 1.1em;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
         }
         
         .header {
@@ -654,6 +647,15 @@
         .toast.warning { background: #ff9800; }
         .toast.info { background: #2196F3; }
         
+        /* PDF Print Styles */
+        @media print {
+            body * { visibility: hidden; }
+            .print-area, .print-area * { visibility: visible; }
+            .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+            .page-break { page-break-before: always; }
+        }
+        
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -692,8 +694,8 @@
     </style>
 </head>
 <body>
-    <div class="fix-alert">
-        🔧 BUG FIXED: Drag & Drop opdaterer nu korrekt startdato i opgavebeskrivelse!
+    <div class="company-banner">
+        📋 SWITZEA ApS - Professional PDF Funktioner AKTIVERET | Håndværker & Kunde Output
     </div>
 
     <header class="header">
@@ -1007,6 +1009,15 @@
             return `${day}/${month}/${year}`;
         }
         
+        function formatFullDateDanish(date) {
+            return date.toLocaleDateString('da-DK', { 
+                weekday: 'long',
+                day: 'numeric', 
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+        
         function isToday(date) {
             const today = new Date();
             return date.toDateString() === today.toDateString();
@@ -1020,7 +1031,7 @@
             saveState();
             renderAll();
             updateTimelineInfo();
-            showToast('🔧 DRAG & DROP DATE FIX aktiveret!', 'info');
+            showToast('📋 FULDE PDF FUNKTIONER klar til brug!', 'info');
         });
         
         // STATE MANAGEMENT
@@ -1690,8 +1701,6 @@
             // Show confirmation with date info
             const newDateStr = formatDateForInput(new Date(task.startDate));
             showToast(`✅ Opgave flyttet til dag ${newStartDay} (${newDateStr})!`);
-            
-            console.log(`DRAG & DROP FIX: Task ${taskId} moved from ${oldDate} to ${task.startDate}`);
         }
         
         function openCraftsmanModal() {
@@ -1822,13 +1831,868 @@
             }
         }
         
-        // Simplified PDF functions for testing
+        // KOMPLET PDF EXPORT FUNKTIONER
         function exportWorkerPDF() {
-            showToast('📋 Håndværker PDF function - under udvikling', 'info');
+            if (!appState.project.name || appState.tasks.length === 0) {
+                showToast('Tilføj projekt information og opgaver først', 'warning');
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            const projectName = appState.project.name || 'Projekt';
+            const projectStart = getProjectStartDate();
+            const projectEnd = new Date(projectStart);
+            projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
+            
+            // Sort tasks by day for worker schedule
+            const sortedTasks = [...appState.tasks].sort((a, b) => {
+                if (a.startDay !== b.startDay) return a.startDay - b.startDay;
+                return a.craftsman.localeCompare(b.craftsman);
+            });
+            
+            const content = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Håndværker Arbejdsplan - ${projectName}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.4; font-size: 14px; }
+                        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #2E7D32; padding-bottom: 20px; }
+                        .logo { font-size: 2.2em; font-weight: bold; color: #2E7D32; margin-bottom: 10px; }
+                        .subtitle { font-size: 1.3em; color: #666; }
+                        .project-info { 
+                            margin-bottom: 25px; 
+                            background: #f8f9fa; 
+                            padding: 20px; 
+                            border-radius: 8px; 
+                            border-left: 5px solid #2E7D32; 
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 15px;
+                        }
+                        .info-item { 
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        }
+                        .info-icon {
+                            width: 20px;
+                            height: 20px;
+                            background: #2E7D32;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
+                        .schedule { margin-top: 25px; }
+                        .day-block { margin-bottom: 25px; page-break-inside: avoid; }
+                        .day-header { 
+                            background: linear-gradient(135deg, #2E7D32, #4CAF50); 
+                            color: white; 
+                            padding: 15px; 
+                            font-weight: bold; 
+                            font-size: 1.1em; 
+                            border-radius: 8px; 
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        }
+                        .day-weather { 
+                            font-size: 0.9em; 
+                            opacity: 0.9;
+                        }
+                        .day-tasks { 
+                            background: white; 
+                            border: 1px solid #ddd; 
+                            border-radius: 8px; 
+                            margin-top: 8px; 
+                            overflow: hidden;
+                        }
+                        .task-item { 
+                            padding: 15px; 
+                            border-bottom: 1px solid #eee; 
+                            display: flex; 
+                            align-items: flex-start; 
+                            gap: 15px;
+                        }
+                        .task-item:last-child { border-bottom: none; }
+                        .craftsman-badge { 
+                            display: inline-flex; 
+                            align-items: center;
+                            justify-content: center;
+                            padding: 8px 12px; 
+                            border-radius: 20px; 
+                            color: white; 
+                            font-weight: bold; 
+                            font-size: 0.85em; 
+                            min-width: 110px; 
+                            text-align: center;
+                            flex-shrink: 0;
+                        }
+                        .task-content { flex: 1; min-width: 0; }
+                        .task-title { 
+                            font-weight: bold; 
+                            margin-bottom: 6px; 
+                            font-size: 1.05em;
+                        }
+                        .task-description { 
+                            color: #555; 
+                            font-size: 0.95em; 
+                            margin-bottom: 6px; 
+                            line-height: 1.4;
+                        }
+                        .task-notes { 
+                            color: #777; 
+                            font-size: 0.85em; 
+                            font-style: italic; 
+                            background: #f8f9fa;
+                            padding: 6px 10px;
+                            border-radius: 4px;
+                            border-left: 3px solid #007bff;
+                        }
+                        .task-meta {
+                            display: flex;
+                            gap: 12px;
+                            align-items: center;
+                            margin-top: 8px;
+                        }
+                        .priority-high { border-left: 5px solid #f44336; }
+                        .priority-medium { border-left: 5px solid #ff9800; }
+                        .priority-low { border-left: 5px solid #4caf50; }
+                        .status-indicator { 
+                            padding: 3px 8px; 
+                            border-radius: 12px; 
+                            font-size: 0.75em; 
+                            font-weight: bold; 
+                        }
+                        .status-planned { background: #f3f4f6; color: #374151; }
+                        .status-in-progress { background: #dbeafe; color: #1d4ed8; }
+                        .status-completed { background: #d1fae5; color: #065f46; }
+                        .duration-badge {
+                            background: #e3f2fd;
+                            color: #1976d2;
+                            padding: 3px 8px;
+                            border-radius: 12px;
+                            font-size: 0.75em;
+                            font-weight: bold;
+                        }
+                        .priority-badge {
+                            padding: 3px 8px;
+                            border-radius: 12px;
+                            font-size: 0.75em;
+                            font-weight: bold;
+                        }
+                        .priority-high-badge { background: #ffebee; color: #c62828; }
+                        .priority-medium-badge { background: #fff3e0; color: #ef6c00; }
+                        .priority-low-badge { background: #e8f5e8; color: #2e7d32; }
+                        .footer { 
+                            margin-top: 40px; 
+                            font-size: 0.9em; 
+                            color: #666; 
+                            border-top: 2px solid #ddd; 
+                            padding-top: 20px; 
+                            text-align: center; 
+                        }
+                        .materials-section { 
+                            margin-top: 30px; 
+                            background: #fff8e1; 
+                            padding: 20px; 
+                            border-radius: 8px; 
+                            border-left: 5px solid #ffc107; 
+                        }
+                        .coordination-notes { 
+                            margin-top: 20px; 
+                            background: #e8f5e8; 
+                            padding: 20px; 
+                            border-radius: 8px; 
+                            border-left: 5px solid #4caf50; 
+                        }
+                        .important-note {
+                            background: #ffebee;
+                            border-left: 5px solid #f44336;
+                            padding: 15px;
+                            margin: 20px 0;
+                            border-radius: 5px;
+                        }
+                        .empty-day {
+                            padding: 20px;
+                            text-align: center;
+                            color: #999;
+                            font-style: italic;
+                            background: #f8f9fa;
+                        }
+                        @media print { 
+                            .page-break { page-break-before: always; } 
+                            body { font-size: 12px; }
+                            .day-block { break-inside: avoid; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="logo">🏗️ SWITZEA ApS</div>
+                        <div class="subtitle">Håndværker Arbejdsplan</div>
+                    </div>
+                    
+                    <div class="project-info">
+                        <div class="info-item">
+                            <div class="info-icon">📋</div>
+                            <div><strong>Projekt:</strong> ${projectName}</div>
+                        </div>
+                        ${appState.project.address ? `
+                        <div class="info-item">
+                            <div class="info-icon">📍</div>
+                            <div><strong>Adresse:</strong> ${appState.project.address}</div>
+                        </div>` : ''}
+                        ${appState.project.customer ? `
+                        <div class="info-item">
+                            <div class="info-icon">👤</div>
+                            <div><strong>Kunde:</strong> ${appState.project.customer}</div>
+                        </div>` : ''}
+                        ${appState.project.phone ? `
+                        <div class="info-item">
+                            <div class="info-icon">📞</div>
+                            <div><strong>Telefon:</strong> ${appState.project.phone}</div>
+                        </div>` : ''}
+                        <div class="info-item">
+                            <div class="info-icon">📅</div>
+                            <div><strong>Periode:</strong> ${formatDateForInput(projectStart)} - ${formatDateForInput(projectEnd)}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">⏰</div>
+                            <div><strong>Udskrevet:</strong> ${new Date().toLocaleString('da-DK')}</div>
+                        </div>
+                    </div>
+                    
+                    ${generateImportantNotes()}
+                    
+                    <div class="schedule">
+                        <h2 style="color: #2E7D32; border-bottom: 2px solid #e3f2fd; padding-bottom: 8px; margin-bottom: 25px;">
+                            📋 Dag-for-dag Arbejdsplan
+                        </h2>
+                        ${generateWorkerSchedule(sortedTasks)}
+                    </div>
+                    
+                    ${generateMaterialsSection()}
+                    ${generateCoordinationNotes()}
+                    
+                    <div class="footer">
+                        <p><strong>SWITZEA ApS</strong> | Professional Projektplanlægning</p>
+                        <p>📧 kontakt@switzea.dk | 📞 +45 XX XX XX XX</p>
+                        <p>Udskrevet: ${new Date().toLocaleString('da-DK')}</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(content);
+            printWindow.document.close();
+            printWindow.print();
+            
+            showToast('📋 Håndværker PDF genereret og sendt til print!');
         }
         
         function exportCustomerPDF() {
-            showToast('📊 Kunde PDF function - under udvikling', 'info');
+            if (!appState.project.name || appState.tasks.length === 0) {
+                showToast('Tilføj projekt information og opgaver først', 'warning');
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            const projectName = appState.project.name || 'Projekt';
+            const projectStart = getProjectStartDate();
+            const projectEnd = new Date(projectStart);
+            projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
+            
+            // Calculate project progress
+            const totalTasks = appState.tasks.length;
+            const completedTasks = appState.tasks.filter(t => t.status === 'completed').length;
+            const progressTasks = appState.tasks.filter(t => t.status === 'in-progress').length;
+            const progressPercentage = Math.round((completedTasks / totalTasks) * 100) || 0;
+            
+            const content = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Projekt Status Rapport - ${projectName}</title>
+                    <style>
+                        body { 
+                            font-family: 'Georgia', serif; 
+                            margin: 30px; 
+                            line-height: 1.6; 
+                            color: #333; 
+                            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                        }
+                        .container {
+                            background: white;
+                            padding: 40px;
+                            border-radius: 15px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                            max-width: 800px;
+                            margin: 0 auto;
+                        }
+                        .header { 
+                            text-align: center; 
+                            margin-bottom: 40px; 
+                            border-bottom: 3px solid #667eea; 
+                            padding-bottom: 25px; 
+                        }
+                        .logo { 
+                            font-size: 2.8em; 
+                            font-weight: bold; 
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            margin-bottom: 10px; 
+                        }
+                        .subtitle { 
+                            font-size: 1.4em; 
+                            color: #555; 
+                            font-style: italic; 
+                        }
+                        .customer-greeting { 
+                            font-size: 1.1em; 
+                            margin-bottom: 35px; 
+                            background: linear-gradient(135deg, #f8f9ff, #e3f2fd); 
+                            padding: 25px; 
+                            border-radius: 12px; 
+                            border-left: 6px solid #667eea;
+                            position: relative;
+                        }
+                        .customer-greeting h3 {
+                            margin-top: 0;
+                            color: #667eea;
+                            font-size: 1.3em;
+                        }
+                        .project-overview { 
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 25px;
+                            margin-bottom: 35px; 
+                        }
+                        .overview-card { 
+                            background: linear-gradient(135deg, #white, #f8f9fa);
+                            padding: 25px; 
+                            border-radius: 12px; 
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+                            border-left: 6px solid #4CAF50;
+                            transition: transform 0.2s ease;
+                        }
+                        .overview-card:hover {
+                            transform: translateY(-2px);
+                        }
+                        .overview-card h3 {
+                            margin-top: 0;
+                            color: #667eea;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        }
+                        .progress-section { margin-bottom: 35px; }
+                        .progress-bar { 
+                            background: #e0e0e0; 
+                            height: 30px; 
+                            border-radius: 15px; 
+                            overflow: hidden; 
+                            margin: 20px 0; 
+                            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        .progress-fill { 
+                            background: linear-gradient(90deg, #4CAF50, #45a049); 
+                            height: 100%; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center; 
+                            color: white; 
+                            font-weight: bold; 
+                            font-size: 1em;
+                            transition: width 0.3s ease;
+                        }
+                        .milestones { margin-bottom: 35px; }
+                        .milestone { 
+                            display: flex; 
+                            align-items: center; 
+                            margin: 15px 0; 
+                            padding: 15px;
+                            background: #fafbfc;
+                            border-radius: 8px;
+                            transition: background 0.2s ease;
+                        }
+                        .milestone:hover {
+                            background: #f0f2f5;
+                        }
+                        .milestone-icon { 
+                            width: 25px; 
+                            height: 25px; 
+                            border-radius: 50%; 
+                            margin-right: 20px; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center; 
+                            color: white; 
+                            font-weight: bold; 
+                            font-size: 0.9em;
+                            flex-shrink: 0;
+                        }
+                        .milestone-completed { background: linear-gradient(135deg, #4CAF50, #45a049); }
+                        .milestone-progress { background: linear-gradient(135deg, #2196F3, #1976d2); }
+                        .milestone-planned { background: linear-gradient(135deg, #666, #555); }
+                        .milestone-text { 
+                            flex: 1; 
+                            line-height: 1.4;
+                        }
+                        .milestone-date {
+                            font-size: 0.85em;
+                            color: #777;
+                            margin-top: 4px;
+                        }
+                        .upcoming-section { 
+                            background: linear-gradient(135deg, #fff8e1, #ffecb3); 
+                            padding: 25px; 
+                            border-radius: 12px; 
+                            border-left: 6px solid #ffc107; 
+                            margin: 25px 0; 
+                        }
+                        .next-week { 
+                            background: linear-gradient(135deg, #e8f5e8, #c8e6c8); 
+                            padding: 20px; 
+                            border-radius: 10px; 
+                            border-left: 6px solid #28a745; 
+                            margin: 20px 0; 
+                        }
+                        .footer { 
+                            margin-top: 50px; 
+                            text-align: center; 
+                            font-size: 0.95em; 
+                            color: #666; 
+                            border-top: 2px solid #ddd; 
+                            padding-top: 25px; 
+                        }
+                        .contact-info { 
+                            background: linear-gradient(135deg, #f8f9fa, #e9ecef); 
+                            padding: 25px; 
+                            border-radius: 10px; 
+                            margin-top: 30px; 
+                        }
+                        .contact-info h3 {
+                            color: #667eea;
+                            margin-top: 0;
+                        }
+                        h2 { 
+                            color: #667eea; 
+                            border-bottom: 2px solid #e3f2fd; 
+                            padding-bottom: 10px; 
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        }
+                        h3 { color: #555; }
+                        .status-badge { 
+                            padding: 6px 12px; 
+                            border-radius: 20px; 
+                            font-size: 0.85em; 
+                            font-weight: bold; 
+                            margin-left: auto;
+                        }
+                        .badge-completed { background: #d1fae5; color: #065f46; }
+                        .badge-progress { background: #dbeafe; color: #1d4ed8; }
+                        .badge-planned { background: #f3f4f6; color: #374151; }
+                        .highlight-box {
+                            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+                            border-left: 6px solid #2196F3;
+                            padding: 20px;
+                            margin: 20px 0;
+                            border-radius: 8px;
+                        }
+                        @media print { 
+                            body { background: white; }
+                            .container { box-shadow: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="logo">🏗️ SWITZEA ApS</div>
+                            <div class="subtitle">Projekt Status Rapport</div>
+                        </div>
+                        
+                        <div class="customer-greeting">
+                            <h3>Kære ${appState.project.customer || 'Kunde'}</h3>
+                            <p>Vi er glade for at give jer en opdatering på jeres ${projectName.toLowerCase()}. Nedenfor kan I følge fremgangen og se, hvad der sker i den kommende periode. Vi arbejder hver dag for at sikre, at projektet forløber smertefrit og leveres til tiden.</p>
+                        </div>
+                        
+                        <div class="project-overview">
+                            <div class="overview-card">
+                                <h3>📋 Projekt Detaljer</h3>
+                                <p><strong>Projekt:</strong> ${projectName}</p>
+                                ${appState.project.address ? `<p><strong>Adresse:</strong> ${appState.project.address}</p>` : ''}
+                                <p><strong>Periode:</strong> ${formatDateForInput(projectStart)} - ${formatDateForInput(projectEnd)}</p>
+                                <p><strong>Varighed:</strong> ${appState.weeks} uger arbejde</p>
+                            </div>
+                            <div class="overview-card">
+                                <h3>📊 Status Oversigt</h3>
+                                <p><strong>Opgaver i alt:</strong> ${totalTasks} stk.</p>
+                                <p><strong>Fuldført:</strong> ${completedTasks} stk.</p>
+                                <p><strong>I gang:</strong> ${progressTasks} stk.</p>
+                                <p><strong>Planlagt:</strong> ${totalTasks - completedTasks - progressTasks} stk.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-section">
+                            <h2>🎯 Projekt Fremgang</h2>
+                            <div class="highlight-box">
+                                <p style="margin: 0; font-size: 1.1em;"><strong>Aktuelt fremskridt: ${progressPercentage}%</strong></p>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercentage}%;">
+                                    ${progressPercentage}% Færdig
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="milestones">
+                            <h2>📅 Milepæle og Aktiviteter</h2>
+                            ${generateCustomerMilestones()}
+                        </div>
+                        
+                        <div class="upcoming-section">
+                            <h3>🔜 Hvad Sker Der Næste Uge?</h3>
+                            ${generateUpcomingWork()}
+                        </div>
+                        
+                        ${generateCustomerHighlights()}
+                        
+                        <div class="contact-info">
+                            <h3>📞 Har I Spørgsmål?</h3>
+                            <p>I er altid velkomne til at kontakte os, hvis I har spørgsmål eller bekymringer om projektet:</p>
+                            <p><strong>SWITZEA ApS</strong><br>
+                            📧 kontakt@switzea.dk<br>
+                            📞 +45 XX XX XX XX</p>
+                            <p><em>Vi glæder os til at færdiggøre jeres projekt og se jeres reaktion på det færdige resultat!</em></p>
+                        </div>
+                        
+                        <div class="footer">
+                            <p><strong>SWITZEA ApS</strong> | Professional Projektledelse & Håndværk</p>
+                            <p>Rapport genereret: ${new Date().toLocaleString('da-DK')}</p>
+                            <p><em>Tak for jeres tillid til SWITZEA</em></p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(content);
+            printWindow.document.close();
+            printWindow.print();
+            
+            showToast('📊 Professional kunde PDF genereret og sendt til print!');
+        }
+        
+        function generateWorkerSchedule(sortedTasks) {
+            const schedule = {};
+            const totalDays = appState.weeks * 5;
+            
+            // Group tasks by day
+            for (let day = 1; day <= totalDays; day++) {
+                const taskDate = calculateDateFromDay(day);
+                const dateKey = formatDateForInput(taskDate);
+                
+                // Skip weekends
+                if (isWeekend(taskDate)) continue;
+                
+                schedule[dateKey] = {
+                    date: taskDate,
+                    dayNumber: day,
+                    tasks: []
+                };
+                
+                // Find all tasks for this day
+                const dayTasks = appState.tasks.filter(task => {
+                    return task.startDay <= day && task.startDay + task.duration > day;
+                });
+                
+                dayTasks.forEach(task => {
+                    const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
+                    const dayOfTask = day - task.startDay + 1;
+                    
+                    schedule[dateKey].tasks.push({
+                        ...task,
+                        craftsmanName: craftsman ? craftsman.name : 'Ukendt',
+                        craftsmanColor: craftsman ? craftsman.color : '#666',
+                        dayOfTask: dayOfTask,
+                        isFirstDay: dayOfTask === 1,
+                        isLastDay: dayOfTask === task.duration
+                    });
+                });
+            }
+            
+            let html = '';
+            
+            // Sort dates
+            const sortedDates = Object.keys(schedule).sort((a, b) => 
+                new Date(schedule[a].date) - new Date(schedule[b].date)
+            );
+            
+            sortedDates.forEach(dateKey => {
+                const dayData = schedule[dateKey];
+                const dayName = formatFullDateDanish(dayData.date);
+                const isToday = isToday(dayData.date);
+                
+                html += `
+                    <div class="day-block">
+                        <div class="day-header ${isToday ? 'today' : ''}">
+                            <div>
+                                <strong>${dayName}</strong>
+                                <div style="font-size: 0.9em; font-weight: normal; opacity: 0.9;">
+                                    Dag ${dayData.dayNumber} af ${totalDays} arbejdsdage
+                                </div>
+                            </div>
+                            <div class="day-weather">
+                                ☀️ Forventes godt vejr
+                            </div>
+                        </div>
+                        <div class="day-tasks">
+                `;
+                
+                if (dayData.tasks.length === 0) {
+                    html += `
+                        <div class="empty-day">
+                            <strong>🏖️ Fri dag</strong><br>
+                            Ingen opgaver planlagt for denne dag
+                        </div>
+                    `;
+                } else {
+                    dayData.tasks.forEach(task => {
+                        const statusText = task.status === 'planned' ? 'Planlagt' : 
+                                         task.status === 'in-progress' ? 'I gang' : 'Udført';
+                        const priorityText = task.priority === 'high' ? 'Høj' :
+                                           task.priority === 'medium' ? 'Medium' : 'Lav';
+                        const durationText = task.duration === 1 ? '1 dag' : `${task.duration} dage`;
+                        
+                        html += `
+                            <div class="task-item priority-${task.priority}">
+                                <div class="craftsman-badge" style="background-color: ${task.craftsmanColor};">
+                                    ${task.craftsmanName}
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-title">
+                                        ${task.title}
+                                        ${task.isFirstDay ? ' 🚀' : ''}
+                                        ${task.isLastDay ? ' 🏁' : ''}
+                                    </div>
+                                    ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                                    ${task.notes ? `<div class="task-notes">📝 <strong>Vigtigt:</strong> ${task.notes}</div>` : ''}
+                                    <div class="task-meta">
+                                        <span class="status-indicator status-${task.status}">${statusText}</span>
+                                        <span class="duration-badge">${durationText}</span>
+                                        <span class="priority-badge priority-${task.priority}-badge">${priorityText} prioritet</span>
+                                        ${task.isHalfDay ? '<span class="duration-badge">Halv dag</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+        
+        function generateCustomerMilestones() {
+            const milestones = [...appState.tasks].sort((a, b) => a.startDay - b.startDay);
+            
+            let html = '';
+            milestones.forEach(task => {
+                const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
+                const taskDate = calculateDateFromDay(task.startDay);
+                const dateStr = formatDateForInput(taskDate);
+                const endDate = new Date(taskDate);
+                endDate.setDate(endDate.getDate() + task.duration - 1);
+                const endDateStr = task.duration > 1 ? ` - ${formatDateForInput(endDate)}` : '';
+                
+                const iconClass = task.status === 'completed' ? 'milestone-completed' : 
+                                 task.status === 'in-progress' ? 'milestone-progress' : 'milestone-planned';
+                const icon = task.status === 'completed' ? '✓' : 
+                            task.status === 'in-progress' ? '⚙️' : '⏳';
+                const statusText = task.status === 'completed' ? 'Færdig' : 
+                                  task.status === 'in-progress' ? 'I gang' : 'Planlagt';
+                
+                html += `
+                    <div class="milestone">
+                        <div class="milestone-icon ${iconClass}">${icon}</div>
+                        <div class="milestone-text">
+                            <strong>${task.title}</strong> - ${craftsman ? craftsman.name : 'Specialist'}
+                            <div class="milestone-date">${dateStr}${endDateStr} (${task.duration} dag${task.duration !== 1 ? 'e' : ''})</div>
+                            ${task.description ? `<div style="font-size: 0.9em; color: #666; margin-top: 4px;">${task.description}</div>` : ''}
+                        </div>
+                        <span class="status-badge badge-${task.status}">${statusText}</span>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+        
+        function generateUpcomingWork() {
+            const today = new Date();
+            const nextWeek = new Date(today);
+            nextWeek.setDate(today.getDate() + 7);
+            
+            const upcomingTasks = appState.tasks.filter(task => {
+                const taskDate = calculateDateFromDay(task.startDay);
+                return taskDate >= today && taskDate <= nextWeek && task.status !== 'completed';
+            }).sort((a, b) => a.startDay - b.startDay);
+            
+            if (upcomingTasks.length === 0) {
+                return `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        <p><strong>🏖️ Rolig periode</strong></p>
+                        <p>Ingen nye aktiviteter planlagt i den kommende uge. Vi bruger tiden på afsluttende arbejde og kvalitetssikring.</p>
+                    </div>
+                `;
+            }
+            
+            let html = '<div style="margin-top: 15px;">';
+            upcomingTasks.forEach(task => {
+                const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
+                const taskDate = calculateDateFromDay(task.startDay);
+                const dateStr = formatDateForInput(taskDate);
+                const dayName = taskDate.toLocaleDateString('da-DK', { weekday: 'long' });
+                
+                html += `
+                    <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #2196F3;">
+                        <strong>${dayName} ${dateStr}:</strong> ${task.title}
+                        <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                            ${craftsman ? craftsman.name : 'Specialist'} - ${task.duration} dag${task.duration !== 1 ? 'e' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            return html;
+        }
+        
+        function generateCustomerHighlights() {
+            const completedTasks = appState.tasks.filter(t => t.status === 'completed');
+            const inProgressTasks = appState.tasks.filter(t => t.status === 'in-progress');
+            
+            let html = '';
+            
+            if (completedTasks.length > 0) {
+                html += `
+                    <div class="next-week">
+                        <h3 style="margin-top: 0; color: #2e7d32;">🎉 Seneste Færdiggjorte Arbejde</h3>
+                        <ul style="margin: 10px 0;">
+                `;
+                
+                completedTasks.slice(-3).forEach(task => {
+                    html += `<li><strong>${task.title}</strong> - Nu færdig og klar!</li>`;
+                });
+                
+                html += `
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            if (inProgressTasks.length > 0) {
+                html += `
+                    <div class="highlight-box">
+                        <h3 style="margin-top: 0; color: #1976d2;">⚙️ Aktuelt Arbejde i Gang</h3>
+                        <ul style="margin: 10px 0;">
+                `;
+                
+                inProgressTasks.forEach(task => {
+                    const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
+                    html += `<li><strong>${task.title}</strong> - ${craftsman ? craftsman.name : 'Specialist'} arbejder på dette</li>`;
+                });
+                
+                html += `
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            return html;
+        }
+        
+        function generateMaterialsSection() {
+            const materialsNotes = appState.tasks
+                .filter(task => task.notes && (
+                    task.notes.toLowerCase().includes('materiale') || 
+                    task.notes.toLowerCase().includes('bestil') ||
+                    task.notes.toLowerCase().includes('indkøb')
+                ))
+                .map(task => ({ title: task.title, notes: task.notes }));
+            
+            if (materialsNotes.length === 0) return '';
+            
+            return `
+                <div class="materials-section">
+                    <h3 style="margin-top: 0; color: #ef6c00;">📦 Materialer & Indkøb Oversigt</h3>
+                    <p style="margin-bottom: 15px;"><strong>Følgende materialer og indkøb er planlagt:</strong></p>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        ${materialsNotes.map(item => 
+                            `<li><strong>${item.title}:</strong> ${item.notes}</li>`
+                        ).join('')}
+                    </ul>
+                    <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                        <strong>💡 Tip:</strong> Alle materialer bliver indkøbt og leveret før arbejdet påbegyndes.
+                    </p>
+                </div>
+            `;
+        }
+        
+        function generateCoordinationNotes() {
+            const coordNotes = appState.tasks
+                .filter(task => task.notes && (
+                    task.notes.toLowerCase().includes('koordin') || 
+                    task.notes.toLowerCase().includes('sammen') ||
+                    task.notes.toLowerCase().includes('møde')
+                ))
+                .map(task => ({ title: task.title, notes: task.notes }));
+            
+            if (coordNotes.length === 0) return '';
+            
+            return `
+                <div class="coordination-notes">
+                    <h3 style="margin-top: 0; color: #2e7d32;">🤝 Koordinering & Samarbejde</h3>
+                    <p style="margin-bottom: 15px;"><strong>Vigtige koordineringspunkter:</strong></p>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        ${coordNotes.map(item => 
+                            `<li><strong>${item.title}:</strong> ${item.notes}</li>`
+                        ).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        function generateImportantNotes() {
+            const highPriorityTasks = appState.tasks.filter(t => t.priority === 'high');
+            
+            if (highPriorityTasks.length === 0) return '';
+            
+            return `
+                <div class="important-note">
+                    <h3 style="margin-top: 0; color: #c62828;">⚠️ Vigtige Opmærksomhedspunkter</h3>
+                    <p>Følgende opgaver kræver særlig opmærksomhed:</p>
+                    <ul style="margin: 10px 0 0 20px;">
+                        ${highPriorityTasks.map(task => 
+                            `<li><strong>${task.title}</strong> - Høj prioritet</li>`
+                        ).join('')}
+                    </ul>
+                </div>
+            `;
         }
         
         function closeModal(modalId) {
