@@ -691,7 +691,62 @@
                 gap: 0.5rem;
             }
         }
-    </style>
+    
+        /* Overlap håndtering */
+        .task-overlap {
+            position: relative;
+            z-index: 10;
+        }
+
+        .task-overlap::after {
+            content: '📋';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 10px;
+            background: #ff9800;
+            color: white;
+            padding: 1px 3px;
+            border-radius: 2px;
+        }
+        
+        /* I dag markering */
+        .today-column {
+            background-color: #e3f2fd !important;
+            border: 2px solid #2196F3;
+        }
+
+        .today-header {
+            background-color: #2196F3 !important;
+            color: white !important;
+            font-weight: bold;
+        }
+        
+        /* Tooltip styles */
+        .task-tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .task-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #333;
+        }
+        </style>
 </head>
 <body>
     <div class="company-banner">
@@ -730,6 +785,13 @@
             </ul>
         </div>
 
+        
+        <!-- Ny Opgave Knap -->
+        <div class="action-buttons" style="margin: 10px 0;">
+            <button id="newTaskBtn" class="primary-btn" onclick="openTaskModal()" style="background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                📋 Ny Opgave
+            </button>
+        </div>
         <div class="timeline-container">
             <div class="week-controls">
                 <button class="btn btn-secondary" onclick="removeWeek()">− Fjern uge</button>
@@ -792,7 +854,7 @@
             
             <div class="modal-buttons">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('projectModal')">Annullér</button>
-                <button type="button" class="btn btn-primary" onclick="saveProject()">Gem Projekt</button>
+                <button type="button" class="btn btn-primary" onclick="saveProject()">Opret Projekt</button>
             </div>
         </div>
     </div>
@@ -2701,6 +2763,141 @@
         
         // Hide tooltip when scrolling
         window.addEventListener('scroll', hideTaskTooltip);
+    
+
+    // Forbedret tooltip funktionalitet
+    function showTaskTooltip(event, task) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'task-tooltip';
+        tooltip.innerHTML = `
+            <strong>${task.title}</strong><br>
+            📅 ${task.startDate} (${task.duration} dage)<br>
+            👷 ${task.craftsman}<br>
+            🔥 ${task.priority} prioritet<br>
+            📊 Status: ${task.status}
+        `;
+
+        document.body.appendChild(tooltip);
+
+        const rect = event.target.getBoundingClientRect();
+        tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+
+        // Fjern tooltip efter 3 sekunder eller ved mouse leave
+        setTimeout(() => {
+            if (tooltip.parentNode) {
+                tooltip.parentNode.removeChild(tooltip);
+            }
+        }, 3000);
+
+        event.target.addEventListener('mouseleave', () => {
+            if (tooltip.parentNode) {
+                tooltip.parentNode.removeChild(tooltip);
+            }
+        }, { once: true });
+    }
+
+    // Forbedret toast funktion med error support
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'error' ? '#f44336' : '#4CAF50'};
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            z-index: 10000;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 4000);
+    }
+
+    // Forbedret PDF generation med korrekte datoer
+    function generateWorkerScheduleFixed() {
+        if (!appState.project.startDate) {
+            showToast('Indstil projektets startdato først', 'error');
+            return '';
+        }
+
+        let scheduleHTML = '<h3>📅 Uge-for-uge Plan</h3>';
+        const startDate = new Date(appState.project.startDate);
+
+        // Generer kun hverdage
+        for (let week = 0; week < appState.project.weeks; week++) {
+            scheduleHTML += `<h4>Uge ${week + 1}</h4>`;
+
+            for (let day = 0; day < 7; day++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + (week * 7) + day);
+
+                // Spring weekender over
+                if (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
+                    continue;
+                }
+
+                const dateStr = formatDateForDisplay(currentDate);
+                const dayTasks = appState.tasks.filter(task => {
+                    const taskDate = new Date(task.startDate);
+                    return taskDate.toDateString() === currentDate.toDateString();
+                });
+
+                if (dayTasks.length > 0) {
+                    scheduleHTML += `<p><strong>${dateStr}:</strong></p><ul>`;
+                    dayTasks.forEach(task => {
+                        scheduleHTML += `<li>${task.craftsman}: ${task.title} (${task.priority} prioritet)</li>`;
+                    });
+                    scheduleHTML += '</ul>';
+                }
+            }
+        }
+        return scheduleHTML;
+    }
+
+    // Auto-scroll til top funktion
+    function scrollModalToTop() {
+        const modal = document.querySelector('.modal.open');
+        if (modal) {
+            modal.scrollTop = 0;
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.scrollTop = 0;
+            }
+        }
+        // Scroll hele vinduet til top
+        window.scrollTo(0, 0);
+    }
+
+    // Opdateret openTaskModal funktion
+    function openTaskModal(day = null, craftsman = null) {
+        // Auto-scroll til top
+        scrollModalToTop();
+
+        document.getElementById('taskModal').classList.add('open');
+        document.getElementById('modalTitle').textContent = 'Ny Opgave';
+        clearTaskFields();
+
+        if (day !== null) {
+            document.getElementById('taskStartDate').value = formatDateForInput(new Date(day));
+        }
+        if (craftsman !== null) {
+            document.getElementById('taskCraftsman').value = craftsman;
+        }
+
+        currentTaskIndex = -1;
+        populateCraftsmanDropdown();
+    }
+
+    
     </script>
 </body>
 </html>
