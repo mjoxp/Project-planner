@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏁 SWITZEA ApS - Genåbning Fix</title>
+    <title>🏁 SWITZEA ApS - Multi-Dag Opgaver</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
@@ -120,6 +120,7 @@
         .timeline-grid {
             display: grid;
             min-width: max-content;
+            position: relative;
         }
 
         .timeline-header {
@@ -166,13 +167,14 @@
             border: 2px dashed #2196f3 !important;
         }
 
+        /* MULTI-DAG OPGAVE STYLING */
         .task-item {
             margin: 2px;
             padding: 4px 6px;
             border-radius: 3px;
             font-size: 11px;
             cursor: grab;
-            position: relative;
+            position: absolute;
             color: white;
             word-wrap: break-word;
             user-select: none;
@@ -180,11 +182,36 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            z-index: 10;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .task-item.multi-day {
+            border-radius: 3px 3px 3px 3px;
+            background: linear-gradient(135deg, currentColor 0%, currentColor 80%, rgba(255,255,255,0.2) 100%);
+        }
+
+        .task-item.first-day {
+            border-radius: 3px 0 0 3px;
+        }
+
+        .task-item.middle-day {
+            border-radius: 0;
+            border-left: 1px dashed rgba(255,255,255,0.3);
+        }
+
+        .task-item.last-day {
+            border-radius: 0 3px 3px 0;
+            border-left: 1px dashed rgba(255,255,255,0.3);
         }
 
         .task-item:hover {
             transform: scale(1.02);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            z-index: 20;
         }
 
         .task-item.high {
@@ -206,11 +233,21 @@
         .task-item.dragging {
             opacity: 0.5;
             transform: rotate(2deg);
+            z-index: 30;
         }
 
         .task-title {
             font-weight: bold;
             margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .task-duration {
+            font-size: 9px;
+            opacity: 0.9;
+            font-weight: normal;
         }
 
         .task-date {
@@ -425,6 +462,19 @@
         .debug-console.show {
             display: block;
         }
+
+        /* Timeline celle styling for bedre visual feedback */
+        .timeline-cell.has-task {
+            background: rgba(33, 150, 243, 0.05);
+        }
+
+        .timeline-cell.task-start {
+            border-left: 3px solid #2196f3;
+        }
+
+        .timeline-cell.task-end {
+            border-right: 3px solid #2196f3;
+        }
     </style>
 </head>
 <body>
@@ -463,7 +513,7 @@
             <!-- Debug Controls -->
             <div class="sidebar-section">
                 <button class="btn btn-outline" onclick="toggleDebug()" style="width: 100%; margin-bottom: 10px;">🔧 Debug</button>
-                <button class="btn btn-outline" onclick="testTaskEdit()" style="width: 100%;">🧪 Test Edit</button>
+                <button class="btn btn-outline" onclick="testMultiDayTask()" style="width: 100%;">🧪 Test Multi-dag</button>
             </div>
 
             <!-- Export Buttons -->
@@ -480,7 +530,7 @@
         <div class="main-content">
             <!-- Header -->
             <div class="header">
-                🏁 SWITZEA ApS - Genåbning Fix
+                🏁 SWITZEA ApS - Multi-Dag Opgaver
             </div>
 
             <!-- Project Info -->
@@ -565,6 +615,7 @@
             <div class="form-group">
                 <label for="taskDuration">Varighed (dage)</label>
                 <input type="number" id="taskDuration" min="1" max="30" value="1">
+                <small style="color: #666; font-size: 12px;">Opgaven vil strække sig over det valgte antal hverdage</small>
             </div>
             <div class="form-group">
                 <label for="taskNotes">Noter/Kommentarer</label>
@@ -639,8 +690,8 @@
 
     <script>
         // ========================================
-        // SWITZEA ApS - GENÅBNING FIX
-        // FOKUS PÅ: OPGAVE EDIT FUNKTIONALITET
+        // SWITZEA ApS - MULTI-DAG OPGAVER
+        // FOKUS PÅ: OPGAVE VARIGHED VISUALISERING
         // ========================================
 
         // Application State
@@ -688,13 +739,28 @@
             debugLog('Debug mode toggled', debugMode);
         }
 
-        function testTaskEdit() {
-            if (appState.tasks.length > 0) {
-                debugLog('Testing edit for first task', appState.tasks[0]);
-                editTask(0);
+        function testMultiDayTask() {
+            if (appState.craftsmen.length > 0) {
+                // Create a test multi-day task
+                const testTask = {
+                    title: 'Test 3-dages opgave',
+                    description: 'Test af multi-dag rendering',
+                    startDate: appState.project.startDate || '2025-09-09',
+                    duration: 3,
+                    notes: 'Test noter',
+                    craftsman: appState.craftsmen[0].type,
+                    priority: 'high',
+                    status: 'planned',
+                    halfDay: false,
+                    id: Date.now()
+                };
+                
+                appState.tasks.push(testTask);
+                renderAll();
+                debugLog('Test multi-day task created', testTask);
+                showToast('Test 3-dages opgave oprettet');
             } else {
-                debugLog('No tasks to test edit');
-                showToast('Ingen opgaver at teste - opret en opgave først', 'error');
+                showToast('Tilføj først en håndværker', 'error');
             }
         }
 
@@ -910,13 +976,17 @@
         }
 
         // ========================================
-        // OPGAVE RENDERING - GENÅBNING FOKUS
+        // MULTI-DAG OPGAVE RENDERING - NY IMPLEMENTATION
         // ========================================
 
         function renderTasks() {
-            debugLog('Starting task rendering', `${appState.tasks.length} tasks`);
+            debugLog('Starting MULTI-DAG task rendering', `${appState.tasks.length} tasks`);
             
+            // Clear existing tasks and task-related cell classes
             document.querySelectorAll('.task-item').forEach(task => task.remove());
+            document.querySelectorAll('.timeline-cell').forEach(cell => {
+                cell.classList.remove('has-task', 'task-start', 'task-end');
+            });
             
             const startDate = getProjectStartDate();
             if (!startDate) {
@@ -925,72 +995,114 @@
             }
 
             appState.tasks.forEach((task, index) => {
-                debugLog(`Rendering task ${index}`, {
+                debugLog(`Rendering MULTI-DAG task ${index}`, {
                     title: task.title,
                     craftsman: task.craftsman,
-                    startDate: task.startDate
+                    startDate: task.startDate,
+                    duration: task.duration
                 });
-                
-                const taskElement = document.createElement('div');
-                taskElement.className = `task-item ${task.priority}`;
-                taskElement.innerHTML = `
-                    <div class="task-title">${task.title}</div>
-                    <div class="task-date">${formatDateForDisplay(new Date(task.startDate))}</div>
-                `;
-                
-                // RETTET: Korrekt event setup for genåbning
-                taskElement.draggable = true;
-                taskElement.dataset.taskIndex = index;
-                
-                // VIGTIG FIX: Direct event handlers for bedre debugging
-                taskElement.ondragstart = function(e) { 
-                    debugLog('Drag started for task', index);
-                    drag(e); 
-                };
-                taskElement.ondragend = function(e) { 
-                    debugLog('Drag ended for task', index);
-                    dragEnd(e); 
-                };
-                
-                // KRITISK FIX: Dobbeltklik handler med debugging
-                taskElement.ondblclick = function(e) {
-                    debugLog('Double click on task', {
-                        index: index,
-                        task: task,
-                        element: taskElement
-                    });
-                    e.preventDefault();
-                    e.stopPropagation();
-                    editTask(index);
-                };
-
-                // Add single click for debugging
-                taskElement.onclick = function(e) {
-                    debugLog('Single click on task', index);
-                    e.stopPropagation();
-                };
                 
                 const taskDate = new Date(task.startDate);
-                const dayNumber = calculateDayFromDate(startDate, taskDate);
+                const startDayNumber = calculateDayFromDate(startDate, taskDate);
+                const duration = parseInt(task.duration) || 1;
                 
-                debugLog(`Task ${index} day calculation`, {
-                    taskDate: taskDate.toDateString(),
-                    startDate: startDate.toDateString(),
-                    dayNumber: dayNumber
+                debugLog(`Task ${index} span calculation`, {
+                    startDayNumber: startDayNumber,
+                    duration: duration,
+                    endDayNumber: startDayNumber + duration - 1
                 });
                 
-                const cell = document.querySelector(`[data-craftsman="${task.craftsman}"][data-day="${dayNumber}"]`);
-                if (cell) {
+                // MULTI-DAG RENDERING: Create task elements for each day
+                for (let dayOffset = 0; dayOffset < duration; dayOffset++) {
+                    const currentDayNumber = startDayNumber + dayOffset;
+                    
+                    const cell = document.querySelector(`[data-craftsman="${task.craftsman}"][data-day="${currentDayNumber}"]`);
+                    if (!cell) {
+                        debugLog(`WARNING: Cell not found for day ${currentDayNumber}`, task.craftsman);
+                        continue;
+                    }
+
+                    // Add cell classes for visual feedback
+                    cell.classList.add('has-task');
+                    if (dayOffset === 0) cell.classList.add('task-start');
+                    if (dayOffset === duration - 1) cell.classList.add('task-end');
+                    
+                    const taskElement = document.createElement('div');
+                    
+                    // MULTI-DAG STYLING: Different classes based on position
+                    let taskClasses = `task-item ${task.priority}`;
+                    if (duration > 1) {
+                        taskClasses += ' multi-day';
+                        if (dayOffset === 0) {
+                            taskClasses += ' first-day';
+                        } else if (dayOffset === duration - 1) {
+                            taskClasses += ' last-day';
+                        } else {
+                            taskClasses += ' middle-day';
+                        }
+                    }
+                    
+                    taskElement.className = taskClasses;
+                    
+                    // MULTI-DAG CONTENT: Different content based on position
+                    if (dayOffset === 0) {
+                        // First day shows full info
+                        taskElement.innerHTML = `
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-duration">${duration} dag${duration > 1 ? 'e' : ''}</div>
+                        `;
+                    } else if (dayOffset === duration - 1) {
+                        // Last day shows completion info
+                        taskElement.innerHTML = `
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-date">Slut: ${formatDateForDisplay(new Date(task.startDate))}</div>
+                        `;
+                    } else {
+                        // Middle days show minimal info
+                        taskElement.innerHTML = `
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-duration">Dag ${dayOffset + 1}/${duration}</div>
+                        `;
+                    }
+                    
+                    // EVENTS: Only first day element gets full interaction
+                    taskElement.draggable = (dayOffset === 0);
+                    taskElement.dataset.taskIndex = index;
+                    taskElement.dataset.dayOffset = dayOffset;
+                    
+                    if (dayOffset === 0) {
+                        // Primary task element (first day) gets full event handlers
+                        taskElement.ondragstart = function(e) { 
+                            debugLog('Drag started for multi-day task', index);
+                            drag(e); 
+                        };
+                        taskElement.ondragend = function(e) { 
+                            debugLog('Drag ended for multi-day task', index);
+                            dragEnd(e); 
+                        };
+                        taskElement.ondblclick = function(e) {
+                            debugLog('Double click on multi-day task', index);
+                            e.preventDefault();
+                            e.stopPropagation();
+                            editTask(index);
+                        };
+                    } else {
+                        // Secondary elements only get click to edit
+                        taskElement.onclick = function(e) {
+                            debugLog('Click on multi-day task continuation', index);
+                            e.preventDefault();
+                            e.stopPropagation();
+                            editTask(index);
+                        };
+                        taskElement.style.cursor = 'pointer';
+                    }
+                    
                     cell.appendChild(taskElement);
-                    debugLog(`Task ${index} placed in cell`, `${task.craftsman}, day ${dayNumber}`);
-                } else {
-                    debugLog(`ERROR: Cell not found for task ${index}`, {
-                        craftsman: task.craftsman,
-                        dayNumber: dayNumber,
-                        availableCells: document.querySelectorAll('.timeline-cell').length
-                    });
+                    debugLog(`Task ${index} day ${dayOffset + 1}/${duration} placed in cell`, `${task.craftsman}, day ${currentDayNumber}`);
                 }
             });
+            
+            debugLog('MULTI-DAG task rendering completed');
         }
 
         function updateWeekDisplay() {
@@ -1001,7 +1113,7 @@
         }
 
         // ========================================
-        // OPGAVE MODAL FUNKTIONER - GENÅBNING FIX
+        // OPGAVE MODAL FUNKTIONER
         // ========================================
 
         function openTaskModal(day = null, craftsman = null) {
@@ -1030,11 +1142,9 @@
             document.getElementById('deleteTaskBtn').style.display = 'none';
         }
 
-        // KRITISK FIX: Forbedret editTask funktion
         function editTask(taskIndex) {
-            debugLog('=== EDIT TASK CALLED ===', {
+            debugLog('=== EDIT MULTI-DAG TASK ===', {
                 taskIndex: taskIndex,
-                totalTasks: appState.tasks.length,
                 task: appState.tasks[taskIndex]
             });
 
@@ -1053,10 +1163,8 @@
 
             currentTaskIndex = taskIndex;
             
-            // Først populer dropdown
             populateCraftsmanDropdown();
             
-            // RETTET: Meget specifik field population med debugging
             const fields = {
                 taskModalTitle: { element: 'taskModalTitle', value: 'Rediger opgave', type: 'textContent' },
                 taskTitle: { element: 'taskTitle', value: task.title || '', type: 'value' },
@@ -1087,40 +1195,21 @@
                 }
             });
             
-            // RETTET: Håndværker sættes med delay for at sikre dropdown er populeret
             setTimeout(() => {
                 const craftsmanSelect = document.getElementById('taskCraftsman');
                 if (craftsmanSelect) {
                     craftsmanSelect.value = task.craftsman || '';
                     debugLog('Craftsman set after delay', task.craftsman);
-                    
-                    // Verificer at værdien faktisk blev sat
-                    if (craftsmanSelect.value !== task.craftsman) {
-                        debugLog('WARNING: Craftsman value not set correctly', {
-                            expected: task.craftsman,
-                            actual: craftsmanSelect.value,
-                            options: Array.from(craftsmanSelect.options).map(o => o.value)
-                        });
-                    }
-                } else {
-                    debugLog('ERROR: Craftsman select element not found');
                 }
             }, 100);
             
-            // Vis delete knap og åbn modal
             const deleteBtn = document.getElementById('deleteTaskBtn');
-            if (deleteBtn) {
-                deleteBtn.style.display = 'block';
-                debugLog('Delete button shown');
-            }
+            if (deleteBtn) deleteBtn.style.display = 'block';
             
             const modal = document.getElementById('taskModal');
-            if (modal) {
-                modal.classList.add('open');
-                debugLog('Modal opened');
-            }
+            if (modal) modal.classList.add('open');
             
-            debugLog('=== EDIT TASK COMPLETED ===');
+            debugLog('=== EDIT MULTI-DAG TASK COMPLETED ===');
         }
 
         function clearTaskFields() {
@@ -1173,13 +1262,14 @@
         // ========================================
 
         function saveTask() {
-            debugLog('=== SAVE TASK CALLED ===');
+            debugLog('=== SAVE MULTI-DAG TASK ===');
             
             const title = document.getElementById('taskTitle').value.trim();
             const craftsman = document.getElementById('taskCraftsman').value;
             const startDate = document.getElementById('taskStartDate').value;
+            const duration = parseInt(document.getElementById('taskDuration').value) || 1;
             
-            debugLog('Save task validation', { title, craftsman, startDate });
+            debugLog('Save multi-day task validation', { title, craftsman, startDate, duration });
             
             if (!title) {
                 showToast('Indtast venligst en opgavetitel', 'error');
@@ -1198,6 +1288,12 @@
                 debugLog('Validation failed: No start date');
                 return;
             }
+
+            if (duration < 1 || duration > 30) {
+                showToast('Varighed skal være mellem 1 og 30 dage', 'error');
+                debugLog('Validation failed: Invalid duration', duration);
+                return;
+            }
             
             saveState();
             
@@ -1205,7 +1301,7 @@
                 title: title,
                 description: document.getElementById('taskDescription').value.trim(),
                 startDate: startDate,
-                duration: parseInt(document.getElementById('taskDuration').value) || 1,
+                duration: duration,
                 notes: document.getElementById('taskNotes').value.trim(),
                 craftsman: craftsman,
                 priority: document.getElementById('taskPriority').value,
@@ -1216,22 +1312,22 @@
             
             if (currentTaskIndex >= 0) {
                 appState.tasks[currentTaskIndex] = task;
-                showToast('Opgave opdateret');
-                debugLog('Task updated', { index: currentTaskIndex, task });
+                showToast(`Opgave opdateret (${duration} dag${duration > 1 ? 'e' : ''})`);
+                debugLog('Multi-day task updated', { index: currentTaskIndex, task });
             } else {
                 appState.tasks.push(task);
-                showToast('Opgave oprettet');
-                debugLog('Task created', task);
+                showToast(`Opgave oprettet (${duration} dag${duration > 1 ? 'e' : ''})`);
+                debugLog('Multi-day task created', task);
             }
             
             closeModal('taskModal');
             renderAll();
-            debugLog('=== SAVE TASK COMPLETED ===');
+            debugLog('=== SAVE MULTI-DAG TASK COMPLETED ===');
         }
 
         function deleteCurrentTask() {
             if (currentTaskIndex >= 0 && confirm('Er du sikker på at du vil slette denne opgave?')) {
-                debugLog('Deleting task', currentTaskIndex);
+                debugLog('Deleting multi-day task', currentTaskIndex);
                 saveState();
                 appState.tasks.splice(currentTaskIndex, 1);
                 closeModal('taskModal');
@@ -1329,7 +1425,7 @@
         }
 
         // ========================================
-        // DRAG AND DROP
+        // DRAG AND DROP - MULTI-DAG SUPPORT
         // ========================================
 
         function allowDrop(ev) {
@@ -1347,7 +1443,7 @@
             ev.dataTransfer.setData("text", taskIndex);
             ev.target.classList.add('dragging');
             draggedTask = appState.tasks[taskIndex];
-            debugLog('Drag started', { taskIndex, task: draggedTask });
+            debugLog('Drag started for multi-day task', { taskIndex, task: draggedTask });
         }
 
         function dragEnd(ev) {
@@ -1366,7 +1462,7 @@
             const newCraftsman = ev.currentTarget.dataset.craftsman;
             const newDay = parseInt(ev.currentTarget.dataset.day);
             
-            debugLog('Drop attempted', { taskIndex, newCraftsman, newDay });
+            debugLog('Drop attempted for multi-day task', { taskIndex, newCraftsman, newDay });
             
             if (taskIndex !== "" && newCraftsman && newDay >= 0) {
                 saveState();
@@ -1377,8 +1473,9 @@
                 appState.tasks[taskIndex].craftsman = newCraftsman;
                 appState.tasks[taskIndex].startDate = formatDateForInput(newDate);
                 
-                debugLog('Task moved', {
+                debugLog('Multi-day task moved', {
                     taskIndex,
+                    duration: appState.tasks[taskIndex].duration,
                     oldCraftsman: draggedTask.craftsman,
                     newCraftsman,
                     oldDate: draggedTask.startDate,
@@ -1460,14 +1557,9 @@
         // ========================================
 
         document.addEventListener('DOMContentLoaded', () => {
-            debugLog('Application initialized');
+            debugLog('Multi-day task application initialized');
             renderAll();
             updateUndoRedoButtons();
-            
-            // Auto-enable debug mode for testing
-            setTimeout(() => {
-                toggleDebug();
-            }, 1000);
         });
     </script>
 </body>
