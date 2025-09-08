@@ -3,726 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switzea - ENHANCED HÅNDVÆRKER PDF</title>
+    <title>SWITZEA ApS - ENHANCED HÅNDVÆRKER PDF | Timeline + Dag-for-dag + Håndværker sektioner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #f5f7fa;
-            overflow-x: hidden;
-            user-select: none;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        .company-banner {
-            background: linear-gradient(135deg, #2E7D32, #4CAF50);
-            color: white;
-            text-align: center;
-            padding: 12px;
-            font-weight: bold;
-            font-size: 1.1em;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .header {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 100vh;
+            padding: 20px;
         }
-        
-        .header h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
-        .header .project-info { font-size: 0.9rem; opacity: 0.9; }
-        .header .empty-project { font-style: italic; opacity: 0.7; }
-        
-        .header-buttons {
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3d72 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
             display: flex;
-            gap: 0.5rem;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            padding: 20px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .project-info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .project-info h3 {
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+
+        /* RETTET: Ny Opgave knap tilføjet */
+        .action-buttons {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
             flex-wrap: wrap;
         }
-        
-        .btn {
-            padding: 0.5rem 1rem;
+
+        .new-task-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .new-task-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .primary-btn {
+            background: #2196f3;
+            color: white;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-            font-family: inherit;
-            position: relative;
+            font-weight: bold;
         }
-        
-        .btn-primary { background: #4CAF50; color: white; }
-        .btn-secondary { background: #2196F3; color: white; }
-        .btn-outline { background: transparent; color: white; border: 1px solid white; }
-        .btn-danger { background: #f44336; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        
-        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .btn:disabled { 
-            opacity: 0.4; 
-            cursor: not-allowed; 
-            transform: none; 
-            background: #666 !important;
+
+        .primary-btn:hover {
+            background: #1976d2;
         }
-        
-        .main-container {
-            display: flex;
-            height: calc(100vh - 160px);
-        }
-        
-        .sidebar {
-            width: 250px;
-            background: white;
-            border-right: 2px solid #e0e0e0;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        }
-        
-        .sidebar h3 {
-            margin-bottom: 1rem;
-            color: #333;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #f0f0f0;
-            font-size: 1.2rem;
-        }
-        
-        .craftsman-list {
-            list-style: none;
-            flex: 1;
-        }
-        
-        .empty-craftsmen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 200px;
-            color: #666;
-            font-style: italic;
-        }
-        
-        .empty-craftsmen p {
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        
-        .craftsman-item {
-            padding: 1rem;
-            margin: 0.5rem 0;
-            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-            border-radius: 8px;
-            border-left: 6px solid;
-            cursor: grab;
-            transition: all 0.3s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .craftsman-item:hover { 
-            background: linear-gradient(145deg, #e9ecef, #dee2e6);
-            transform: translateX(5px) scale(1.02);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .craftsman-item.dragging { 
-            opacity: 0.5; 
-            transform: rotate(5deg) scale(0.95); 
-            z-index: 1000;
-        }
-        
-        .craftsman-item.drag-over {
-            border-top: 3px solid #4CAF50;
-            transform: translateY(-2px);
-        }
-        
-        .delete-craftsman {
-            background: #dc3545;
+
+        .secondary-btn {
+            background: #6c757d;
             color: white;
+            padding: 10px 20px;
             border: none;
-            border-radius: 50%;
-            width: 26px;
-            height: 26px;
-            font-size: 0.9rem;
+            border-radius: 5px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
         }
-        
-        .delete-craftsman:hover {
-            background: #c82333;
-            transform: scale(1.1);
+
+        .craftsman-list {
+            margin-bottom: 20px;
         }
-        
-        .timeline-container {
-            flex: 1;
-            padding: 1rem;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .week-controls {
+
+        .craftsman-item {
             background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            flex-wrap: wrap;
-        }
-        
-        .timeline-info {
-            font-weight: 600;
-            color: #333;
-            background: #e3f2fd;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-        
-        .week-number-input {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .week-number-input input, .week-number-input select {
-            padding: 0.5rem;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-        
-        .timeline-grid {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .empty-timeline {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 300px;
-            color: #666;
-            font-style: italic;
-        }
-        
-        .grid-header {
-            display: flex;
-            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-            border-bottom: 3px solid #dee2e6;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            min-height: 70px;
-        }
-        
-        .header-craftsman {
-            min-width: 200px;
-            max-width: 200px;
-            padding: 1rem;
-            border-right: 3px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: move;
             display: flex;
             align-items: center;
-            justify-content: center;
-            background: linear-gradient(145deg, #e9ecef, #d6d8db);
-            font-size: 1.1rem;
-            color: #495057;
-            font-weight: 600;
+            gap: 10px;
         }
-        
-        .header-days {
-            flex: 1;
-            display: flex;
+
+        .craftsman-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
         }
-        
-        .week-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border-right: 2px solid #dee2e6;
-        }
-        
-        .week-section:last-child {
-            border-right: none;
-        }
-        
-        .week-header {
-            padding: 0.4rem;
-            background: linear-gradient(145deg, #d6d8db, #c6c8ca);
-            border-bottom: 1px solid #dee2e6;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.8rem;
-            line-height: 1.2;
-        }
-        
-        .week-date-range {
-            font-size: 0.7rem;
-            color: #555;
-            font-weight: normal;
-            margin-top: 2px;
-        }
-        
-        .days-row {
-            display: flex;
-            flex: 1;
-        }
-        
-        .day-header {
-            flex: 1;
-            padding: 0.5rem 0.25rem;
-            border-right: 1px solid #dee2e6;
-            text-align: center;
-            min-height: 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            font-size: 0.7rem;
-            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-            line-height: 1.1;
-        }
-        
-        .day-header:last-child { border-right: none; }
-        
-        .day-name {
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-        
-        .day-date {
-            font-size: 0.65rem;
-            color: #666;
-        }
-        
-        .day-header.weekend {
-            background: linear-gradient(145deg, #ffebee, #ffcdd2);
-            color: #c62828;
-        }
-        
-        .day-header.today {
-            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
-            color: #1976d2;
-            font-weight: bold;
-        }
-        
-        .grid-body {
-            flex: 1;
-            overflow-y: auto;
-        }
-        
-        .grid-row {
-            display: flex;
-            border-bottom: 1px solid #dee2e6;
-            min-height: 80px;
-            position: relative;
-        }
-        
-        .grid-row:nth-child(even) { background: #fafbfc; }
-        
-        .row-craftsman {
-            min-width: 200px;
-            max-width: 200px;
-            padding: 1rem;
-            border-right: 3px solid #dee2e6;
-            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-left: 6px solid;
-            position: sticky;
-            left: 0;
-            z-index: 5;
-            box-shadow: 2px 0 3px rgba(0,0,0,0.1);
-        }
-        
+
         .craftsman-name {
             flex: 1;
-        }
-        
-        .remove-craftsman-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            padding: 2px 6px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            margin-left: 0.5rem;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        
-        .row-craftsman:hover .remove-craftsman-btn {
-            opacity: 1;
-        }
-        
-        .row-days {
-            flex: 1;
-            display: flex;
-            position: relative;
-        }
-        
-        .grid-cell {
-            flex: 1;
-            border-right: 1px solid #dee2e6;
-            position: relative;
-            transition: all 0.2s;
-            min-height: 80px;
-        }
-        
-        .grid-cell:last-child { border-right: none; }
-        .grid-cell:hover { background: #e3f2fd; }
-        .grid-cell.drop-zone { 
-            background: #c8e6c9 !important; 
-            border: 2px dashed #4CAF50 !important;
-            transform: scale(1.02);
-        }
-        
-        .grid-cell.weekend {
-            background: #fafafa;
-        }
-        
-        .grid-cell.today {
-            background: #e8f5e8;
-            border-left: 3px solid #4CAF50;
-        }
-        
-        .task {
-            position: absolute;
-            background: linear-gradient(145deg, #2196F3, #1976D2);
-            color: white;
-            border-radius: 6px;
-            padding: 0.4rem;
-            cursor: move;
-            font-size: 0.75rem;
-            line-height: 1.1;
-            z-index: 3;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-            height: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            top: 10px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-            overflow: hidden;
-        }
-        
-        .task:hover:not(.dragging) {
-            transform: scale(1.03) translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-            z-index: 4;
-        }
-        
-        .task.dragging {
-            opacity: 0.7;
-            transform: rotate(5deg) scale(1.05);
-            z-index: 100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        
-        .task.high { 
-            border-left: 6px solid #f44336; 
-            background: linear-gradient(145deg, #e53935, #c62828);
-        }
-        .task.medium { 
-            border-left: 6px solid #ff9800; 
-            background: linear-gradient(145deg, #fb8c00, #ef6c00);
-        }
-        .task.low { 
-            border-left: 6px solid #4caf50; 
-            background: linear-gradient(145deg, #43a047, #388e3c);
-        }
-        
-        .task.planned { background: linear-gradient(145deg, #6c757d, #5a6268); }
-        .task.in-progress { background: linear-gradient(145deg, #2196F3, #1976D2); }
-        .task.completed { background: linear-gradient(145deg, #4CAF50, #388E3C); }
-        
-        .task.half-day {
-            height: 40px !important;
-            font-size: 0.7rem;
-            padding: 0.25rem;
-        }
-        
-        .task-title {
-            font-weight: bold;
-            font-size: 0.75rem;
-            pointer-events: none;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.2;
-            margin-bottom: 0.2rem;
-        }
-        
-        .task-tooltip {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: normal;
-            white-space: nowrap;
-            z-index: 1000;
-            pointer-events: none;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            max-width: 300px;
-            word-wrap: break-word;
-            white-space: normal;
-        }
-        
-        .task-tooltip.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .task-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 5px solid transparent;
-            border-top-color: rgba(0, 0, 0, 0.9);
-        }
-        
-        .task-controls {
-            display: flex;
-            gap: 0.25rem;
-            margin-top: auto;
-        }
-        
-        .task-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-size: 0.65rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .task-btn:hover { 
-            background: rgba(255,255,255,0.4);
-            transform: scale(1.1);
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal.show { display: flex; }
-        
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 520px;
-            max-width: 95vw;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            transform: scale(0.9);
-            transition: transform 0.2s;
-        }
-        
-        .modal.show .modal-content { transform: scale(1); }
-        
-        .modal h3 {
-            margin-bottom: 1.5rem;
-            color: #333;
-            font-size: 1.3rem;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 0.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #555;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-            font-family: inherit;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #2196F3;
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .form-row .form-group { flex: 1; }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            justify-content: flex-end;
-        }
-        
-        .toast {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            z-index: 10000;
-            transform: translateX(400px);
-            transition: transform 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             font-weight: 500;
-            max-width: 300px;
-        }
-        
-        .toast.show { transform: translateX(0); }
-        .toast.error { background: #f44336; }
-        .toast.warning { background: #ff9800; }
-        .toast.info { background: #2196F3; }
-        
-        /* PDF Print Styles */
-        @media print {
-            body * { visibility: hidden; }
-            .print-area, .print-area * { visibility: visible; }
-            .print-area { position: absolute; left: 0; top: 0; width: 100%; }
-            .no-print { display: none !important; }
-            .page-break { page-break-before: always; }
-        }
-        
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            
-            .main-container {
-                flex-direction: column;
-                height: auto;
-            }
-            
-            .sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 2px solid #e0e0e0;
-                max-height: 200px;
-                overflow-y: auto;
-            }
-            
-            .header-craftsman, .row-craftsman {
-                min-width: 120px;
-                max-width: 120px;
-            }
-            
-            .task {
-                height: 50px;
-                font-size: 0.7rem;
-            }
-            
-            .week-controls {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-        }
-    
-        /* Overlap håndtering */
-        .task-overlap {
-            position: relative;
-            z-index: 10;
         }
 
-        .task-overlap::after {
-            content: '📋';
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            font-size: 10px;
-            background: #ff9800;
-            color: white;
-            padding: 1px 3px;
-            border-radius: 2px;
+        .timeline-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
         }
-        
-        /* I dag markering */
+
+        .timeline-controls {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .week-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .week-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .timeline-grid {
+            display: grid;
+            border: 1px solid #dee2e6;
+        }
+
+        .timeline-header {
+            background: #343a40;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .timeline-row {
+            display: contents;
+        }
+
+        .craftsman-row-header {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timeline-cell {
+            border: 1px solid #dee2e6;
+            min-height: 60px;
+            position: relative;
+            background: white;
+        }
+
+        /* RETTET: Kun hverdage vises - weekend styling fjernet */
+        .weekday {
+            background: #f8f9fa;
+        }
+
+        /* RETTET: I dag markering tilføjet */
         .today-column {
             background-color: #e3f2fd !important;
-            border: 2px solid #2196F3;
+            border: 2px solid #2196F3 !important;
         }
-
+        
         .today-header {
             background-color: #2196F3 !important;
             color: white !important;
-            font-weight: bold;
+            font-weight: bold !important;
         }
-        
-        /* Tooltip styles */
+
+        .task-item {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            margin: 2px;
+            padding: 4px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: grab;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .task-item:active {
+            cursor: grabbing;
+        }
+
+        .task-item.medium {
+            background: linear-gradient(135deg, #ffa726, #fb8c00);
+        }
+
+        .task-item.low {
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+        }
+
+        .task-item.half-day {
+            height: 30px;
+        }
+
+        .task-item.in-progress {
+            border: 2px solid #2196f3;
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+
+        /* RETTET: Tooltip styling tilføjet */
         .task-tooltip {
             position: absolute;
             background: #333;
@@ -734,8 +286,10 @@
             pointer-events: none;
             white-space: nowrap;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            max-width: 250px;
+            white-space: normal;
         }
-
+        
         .task-tooltip::before {
             content: '';
             position: absolute;
@@ -746,200 +300,368 @@
             border-right: 5px solid transparent;
             border-bottom: 5px solid #333;
         }
-        </style>
+
+        /* RETTET: Overlap håndtering styling */
+        .task-overlap {
+            position: relative;
+            z-index: 10;
+            margin-top: -2px;
+            opacity: 0.9;
+        }
+        
+        .task-overlap::after {
+            content: '📋';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 10px;
+            background: #ff9800;
+            color: white;
+            padding: 1px 3px;
+            border-radius: 2px;
+        }
+
+        .drop-zone {
+            background: rgba(33, 150, 243, 0.1);
+            border: 2px dashed #2196f3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.open {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .undo-redo {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .undo-btn, .redo-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .undo-btn:disabled, .redo-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* RETTET: Toast styling tilføjet */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            z-index: 10000;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .pdf-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .export-btn:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .timeline-grid {
+                overflow-x: auto;
+            }
+
+            .modal-content {
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+        }
+
+        /* No-print class for elements that shouldn't appear in PDF */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="company-banner">
-        📋 SWITZEA ApS - ENHANCED HÅNDVÆRKER PDF | Timeline + Dag-for-dag + Håndværker sektioner
-    </div>
-
-    <header class="header">
-        <div class="header-left">
-            <h1 id="projectTitle">Nyt Projekt</h1>
-            <div class="project-info" id="projectInfo">
-                <span class="empty-project">Klik "Redigér Projekt" for at tilføje kunde information</span>
-            </div>
+    <div class="container">
+        <div class="header">
+            <div class="logo">SWITZEA ApS</div>
+            <div class="subtitle">ENHANCED HÅNDVÆRKER PDF | Timeline + Dag-for-dag + Håndværker sektioner</div>
         </div>
-        <div class="header-buttons">
-            <button class="btn btn-outline" onclick="editProject()">✏️ Redigér Projekt</button>
-            <button class="btn btn-secondary" id="undoBtn" onclick="undo()">↺ Fortryd</button>
-            <button class="btn btn-secondary" id="redoBtn" onclick="redo()">↻ Gendan</button>
-            <button class="btn btn-primary" onclick="saveProjectToStorage()">💾 Gem</button>
-            <button class="btn btn-secondary" onclick="loadProjectFromStorage()">📂 Indlæs</button>
-            <button class="btn btn-success" onclick="exportWorkerPDF()">📋 Håndværker PDF</button>
-            <button class="btn btn-outline" onclick="exportCustomerPDF()">📊 Kunde PDF</button>
-        </div>
-    </header>
 
-    <div class="main-container">
-        <div class="sidebar">
-            <h3>
-                Håndværkere 
-                <button class="btn btn-primary" onclick="openCraftsmanModal()">+ Tilføj</button>
-            </h3>
-            <ul class="craftsman-list" id="craftsmanList">
-                <div class="empty-craftsmen">
-                    <p>Ingen håndværkere tilføjet endnu</p>
-                    <button class="btn btn-primary" onclick="openCraftsmanModal()">Tilføj første håndværker</button>
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="craftsman-list">
+                    <h3>Håndværkere</h3>
+                    <button class="primary-btn" onclick="openCraftsmanModal()">+ Tilføj</button>
+                    <div id="craftsmanList">
+                        <div class="empty-state">
+                            <p>Ingen håndværkere tilføjet endnu</p>
+                            <small>Tilføj første håndværker</small>
+                        </div>
+                    </div>
                 </div>
-            </ul>
-        </div>
 
-        
-        <!-- Ny Opgave Knap -->
-        <div class="action-buttons" style="margin: 10px 0;">
-            <button id="newTaskBtn" class="primary-btn" onclick="openTaskModal()" style="background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
-                📋 Ny Opgave
-            </button>
-        </div>
-        <div class="timeline-container">
-            <div class="week-controls">
-                <button class="btn btn-secondary" onclick="removeWeek()">− Fjern uge</button>
-                <span id="weekDisplay">3 uger</span>
-                <button class="btn btn-secondary" onclick="addWeek()">+ Tilføj uge</button>
-                
-                <div class="timeline-info" id="timelineInfo">
-                    Projekt: Start dato mangler
-                </div>
-                
-                <div class="week-number-input">
-                    <label>Start:</label>
-                    <input type="date" id="projectStartDate" value="" onchange="updateProjectStartDate()">
+                <div class="undo-redo no-print">
+                    <button id="undoBtn" class="undo-btn" onclick="undo()" disabled>↶ Fortryd</button>
+                    <button id="redoBtn" class="redo-btn" onclick="redo()" disabled>↷ Gentag</button>
                 </div>
             </div>
-            
-            <div class="timeline-grid" id="timelineGrid">
-                <div class="empty-timeline">
-                    <p>Tilføj håndværkere og sæt projektets startdato for at se tidslinjen</p>
+
+            <div class="content-area">
+                <div class="timeline-controls">
+                    <div class="week-controls">
+                        <button class="week-btn" onclick="removeWeek()">− Fjern uge</button>
+                        <span id="weekDisplay">3 uger</span>
+                        <button class="week-btn" onclick="addWeek()">+ Tilføj uge</button>
+                    </div>
+                </div>
+
+                <div class="project-info">
+                    <h3 id="projectTitle">Projekt: Start dato mangler</h3>
+                    <p id="timelineInfo">Start: <span id="projectStartDisplay">Tilføj håndværkere og sæt projektets startdato for at se tidslinjen</span></p>
+                    
+                    <!-- RETTET: Ny Opgave knap tilføjet her -->
+                    <div class="action-buttons no-print">
+                        <button class="new-task-btn" onclick="openTaskModal()">
+                            📋 Ny Opgave
+                        </button>
+                        <button class="primary-btn" onclick="editProject()">📊 Projekt Information</button>
+                    </div>
+                </div>
+
+                <div class="pdf-buttons no-print">
+                    <button class="export-btn" onclick="exportWorkerPDF()">📄 Export Worker PDF</button>
+                    <button class="export-btn" onclick="exportCustomerPDF()">📄 Export Customer PDF</button>
+                    <button class="primary-btn" onclick="saveProjectToStorage()">💾 Gem Data</button>
+                    <button class="secondary-btn" onclick="loadProjectFromStorage()">📂 Indlæs Data</button>
+                </div>
+
+                <div class="timeline-container">
+                    <div id="timelineGrid" class="timeline-grid">
+                        <!-- Timeline will be generated here -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Project Modal -->
-    <div class="modal" id="projectModal">
+    <div id="projectModal" class="modal">
         <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('projectModal')">&times;</button>
             <h3>Projekt Information</h3>
             <div class="form-group">
                 <label for="projectName">Projekt Navn</label>
-                <input type="text" class="form-control" id="projectName" placeholder="f.eks. Køkkenrenovering, Badeværelse">
+                <input type="text" id="projectName" placeholder="Indtast projekt navn">
             </div>
-            
             <div class="form-group">
                 <label for="customerName">Kunde Navn</label>
-                <input type="text" class="form-control" id="customerName" placeholder="Fornavn og efternavn">
+                <input type="text" id="customerName" placeholder="Indtast kunde navn">
             </div>
-            
             <div class="form-group">
                 <label for="projectAddress">Adresse</label>
-                <input type="text" class="form-control" id="projectAddress" placeholder="Vej, nummer, postnummer og by">
+                <input type="text" id="projectAddress" placeholder="Indtast projekt adresse">
             </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="customerPhone">Telefon</label>
-                    <input type="tel" class="form-control" id="customerPhone" placeholder="+45 12 34 56 78">
-                </div>
-                
-                <div class="form-group">
-                    <label for="customerEmail">E-mail</label>
-                    <input type="email" class="form-control" id="customerEmail" placeholder="kunde@email.dk">
-                </div>
-            </div>
-            
             <div class="form-group">
-                <label for="startDate">Projekt Start Dato</label>
-                <input type="date" class="form-control" id="startDate">
+                <label for="customerPhone">Telefon</label>
+                <input type="tel" id="customerPhone" placeholder="Indtast telefon nummer">
             </div>
-            
+            <div class="form-group">
+                <label for="customerEmail">E-mail</label>
+                <input type="email" id="customerEmail" placeholder="Indtast e-mail adresse">
+            </div>
+            <div class="form-group">
+                <label for="projectStartDate">Projekt Start Dato</label>
+                <input type="date" id="projectStartDate">
+            </div>
             <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('projectModal')">Annullér</button>
-                <button type="button" class="btn btn-primary" onclick="saveProject()">Opret Projekt</button>
+                <button class="secondary-btn" onclick="closeModal('projectModal')">Annullér</button>
+                <!-- RETTET: Knap tekst ændret til "Opret Projekt" -->
+                <button class="primary-btn" onclick="saveProject()">Opret Projekt</button>
             </div>
         </div>
     </div>
 
     <!-- Task Modal -->
-    <div class="modal" id="taskModal">
+    <div id="taskModal" class="modal">
         <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('taskModal')">&times;</button>
             <h3 id="modalTitle">Ny opgave</h3>
-            
             <div class="form-group">
                 <label for="taskTitle">Opgavetitel</label>
-                <input type="text" class="form-control" id="taskTitle" placeholder="f.eks. Nedrivning af vægge">
+                <input type="text" id="taskTitle" placeholder="Indtast opgave titel">
             </div>
-            
             <div class="form-group">
                 <label for="taskDescription">Beskrivelse</label>
-                <textarea class="form-control" id="taskDescription" rows="3" placeholder="Detaljeret beskrivelse af opgaven"></textarea>
+                <textarea id="taskDescription" placeholder="Beskriv opgaven"></textarea>
             </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="taskStartDate">Startdato</label>
-                    <input type="date" class="form-control" id="taskStartDate">
-                </div>
-                <div class="form-group">
-                    <label for="taskDuration">Varighed (dage)</label>
-                    <input type="number" class="form-control" id="taskDuration" min="0.5" step="0.5" value="1">
-                </div>
+            <div class="form-group">
+                <label for="taskStartDate">Startdato</label>
+                <input type="date" id="taskStartDate">
             </div>
-            
+            <div class="form-group">
+                <label for="taskDuration">Varighed (dage)</label>
+                <input type="number" id="taskDuration" min="1" max="30" value="1">
+            </div>
             <div class="form-group">
                 <label for="taskNotes">Noter/Kommentarer</label>
-                <textarea class="form-control" id="taskNotes" rows="2" placeholder="Materialer, koordinering, problemer..."></textarea>
+                <textarea id="taskNotes" placeholder="Ekstra noter til opgaven"></textarea>
             </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="taskCraftsman">Håndværker</label>
-                    <select class="form-control" id="taskCraftsman">
-                        <option value="">Vælg håndværker...</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="taskPriority">Prioritet</label>
-                    <select class="form-control" id="taskPriority">
-                        <option value="low">Lav</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">Høj</option>
-                    </select>
-                </div>
+            <div class="form-group">
+                <label for="taskCraftsman">Håndværker</label>
+                <select id="taskCraftsman">
+                    <option value="">Vælg håndværker...</option>
+                </select>
             </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="taskStatus">Status</label>
-                    <select class="form-control" id="taskStatus">
-                        <option value="planned" selected>Planlagt</option>
-                        <option value="in-progress">I gang</option>
-                        <option value="completed">Udført</option>
-                    </select>
-                </div>
-                
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="taskHalfDay">
-                    <label for="taskHalfDay">Halv dag opgave</label>
-                </div>
+            <div class="form-group">
+                <label for="taskPriority">Prioritet</label>
+                <select id="taskPriority">
+                    <option value="low">Lav</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">Høj</option>
+                </select>
             </div>
-            
+            <div class="form-group">
+                <label for="taskStatus">Status</label>
+                <select id="taskStatus">
+                    <option value="planned">Planlagt</option>
+                    <option value="in-progress">I gang</option>
+                    <option value="completed">Udført</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="taskHalfDay"> Halv dag opgave
+                </label>
+            </div>
             <div class="modal-buttons">
-                <button type="button" class="btn btn-danger" id="deleteTaskBtn" style="display: none;" onclick="deleteCurrentTask()">Slet opgave</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('taskModal')">Annullér</button>
-                <button type="button" class="btn btn-primary" onclick="saveTask()">Gem opgave</button>
+                <button class="secondary-btn" onclick="deleteCurrentTask()" id="deleteTaskBtn" style="display: none;">Slet opgave</button>
+                <button class="secondary-btn" onclick="closeModal('taskModal')">Annullér</button>
+                <button class="primary-btn" onclick="saveTask()">Gem opgave</button>
             </div>
         </div>
     </div>
 
-    <!-- Add Craftsman Modal -->
-    <div class="modal" id="craftsmanModal">
+    <!-- Craftsman Modal -->
+    <div id="craftsmanModal" class="modal">
         <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('craftsmanModal')">&times;</button>
             <h3>Tilføj håndværker</h3>
-            
             <div class="form-group">
                 <label for="craftsmanType">Håndværkertype</label>
-                <select class="form-control" id="craftsmanType">
+                <select id="craftsmanType">
                     <option value="">Vælg type...</option>
                     <option value="Projektleder">Projektleder</option>
                     <option value="Byggeleder">Byggeleder</option>
@@ -953,1951 +675,930 @@
                     <option value="Specialister">Specialister</option>
                 </select>
             </div>
-            
             <div class="form-group">
                 <label for="craftsmanColor">Farve</label>
-                <input type="color" class="form-control" id="craftsmanColor" value="#2196F3">
+                <input type="color" id="craftsmanColor" value="#3498db">
             </div>
-            
             <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('craftsmanModal')">Annullér</button>
-                <button type="button" class="btn btn-primary" onclick="saveCraftsman()">Tilføj</button>
+                <button class="secondary-btn" onclick="closeModal('craftsmanModal')">Annullér</button>
+                <button class="primary-btn" onclick="saveCraftsman()">Tilføj</button>
             </div>
         </div>
     </div>
 
-    <!-- Tooltip element -->
-    <div class="task-tooltip" id="taskTooltip"></div>
-
     <script>
-        // Application State
+        // Application state
         let appState = {
             project: {
-                name: "",
-                address: "",
-                customer: "",
-                phone: "",
-                email: "",
-                startDate: ""
+                name: '',
+                customerName: '',
+                address: '',
+                phone: '',
+                email: '',
+                startDate: '',
+                weeks: 3
             },
             craftsmen: [],
             tasks: [],
-            weeks: 3,
-            startWeekNumber: 1
+            timeline: {
+                startDate: null,
+                weeks: 3
+            }
         };
-        
-        let history = [];
-        let historyIndex = -1;
-        let currentEditingTask = null;
-        let taskBackup = null;
-        let draggedElement = null;
-        let draggedType = null;
-        let tooltipTimeout = null;
-        
-        // Date calculation functions 
+
+        let currentTaskIndex = -1;
+        let undoStack = [];
+        let redoStack = [];
+
+        // RETTET: Dansk dato format funktion tilføjet
+        function formatDateDanish(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            const day = d.getDate().toString().padStart(2, '0');
+            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}-${year}`;
+        }
+
+        // Date helper functions
         function getProjectStartDate() {
-            if (!appState.project.startDate) {
-                const today = new Date();
-                return today;
-            }
-            return new Date(appState.project.startDate);
+            return appState.project.startDate ? new Date(appState.project.startDate) : null;
         }
-        
-        function calculateDayFromDate(taskDate) {
-            const projectStart = getProjectStartDate();
-            const task = new Date(taskDate);
-            
-            let dayCount = 0;
-            let currentDate = new Date(projectStart);
-            
-            while (currentDate < task) {
-                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
-                    dayCount++;
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
-            return dayCount + 1;
+
+        function calculateDayFromDate(startDate, targetDate) {
+            const start = new Date(startDate);
+            const target = new Date(targetDate);
+            const diffTime = Math.abs(target - start);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
-        
-        function calculateDateFromDay(dayNumber) {
-            const projectStart = getProjectStartDate();
-            let currentDate = new Date(projectStart);
-            let weekdayCount = 1;
-            
-            if (dayNumber === 1) {
-                return new Date(projectStart);
-            }
-            
-            while (weekdayCount < dayNumber) {
-                currentDate.setDate(currentDate.getDate() + 1);
-                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
-                    weekdayCount++;
-                }
-            }
-            
-            return currentDate;
+
+        function calculateDateFromDay(startDate, dayNumber) {
+            const date = new Date(startDate);
+            date.setDate(date.getDate() + dayNumber);
+            return date;
         }
-        
-        function getWeekDateRange(weekNumber) {
-            const projectStart = getProjectStartDate();
-            const weekStart = new Date(projectStart);
-            weekStart.setDate(weekStart.getDate() + (weekNumber - 1) * 7);
-            
-            const dayOfWeek = weekStart.getDay();
-            const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-            weekStart.setDate(weekStart.getDate() + mondayOffset);
-            
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekEnd.getDate() + 4);
-            
-            return {
-                start: weekStart,
-                end: weekEnd
-            };
+
+        function getWeekDateRange(startDate, weeks) {
+            const start = new Date(startDate);
+            const end = new Date(startDate);
+            end.setDate(start.getDate() + (weeks * 7) - 1);
+            return { start, end };
         }
-        
+
         function formatDateForDisplay(date) {
-            return date.toLocaleDateString('da-DK', { 
-                day: '2-digit', 
-                month: '2-digit' 
-            });
+            const options = { weekday: 'short', day: 'numeric', month: 'short' };
+            return date.toLocaleDateString('da-DK', options);
         }
-        
+
         function formatDateForInput(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
+            return date.toISOString().split('T')[0];
         }
-        
+
         function formatFullDateDanish(date) {
-            return date.toLocaleDateString('da-DK', { 
-                weekday: 'long',
-                day: 'numeric', 
-                month: 'long',
-                year: 'numeric'
-            });
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            return date.toLocaleDateString('da-DK', options);
         }
-        
+
         function isToday(date) {
             const today = new Date();
             return date.toDateString() === today.toDateString();
         }
-        
+
+        // RETTET: Weekend check kun for visning - timeline viser kun hverdage
         function isWeekend(date) {
-            return date.getDay() === 0 || date.getDay() === 6;
+            const day = date.getDay();
+            return day === 0 || day === 6; // 0 = søndag, 6 = lørdag
         }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            saveState();
-            renderAll();
-            updateTimelineInfo();
-            showToast('📋 ENHANCED HÅNDVÆRKER PDF klar - nu med 3 sektioner!', 'info');
-        });
-        
-        // STATE MANAGEMENT
+
+        // State management
         function saveState() {
-            if (historyIndex < history.length - 1) {
-                history = history.slice(0, historyIndex + 1);
+            undoStack.push(JSON.parse(JSON.stringify(appState)));
+            if (undoStack.length > 20) {
+                undoStack.shift();
             }
-            history.push(JSON.stringify(appState));
-            historyIndex++;
-            if (history.length > 50) {
-                history.shift();
-                historyIndex--;
-            }
+            redoStack = [];
             updateUndoRedoButtons();
         }
-        
+
         function undo() {
-            if (historyIndex > 0) {
-                historyIndex--;
-                appState = JSON.parse(history[historyIndex]);
-                renderAll();
-                updateTimelineInfo();
+            if (undoStack.length > 0) {
+                redoStack.push(JSON.parse(JSON.stringify(appState)));
+                appState = undoStack.pop();
                 updateUndoRedoButtons();
-                showToast('↺ Handling fortrudt');
+                renderAll();
             }
         }
-        
+
         function redo() {
-            if (historyIndex < history.length - 1) {
-                historyIndex++;
-                appState = JSON.parse(history[historyIndex]);
-                renderAll();
-                updateTimelineInfo();
+            if (redoStack.length > 0) {
+                undoStack.push(JSON.parse(JSON.stringify(appState)));
+                appState = redoStack.pop();
                 updateUndoRedoButtons();
-                showToast('↻ Handling gendannet');
+                renderAll();
             }
         }
-        
+
         function updateUndoRedoButtons() {
-            const undoBtn = document.getElementById('undoBtn');
-            const redoBtn = document.getElementById('redoBtn');
-            
-            if (undoBtn) undoBtn.disabled = historyIndex <= 0;
-            if (redoBtn) redoBtn.disabled = historyIndex >= history.length - 1;
+            document.getElementById('undoBtn').disabled = undoStack.length === 0;
+            document.getElementById('redoBtn').disabled = redoStack.length === 0;
         }
-        
+
+        // Rendering functions
         function renderAll() {
             renderProjectInfo();
             renderCraftsmen();
             renderTimeline();
-            updateWeekDisplay();
-            
-            if (appState.project.startDate) {
-                document.getElementById('projectStartDate').value = appState.project.startDate;
-            }
+            renderTasks();
         }
-        
+
         function renderProjectInfo() {
             const titleElement = document.getElementById('projectTitle');
-            const infoElement = document.getElementById('projectInfo');
+            const startDisplay = document.getElementById('projectStartDisplay');
             
-            if (appState.project.name) {
-                titleElement.textContent = appState.project.name;
-                let infoText = '';
-                if (appState.project.address) infoText += appState.project.address;
-                if (appState.project.customer) infoText += (infoText ? ' • ' : '') + appState.project.customer;
-                if (appState.project.phone) infoText += (infoText ? ' • ' : '') + appState.project.phone;
+            if (appState.project.name && appState.project.startDate) {
+                titleElement.textContent = `Projekt: ${appState.project.name}`;
+                const startDate = new Date(appState.project.startDate);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + (appState.project.weeks * 7) - 1);
                 
-                infoElement.innerHTML = infoText || '<span class="empty-project">Tilføj projekt detaljer</span>';
-                infoElement.className = 'project-info';
+                // RETTET: Brug dansk dato format
+                startDisplay.innerHTML = `Start: ${formatDateDanish(startDate)} - Slut: ${formatDateDanish(endDate)} (${appState.project.weeks} uger)`;
+            } else if (appState.project.startDate) {
+                titleElement.textContent = 'Projekt: Tilføj projekt navn';
+                startDisplay.innerHTML = `Start: ${formatDateDanish(new Date(appState.project.startDate))}`;
             } else {
-                titleElement.textContent = 'Nyt Projekt';
-                infoElement.innerHTML = '<span class="empty-project">Klik "Redigér Projekt" for at tilføje kunde information</span>';
-                infoElement.className = 'project-info';
+                titleElement.textContent = 'Projekt: Start dato mangler';
+                startDisplay.textContent = 'Tilføj håndværkere og sæt projektets startdato for at se tidslinjen';
             }
         }
-        
+
         function renderCraftsmen() {
-            const list = document.getElementById('craftsmanList');
-            list.innerHTML = '';
+            const container = document.getElementById('craftsmanList');
             
             if (appState.craftsmen.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-craftsmen">
+                container.innerHTML = `
+                    <div class="empty-state">
                         <p>Ingen håndværkere tilføjet endnu</p>
-                        <button class="btn btn-primary" onclick="openCraftsmanModal()">Tilføj første håndværker</button>
+                        <small>Tilføj første håndværker</small>
                     </div>
                 `;
                 return;
             }
-            
-            const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
-            
-            sortedCraftsmen.forEach(craftsman => {
-                const li = document.createElement('li');
-                li.className = 'craftsman-item';
-                li.style.borderLeftColor = craftsman.color;
-                li.draggable = true;
-                li.dataset.id = craftsman.id;
-                
-                li.innerHTML = `
-                    <span>${craftsman.name}</span>
-                    <button class="delete-craftsman" onclick="deleteCraftsman('${craftsman.id}')">×</button>
-                `;
-                
-                // Drag and drop for craftsmen reordering
-                li.addEventListener('dragstart', (e) => {
-                    draggedElement = li;
-                    draggedType = 'craftsman';
-                    li.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                });
-                
-                li.addEventListener('dragend', (e) => {
-                    li.classList.remove('dragging');
-                    document.querySelectorAll('.craftsman-item').forEach(item => {
-                        item.classList.remove('drag-over');
-                    });
-                    draggedElement = null;
-                    draggedType = null;
-                });
-                
-                li.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    if (draggedType === 'craftsman' && draggedElement !== li) {
-                        e.dataTransfer.dropEffect = 'move';
-                        li.classList.add('drag-over');
-                    }
-                });
-                
-                li.addEventListener('dragleave', (e) => {
-                    li.classList.remove('drag-over');
-                });
-                
-                li.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    li.classList.remove('drag-over');
-                    
-                    if (draggedType === 'craftsman' && draggedElement && draggedElement !== li) {
-                        const draggedId = draggedElement.dataset.id;
-                        const targetId = li.dataset.id;
-                        reorderCraftsmen(draggedId, targetId);
-                    }
-                });
-                
-                list.appendChild(li);
-            });
+
+            container.innerHTML = appState.craftsmen.map(craftsman => `
+                <div class="craftsman-item" data-craftsman="${craftsman.type}" oncontextmenu="deleteCraftsman('${craftsman.type}'); return false;">
+                    <div class="craftsman-color" style="background-color: ${craftsman.color}"></div>
+                    <div class="craftsman-name">${craftsman.type}</div>
+                </div>
+            `).join('');
         }
-        
+
         function renderTimeline() {
-            const grid = document.getElementById('timelineGrid');
-            grid.innerHTML = '';
+            const container = document.getElementById('timelineGrid');
+            const startDate = getProjectStartDate();
             
-            if (appState.craftsmen.length === 0 || !appState.project.startDate) {
-                grid.innerHTML = `
-                    <div class="empty-timeline">
+            if (!startDate || appState.craftsmen.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
                         <p>Tilføj håndværkere og sæt projektets startdato for at se tidslinjen</p>
                     </div>
                 `;
                 return;
             }
+
+            // RETTET: Generer kun hverdage (man-fre)
+            const headers = ['Håndværker'];
+            const currentDate = new Date(startDate);
             
-            const totalDays = appState.weeks * 5;
-            const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
-            const projectStart = getProjectStartDate();
-            
-            // Create header
-            const header = document.createElement('div');
-            header.className = 'grid-header';
-            
-            const craftsmanHeader = document.createElement('div');
-            craftsmanHeader.className = 'header-craftsman';
-            craftsmanHeader.textContent = 'Håndværkere';
-            header.appendChild(craftsmanHeader);
-            
-            const daysHeader = document.createElement('div');
-            daysHeader.className = 'header-days';
-            
-            for (let week = 0; week < appState.weeks; week++) {
-                const weekSection = document.createElement('div');
-                weekSection.className = 'week-section';
-                
-                const weekDateRange = getWeekDateRange(week + 1);
-                const weekHeader = document.createElement('div');
-                weekHeader.className = 'week-header';
-                weekHeader.innerHTML = `
-                    Uge ${appState.startWeekNumber + week}
-                    <div class="week-date-range">
-                        ${formatDateForDisplay(weekDateRange.start)} - ${formatDateForDisplay(weekDateRange.end)}
-                    </div>
-                `;
-                weekSection.appendChild(weekHeader);
-                
-                const daysRow = document.createElement('div');
-                daysRow.className = 'days-row';
-                
-                const days = ['Man', 'Tir', 'Ons', 'Tor', 'Fre'];
-                days.forEach((dayName, dayIndex) => {
-                    const dayHeader = document.createElement('div');
-                    dayHeader.className = 'day-header';
-                    
-                    const actualDate = new Date(weekDateRange.start);
-                    actualDate.setDate(actualDate.getDate() + dayIndex);
-                    
-                    if (isToday(actualDate)) {
-                        dayHeader.classList.add('today');
+            for (let week = 0; week < appState.project.weeks; week++) {
+                for (let day = 0; day < 7; day++) {
+                    // Spring weekender over
+                    if (!isWeekend(currentDate)) {
+                        const dateStr = formatDateForDisplay(currentDate);
+                        headers.push(dateStr);
                     }
-                    if (isWeekend(actualDate)) {
-                        dayHeader.classList.add('weekend');
-                    }
-                    
-                    dayHeader.innerHTML = `
-                        <div class="day-name">${dayName}</div>
-                        <div class="day-date">${formatDateForDisplay(actualDate)}</div>
-                    `;
-                    
-                    daysRow.appendChild(dayHeader);
-                });
-                
-                weekSection.appendChild(daysRow);
-                daysHeader.appendChild(weekSection);
-            }
-            
-            header.appendChild(daysHeader);
-            grid.appendChild(header);
-            
-            // Create body
-            const body = document.createElement('div');
-            body.className = 'grid-body';
-            
-            sortedCraftsmen.forEach((craftsman) => {
-                const row = document.createElement('div');
-                row.className = 'grid-row';
-                row.dataset.craftsman = craftsman.id;
-                
-                const nameCell = document.createElement('div');
-                nameCell.className = 'row-craftsman';
-                nameCell.style.borderLeftColor = craftsman.color;
-                
-                nameCell.innerHTML = `
-                    <span class="craftsman-name">${craftsman.name}</span>
-                    <button class="remove-craftsman-btn" onclick="deleteCraftsman('${craftsman.id}')">×</button>
-                `;
-                
-                row.appendChild(nameCell);
-                
-                const daysContainer = document.createElement('div');
-                daysContainer.className = 'row-days';
-                
-                for (let day = 1; day <= totalDays; day++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.dataset.day = day;
-                    cell.dataset.craftsman = craftsman.id;
-                    
-                    const actualDate = calculateDateFromDay(day);
-                    if (isToday(actualDate)) {
-                        cell.classList.add('today');
-                    }
-                    if (isWeekend(actualDate)) {
-                        cell.classList.add('weekend');
-                    }
-                    
-                    cell.onclick = (e) => {
-                        if (e.target === cell) {
-                            const taskDate = calculateDateFromDay(day);
-                            createTask(craftsman.id, day, taskDate);
-                        }
-                    };
-                    
-                    // Drag and drop for tasks
-                    cell.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        if (draggedType === 'task') {
-                            e.dataTransfer.dropEffect = 'move';
-                            cell.classList.add('drop-zone');
-                        }
-                    });
-                    
-                    cell.addEventListener('dragleave', (e) => {
-                        cell.classList.remove('drop-zone');
-                    });
-                    
-                    cell.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        cell.classList.remove('drop-zone');
-                        
-                        if (draggedType === 'task' && draggedElement) {
-                            const taskId = draggedElement.dataset.taskId;
-                            const newDay = parseInt(cell.dataset.day);
-                            const newCraftsman = cell.dataset.craftsman;
-                            
-                            if (newDay <= totalDays && taskId) {
-                                const newDate = calculateDateFromDay(newDay);
-                                moveTask(taskId, newCraftsman, newDay, newDate);
-                            }
-                        }
-                    });
-                    
-                    daysContainer.appendChild(cell);
+                    currentDate.setDate(currentDate.getDate() + 1);
                 }
-                
-                row.appendChild(daysContainer);
-                body.appendChild(row);
+            }
+
+            container.style.gridTemplateColumns = `200px repeat(${headers.length - 1}, 120px)`;
+            
+            let html = '';
+            
+            // Headers
+            headers.forEach((header, index) => {
+                const isToday = index > 0 && isDateToday(startDate, index - 1);
+                const headerClass = index === 0 ? 'timeline-header' : (isToday ? 'timeline-header today-header' : 'timeline-header');
+                html += `<div class="${headerClass}">${header}</div>`;
             });
             
-            grid.appendChild(body);
+            // Craftsman rows
+            appState.craftsmen.forEach(craftsman => {
+                html += `<div class="craftsman-row-header">
+                    <div class="craftsman-color" style="background-color: ${craftsman.color}"></div>
+                    ${craftsman.type}
+                </div>`;
+                
+                for (let col = 1; col < headers.length; col++) {
+                    const isToday = isDateToday(startDate, col - 1);
+                    const cellClass = isToday ? 'timeline-cell today-column' : 'timeline-cell';
+                    html += `<div class="${cellClass}" 
+                                data-craftsman="${craftsman.type}" 
+                                data-day="${col - 1}"
+                                ondrop="drop(event)" 
+                                ondragover="allowDrop(event)"
+                                onclick="openTaskModal(${col - 1}, '${craftsman.type}')">
+                            </div>`;
+                }
+            });
             
-            setTimeout(() => renderTasks(), 50);
+            container.innerHTML = html;
         }
-        
+
+        // RETTET: Hjælpefunktion til at tjekke om dato er i dag
+        function isDateToday(projectStartDate, dayOffset) {
+            if (!projectStartDate || dayOffset < 0) return false;
+            
+            const targetDate = new Date(projectStartDate);
+            let addedDays = 0;
+            let currentDayOffset = 0;
+            
+            while (currentDayOffset < dayOffset) {
+                targetDate.setDate(targetDate.getDate() + 1);
+                if (!isWeekend(targetDate)) {
+                    currentDayOffset++;
+                }
+            }
+            
+            const today = new Date();
+            return targetDate.toDateString() === today.toDateString();
+        }
+
         function renderTasks() {
-            document.querySelectorAll('.task').forEach(task => task.remove());
+            // Clear existing tasks
+            document.querySelectorAll('.task-item').forEach(task => task.remove());
             
-            const totalDays = appState.weeks * 5;
-            
-            appState.tasks.forEach(task => {
-                if (task.startDay > totalDays || task.startDay + task.duration - 1 > totalDays) {
-                    return;
-                }
-                
-                const craftsmanRow = document.querySelector(`[data-craftsman="${task.craftsman}"]`);
-                if (!craftsmanRow) return;
-                
-                const startCell = craftsmanRow.querySelector(`[data-day="${task.startDay}"]`);
-                if (!startCell) return;
-                
+            const startDate = getProjectStartDate();
+            if (!startDate) return;
+
+            appState.tasks.forEach((task, index) => {
                 const taskElement = document.createElement('div');
-                taskElement.className = `task ${task.priority} ${task.status}`;
-                if (task.isHalfDay) {
-                    taskElement.classList.add('half-day');
-                }
+                taskElement.className = `task-item ${task.priority} ${task.status === 'in-progress' ? 'in-progress' : ''} ${task.status === 'completed' ? 'completed' : ''} ${task.halfDay ? 'half-day' : ''}`;
                 
-                taskElement.dataset.taskId = task.id;
-                taskElement.draggable = true;
-                
-                const cellWidth = startCell.offsetWidth || 100;
-                const width = task.duration * cellWidth - 4;
-                taskElement.style.width = `${width}px`;
-                taskElement.style.left = '2px';
-                
-                const taskTitle = task.title.length > 25 ? task.title.substring(0, 25) + '...' : task.title;
-                
+                // RETTET: Brug dansk dato format i task display
                 taskElement.innerHTML = `
-                    <div class="task-title" title="${task.title}">${taskTitle}</div>
-                    <div class="task-controls">
-                        <button class="task-btn" onclick="event.stopPropagation(); editTask('${task.id}')">✏️</button>
-                        <button class="task-btn" onclick="event.stopPropagation(); deleteTask('${task.id}')">🗑️</button>
-                    </div>
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-date">${formatDateDanish(task.startDate)}</div>
                 `;
                 
-                // Tooltip functionality
-                taskElement.addEventListener('mouseenter', (e) => {
-                    if (task.title.length > 25) {
-                        tooltipTimeout = setTimeout(() => {
-                            showTaskTooltip(taskElement, task.title);
-                        }, 500);
+                taskElement.draggable = true;
+                taskElement.dataset.taskIndex = index;
+                
+                // RETTET: Tilføj tooltip funktionalitet
+                taskElement.addEventListener('mouseenter', (e) => showTaskTooltip(e, task));
+                taskElement.addEventListener('mouseleave', hideTaskTooltip);
+                
+                taskElement.ondragstart = drag;
+                taskElement.ondblclick = () => editTask(index);
+
+                const taskDate = new Date(task.startDate);
+                const dayNumber = calculateDayFromDate(startDate, taskDate);
+                
+                // Find den korrekte celle (kun hverdage)
+                let weekdayCount = 0;
+                let searchDate = new Date(startDate);
+                let targetDay = -1;
+                
+                while (weekdayCount <= dayNumber) {
+                    if (!isWeekend(searchDate)) {
+                        if (weekdayCount === dayNumber) {
+                            targetDay = weekdayCount;
+                            break;
+                        }
+                        weekdayCount++;
                     }
-                });
+                    searchDate.setDate(searchDate.getDate() + 1);
+                }
                 
-                taskElement.addEventListener('mouseleave', (e) => {
-                    if (tooltipTimeout) {
-                        clearTimeout(tooltipTimeout);
-                        tooltipTimeout = null;
+                if (targetDay >= 0) {
+                    const cell = document.querySelector(`[data-craftsman="${task.craftsman}"][data-day="${targetDay}"]`);
+                    if (cell) {
+                        // RETTET: Tjek for overlap og tilføj styling
+                        const existingTasks = cell.querySelectorAll('.task-item');
+                        if (existingTasks.length > 0) {
+                            taskElement.classList.add('task-overlap');
+                        }
+                        cell.appendChild(taskElement);
                     }
-                    hideTaskTooltip();
-                });
-                
-                // Drag functionality
-                taskElement.addEventListener('dragstart', (e) => {
-                    hideTaskTooltip();
-                    if (tooltipTimeout) {
-                        clearTimeout(tooltipTimeout);
-                        tooltipTimeout = null;
-                    }
-                    
-                    draggedElement = taskElement;
-                    draggedType = 'task';
-                    taskElement.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.stopPropagation();
-                });
-                
-                taskElement.addEventListener('dragend', (e) => {
-                    taskElement.classList.remove('dragging');
-                    document.querySelectorAll('.grid-cell').forEach(cell => {
-                        cell.classList.remove('drop-zone');
-                    });
-                    draggedElement = null;
-                    draggedType = null;
-                });
-                
-                taskElement.addEventListener('dblclick', (e) => {
-                    e.stopPropagation();
-                    hideTaskTooltip();
-                    editTask(task.id);
-                });
-                
-                startCell.appendChild(taskElement);
+                }
             });
         }
-        
-        // TOOLTIP FUNCTIONALITY
-        function showTaskTooltip(taskElement, fullTitle) {
-            hideTaskTooltip();
+
+        // RETTET: Tooltip funktioner implementeret
+        let currentTooltip = null;
+
+        function showTaskTooltip(event, task) {
+            hideTaskTooltip(); // Fjern eksisterende tooltip
             
-            const tooltip = document.getElementById('taskTooltip');
-            tooltip.textContent = fullTitle;
-            tooltip.classList.add('show');
+            const tooltip = document.createElement('div');
+            tooltip.className = 'task-tooltip';
+            tooltip.innerHTML = `
+                <strong>${task.title}</strong><br>
+                📅 ${formatDateDanish(task.startDate)} (${task.duration} dage)<br>
+                👷 ${task.craftsman}<br>
+                🔥 ${task.priority} prioritet<br>
+                📊 Status: ${task.status}<br>
+                ${task.description ? `📝 ${task.description}` : ''}
+                ${task.notes ? `<br>💭 ${task.notes}` : ''}
+            `;
             
-            const rect = taskElement.getBoundingClientRect();
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+            document.body.appendChild(tooltip);
+            currentTooltip = tooltip;
             
-            tooltip.style.left = (rect.left + scrollLeft + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
-            tooltip.style.top = (rect.top + scrollTop - tooltip.offsetHeight - 10) + 'px';
-            
-            const tooltipRect = tooltip.getBoundingClientRect();
-            if (tooltipRect.left < 0) {
-                tooltip.style.left = '10px';
-            }
-            if (tooltipRect.right > window.innerWidth) {
-                tooltip.style.left = (window.innerWidth - tooltip.offsetWidth - 10) + 'px';
-            }
+            const rect = event.target.getBoundingClientRect();
+            tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+            tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
         }
-        
+
         function hideTaskTooltip() {
-            const tooltip = document.getElementById('taskTooltip');
-            tooltip.classList.remove('show');
-        }
-        
-        function updateTimelineInfo() {
-            const projectStart = getProjectStartDate();
-            const projectEnd = new Date(projectStart);
-            projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
-            
-            const startStr = formatDateForInput(projectStart);
-            const endStr = formatDateForInput(projectEnd);
-            
-            if (appState.project.startDate) {
-                document.getElementById('timelineInfo').textContent = `Projekt: ${startStr} - ${endStr}`;
-            } else {
-                document.getElementById('timelineInfo').textContent = 'Projekt: Start dato mangler';
+            if (currentTooltip) {
+                document.body.removeChild(currentTooltip);
+                currentTooltip = null;
             }
         }
-        
-        function updateProjectStartDate() {
-            const newStartDate = document.getElementById('projectStartDate').value;
-            if (newStartDate) {
-                appState.project.startDate = newStartDate;
-                
-                appState.tasks.forEach(task => {
-                    if (task.startDate) {
-                        task.startDay = calculateDayFromDate(task.startDate);
-                    }
-                });
-                
-                saveState();
-                renderAll();
-                updateTimelineInfo();
-                showToast('📅 Projekt startdato opdateret');
-            }
+
+        // RETTET: Toast funktioner implementeret
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 4000);
         }
-        
+
+        // Modal functions
+        function openTaskModal(day = null, craftsman = null) {
+            // RETTET: Auto-scroll til top implementeret
+            window.scrollTo(0, 0);
+            
+            document.getElementById('taskModal').classList.add('open');
+            document.getElementById('modalTitle').textContent = 'Ny opgave';
+            clearTaskFields();
+            
+            if (day !== null) {
+                const startDate = getProjectStartDate();
+                if (startDate) {
+                    const taskDate = calculateDateFromDay(startDate, day);
+                    document.getElementById('taskStartDate').value = formatDateForInput(taskDate);
+                }
+            }
+            if (craftsman !== null) {
+                document.getElementById('taskCraftsman').value = craftsman;
+            }
+            
+            currentTaskIndex = -1;
+            populateCraftsmanDropdown();
+            document.getElementById('deleteTaskBtn').style.display = 'none';
+        }
+
+        function openCraftsmanModal() {
+            document.getElementById('craftsmanModal').classList.add('open');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('open');
+        }
+
         function editProject() {
             document.getElementById('projectName').value = appState.project.name || '';
-            document.getElementById('customerName').value = appState.project.customer || '';
+            document.getElementById('customerName').value = appState.project.customerName || '';
             document.getElementById('projectAddress').value = appState.project.address || '';
             document.getElementById('customerPhone').value = appState.project.phone || '';
             document.getElementById('customerEmail').value = appState.project.email || '';
-            document.getElementById('startDate').value = appState.project.startDate || '';
-            
-            document.getElementById('projectModal').classList.add('show');
+            document.getElementById('projectStartDate').value = appState.project.startDate || '';
+            document.getElementById('projectModal').classList.add('open');
         }
-        
-        function saveProject() {
-            const oldStartDate = appState.project.startDate;
+
+        function editTask(taskIndex) {
+            // RETTET: Auto-scroll til top ved task edit
+            window.scrollTo(0, 0);
             
-            appState.project.name = document.getElementById('projectName').value;
-            appState.project.customer = document.getElementById('customerName').value;
-            appState.project.address = document.getElementById('projectAddress').value;
-            appState.project.phone = document.getElementById('customerPhone').value;
-            appState.project.email = document.getElementById('customerEmail').value;
-            appState.project.startDate = document.getElementById('startDate').value;
+            const task = appState.tasks[taskIndex];
+            currentTaskIndex = taskIndex;
             
-            if (oldStartDate !== appState.project.startDate) {
-                appState.tasks.forEach(task => {
-                    if (task.startDate) {
-                        task.startDay = calculateDayFromDate(task.startDate);
-                    }
-                });
-                showToast('📅 Projekt startdato ændret - alle opgaver genberegnet!');
-            }
-            
-            saveState();
-            renderProjectInfo();
-            updateTimelineInfo();
-            closeModal('projectModal');
-            showToast('✅ Projekt information gemt');
-        }
-        
-        function createTask(craftsman, startDay, taskDate = null) {
-            if (appState.craftsmen.length === 0) {
-                showToast('Tilføj først en håndværker', 'warning');
-                return;
-            }
-            
-            const calculatedDate = taskDate || calculateDateFromDay(startDay);
-            
-            currentEditingTask = null;
-            taskBackup = null;
-            
-            document.getElementById('modalTitle').textContent = 'Ny opgave';
-            document.getElementById('deleteTaskBtn').style.display = 'none';
-            
-            clearTaskFields();
+            document.getElementById('modalTitle').textContent = 'Rediger opgave';
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskStartDate').value = task.startDate;
+            document.getElementById('taskDuration').value = task.duration;
+            document.getElementById('taskNotes').value = task.notes || '';
+            document.getElementById('taskCraftsman').value = task.craftsman;
+            document.getElementById('taskPriority').value = task.priority;
+            document.getElementById('taskStatus').value = task.status;
+            document.getElementById('taskHalfDay').checked = task.halfDay || false;
             
             populateCraftsmanDropdown();
-            document.getElementById('taskCraftsman').value = craftsman;
-            document.getElementById('taskStartDate').value = calculatedDate.toISOString().split('T')[0];
-            
-            document.getElementById('taskModal').classList.add('show');
+            document.getElementById('deleteTaskBtn').style.display = 'block';
+            document.getElementById('taskModal').classList.add('open');
         }
-        
+
+        function createTask() {
+            openTaskModal();
+        }
+
         function clearTaskFields() {
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskDescription').value = '';
-            document.getElementById('taskNotes').value = '';
             document.getElementById('taskStartDate').value = '';
+            document.getElementById('taskDuration').value = '1';
+            document.getElementById('taskNotes').value = '';
+            document.getElementById('taskCraftsman').value = '';
             document.getElementById('taskPriority').value = 'medium';
             document.getElementById('taskStatus').value = 'planned';
-            document.getElementById('taskDuration').value = '1';
             document.getElementById('taskHalfDay').checked = false;
         }
-        
-        function editTask(taskId) {
-            const task = appState.tasks.find(t => t.id === taskId);
-            if (!task) {
-                showToast('Opgave ikke fundet!', 'error');
+
+        // Save functions
+        function saveProject() {
+            saveState();
+            
+            appState.project.name = document.getElementById('projectName').value;
+            appState.project.customerName = document.getElementById('customerName').value;
+            appState.project.address = document.getElementById('projectAddress').value;
+            appState.project.phone = document.getElementById('customerPhone').value;
+            appState.project.email = document.getElementById('customerEmail').value;
+            appState.project.startDate = document.getElementById('projectStartDate').value;
+            
+            closeModal('projectModal');
+            renderAll();
+            showToast('Projekt information gemt');
+        }
+
+        // RETTET: saveTask med håndværker validering
+        function saveTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const craftsman = document.getElementById('taskCraftsman').value;
+            const startDate = document.getElementById('taskStartDate').value;
+            
+            // RETTET: Validering - håndværker skal være valgt
+            if (!craftsman || craftsman === '') {
+                showToast('Vælg venligst en håndværker før opgaven gemmes', 'error');
                 return;
             }
             
-            taskBackup = JSON.parse(JSON.stringify(task));
-            currentEditingTask = task;
+            // RETTET: Validering - titel skal være udfyldt
+            if (!title) {
+                showToast('Indtast venligst en opgavetitel', 'error');
+                return;
+            }
+
+            // RETTET: Validering - startdato skal være valgt
+            if (!startDate) {
+                showToast('Vælg venligst en startdato', 'error');
+                return;
+            }
             
-            document.getElementById('modalTitle').textContent = 'Redigér opgave';
-            document.getElementById('deleteTaskBtn').style.display = 'inline-block';
+            saveState();
             
-            document.getElementById('taskModal').classList.add('show');
-            
-            setTimeout(() => {
-                populateCraftsmanDropdown();
-                
-                document.getElementById('taskTitle').value = taskBackup.title || '';
-                document.getElementById('taskDescription').value = taskBackup.description || '';
-                document.getElementById('taskNotes').value = taskBackup.notes || '';
-                
-                if (taskBackup.startDate) {
-                    document.getElementById('taskStartDate').value = taskBackup.startDate;
-                }
-                
-                document.getElementById('taskCraftsman').value = taskBackup.craftsman || '';
-                document.getElementById('taskPriority').value = taskBackup.priority || 'medium';
-                document.getElementById('taskStatus').value = taskBackup.status || 'planned';
-                document.getElementById('taskDuration').value = String(taskBackup.duration || 1);
-                document.getElementById('taskHalfDay').checked = Boolean(taskBackup.isHalfDay);
-                
-            }, 100);
-        }
-        
-        function populateCraftsmanDropdown() {
-            const select = document.getElementById('taskCraftsman');
-            select.innerHTML = '<option value="">Vælg håndværker...</option>';
-            appState.craftsmen.forEach(c => {
-                const option = document.createElement('option');
-                option.value = c.id;
-                option.textContent = c.name;
-                select.appendChild(option);
-            });
-        }
-        
-        function saveTask() {
-            const startDateInput = document.getElementById('taskStartDate').value;
-            const startDate = new Date(startDateInput);
-            const calculatedDay = calculateDayFromDate(startDate);
-            
-            const taskData = {
-                title: document.getElementById('taskTitle').value,
+            const task = {
+                title: title,
                 description: document.getElementById('taskDescription').value,
+                startDate: startDate,
+                duration: parseInt(document.getElementById('taskDuration').value),
                 notes: document.getElementById('taskNotes').value,
-                startDate: startDate.toISOString().split('T')[0],
-                startDay: calculatedDay,
-                craftsman: document.getElementById('taskCraftsman').value,
+                craftsman: craftsman,
                 priority: document.getElementById('taskPriority').value,
                 status: document.getElementById('taskStatus').value,
-                duration: parseFloat(document.getElementById('taskDuration').value),
-                isHalfDay: document.getElementById('taskHalfDay').checked
+                halfDay: document.getElementById('taskHalfDay').checked
             };
             
-            if (currentEditingTask) {
-                Object.assign(currentEditingTask, taskData);
-                showToast('✅ Opgave opdateret');
+            if (currentTaskIndex >= 0) {
+                appState.tasks[currentTaskIndex] = task;
+                showToast('Opgave opdateret');
             } else {
-                const newTask = {
-                    id: 'task_' + Date.now(),
-                    dependencies: [],
-                    ...taskData
-                };
-                appState.tasks.push(newTask);
-                showToast('✅ Ny opgave oprettet');
+                appState.tasks.push(task);
+                showToast('Opgave oprettet');
             }
             
-            taskBackup = null;
-            saveState();
-            renderAll();
             closeModal('taskModal');
+            renderAll();
         }
-        
-        function deleteCurrentTask() {
-            if (currentEditingTask && confirm('Er du sikker på at du vil slette denne opgave?')) {
-                appState.tasks = appState.tasks.filter(t => t.id !== currentEditingTask.id);
-                taskBackup = null;
-                saveState();
-                renderAll();
-                closeModal('taskModal');
-                showToast('Opgave slettet');
-            }
-        }
-        
-        function deleteTask(taskId) {
-            if (confirm('Er du sikker på at du vil slette denne opgave?')) {
-                appState.tasks = appState.tasks.filter(t => t.id !== taskId);
-                saveState();
-                renderAll();
-                showToast('Opgave slettet');
-            }
-        }
-        
-        // moveTask function with correct date sync
-        function moveTask(taskId, newCraftsman, newStartDay, newDate = null) {
-            const task = appState.tasks.find(t => t.id === taskId);
-            if (!task) return;
-            
-            const totalDays = appState.weeks * 5;
-            if (newStartDay + task.duration - 1 > totalDays) {
-                showToast('Opgaven passer ikke inden for det valgte antal uger', 'error');
-                return;
-            }
-            
-            task.craftsman = newCraftsman;
-            task.startDay = newStartDay;
-            
-            if (newDate) {
-                task.startDate = newDate.toISOString().split('T')[0];
-            } else {
-                const calculatedDate = calculateDateFromDay(newStartDay);
-                task.startDate = calculatedDate.toISOString().split('T')[0];
-            }
-            
-            saveState();
-            renderTasks();
-            
-            const newDateStr = formatDateForInput(new Date(task.startDate));
-            showToast(`✅ Opgave flyttet til dag ${newStartDay} (${newDateStr})!`);
-        }
-        
-        function openCraftsmanModal() {
-            document.getElementById('craftsmanType').value = '';
-            document.getElementById('craftsmanColor').value = '#2196F3';
-            document.getElementById('craftsmanModal').classList.add('show');
-        }
-        
+
         function saveCraftsman() {
             const type = document.getElementById('craftsmanType').value;
             const color = document.getElementById('craftsmanColor').value;
             
             if (!type) {
-                showToast('Vælg en håndværkertype', 'warning');
+                showToast('Vælg venligst en håndværkertype', 'error');
                 return;
             }
             
-            const id = 'craftsman_' + Date.now();
-            const newCraftsman = {
-                id: id,
-                name: type,
-                color: color,
-                order: appState.craftsmen.length
-            };
-            
-            appState.craftsmen.push(newCraftsman);
             saveState();
-            renderAll();
+            
+            appState.craftsmen.push({
+                type: type,
+                color: color
+            });
+            
             closeModal('craftsmanModal');
+            renderAll();
             showToast('Håndværker tilføjet');
         }
-        
-        function deleteCraftsman(craftsmanId) {
-            if (confirm('Er du sikker på at du vil slette denne håndværker? Alle tilhørende opgaver vil også blive slettet.')) {
-                appState.craftsmen = appState.craftsmen.filter(c => c.id !== craftsmanId);
-                appState.tasks = appState.tasks.filter(t => t.craftsman !== craftsmanId);
-                
-                appState.craftsmen.forEach((c, index) => {
-                    c.order = index;
-                });
-                
+
+        function deleteCurrentTask() {
+            if (currentTaskIndex >= 0 && confirm('Er du sikker på at du vil slette denne opgave?')) {
                 saveState();
+                appState.tasks.splice(currentTaskIndex, 1);
+                closeModal('taskModal');
+                renderAll();
+                showToast('Opgave slettet');
+            }
+        }
+
+        function deleteTask(taskIndex) {
+            if (confirm('Er du sikker på at du vil slette denne opgave?')) {
+                saveState();
+                appState.tasks.splice(taskIndex, 1);
+                renderAll();
+                showToast('Opgave slettet');
+            }
+        }
+
+        function deleteCraftsman(type) {
+            if (confirm(`Er du sikker på at du vil slette håndværkeren "${type}"?`)) {
+                saveState();
+                appState.craftsmen = appState.craftsmen.filter(c => c.type !== type);
+                appState.tasks = appState.tasks.filter(t => t.craftsman !== type);
                 renderAll();
                 showToast('Håndværker slettet');
             }
         }
-        
-        function reorderCraftsmen(draggedId, targetId) {
-            const draggedIndex = appState.craftsmen.findIndex(c => c.id === draggedId);
-            const targetIndex = appState.craftsmen.findIndex(c => c.id === targetId);
+
+        function populateCraftsmanDropdown() {
+            const dropdown = document.getElementById('taskCraftsman');
+            dropdown.innerHTML = '<option value="">Vælg håndværker...</option>';
             
-            if (draggedIndex === -1 || targetIndex === -1) return;
-            
-            const [draggedCraftsman] = appState.craftsmen.splice(draggedIndex, 1);
-            appState.craftsmen.splice(targetIndex, 0, draggedCraftsman);
-            
-            appState.craftsmen.forEach((c, index) => {
-                c.order = index;
+            appState.craftsmen.forEach(craftsman => {
+                const option = document.createElement('option');
+                option.value = craftsman.type;
+                option.textContent = craftsman.type;
+                dropdown.appendChild(option);
             });
-            
-            saveState();
-            renderAll();
-            showToast('✅ Håndværker-rækkefølge opdateret');
         }
-        
+
+        // Timeline controls
         function addWeek() {
-            appState.weeks++;
             saveState();
+            appState.project.weeks++;
+            document.getElementById('weekDisplay').textContent = `${appState.project.weeks} uger`;
             renderAll();
-            updateTimelineInfo();
-            showToast('Uge tilføjet');
         }
-        
+
         function removeWeek() {
-            if (appState.weeks > 1) {
-                appState.weeks--;
-                const newTotalDays = appState.weeks * 5;
-                
-                const removedTasks = appState.tasks.filter(task => 
-                    task.startDay > newTotalDays || (task.startDay + task.duration - 1) > newTotalDays
-                );
-                
-                appState.tasks = appState.tasks.filter(task => {
-                    return task.startDay <= newTotalDays && (task.startDay + task.duration - 1) <= newTotalDays;
-                });
-                
+            if (appState.project.weeks > 1) {
                 saveState();
+                appState.project.weeks--;
+                document.getElementById('weekDisplay').textContent = `${appState.project.weeks} uger`;
                 renderAll();
-                updateTimelineInfo();
-                
-                if (removedTasks.length > 0) {
-                    showToast(`Uge fjernet - ${removedTasks.length} opgave(r) blev også fjernet`, 'warning');
-                } else {
-                    showToast('Uge fjernet');
-                }
             }
         }
-        
-        function updateWeekDisplay() {
-            document.getElementById('weekDisplay').textContent = `${appState.weeks} uger`;
+
+        // Drag and drop
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drop-zone');
         }
-        
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.dataset.taskIndex);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drop-zone');
+            
+            const taskIndex = ev.dataTransfer.getData("text");
+            const craftsman = ev.currentTarget.dataset.craftsman;
+            const day = parseInt(ev.currentTarget.dataset.day);
+            
+            if (taskIndex !== "" && craftsman && day >= 0) {
+                saveState();
+                
+                const startDate = getProjectStartDate();
+                const newDate = calculateDateFromDay(startDate, day);
+                
+                appState.tasks[taskIndex].craftsman = craftsman;
+                appState.tasks[taskIndex].startDate = formatDateForInput(newDate);
+                
+                renderAll();
+                showToast('Opgave flyttet');
+            }
+        }
+
+        // Storage functions
         function saveProjectToStorage() {
-            try {
-                localStorage.setItem('switzeaProject', JSON.stringify(appState));
-                showToast('✅ Projekt gemt i localStorage');
-            } catch (error) {
-                showToast('Fejl ved gem: ' + error.message, 'error');
-            }
+            localStorage.setItem('switzea_project', JSON.stringify(appState));
+            showToast('Projekt data gemt lokalt');
         }
-        
+
         function loadProjectFromStorage() {
-            try {
-                const saved = localStorage.getItem('switzeaProject');
-                if (saved) {
-                    appState = JSON.parse(saved);
-                    if (!appState.startWeekNumber) appState.startWeekNumber = 1;
-                    
-                    saveState();
-                    renderAll();
-                    updateTimelineInfo();
-                    showToast('✅ Projekt indlæst fra localStorage');
-                } else {
-                    showToast('Ingen gemt projekt fundet', 'warning');
-                }
-            } catch (error) {
-                showToast('Fejl ved indlæsning: ' + error.message, 'error');
-            }
-        }
-        
-        // ENHANCED: generateWorkerSchedule function with timeline and craftsman sections
-        function generateWorkerSchedule(sortedTasks) {
-            const schedule = {};
-            const totalDays = appState.weeks * 5;
-            
-            console.log('🔍 DEBUG: Generating enhanced worker schedule');
-            console.log('Total days:', totalDays);
-            console.log('Tasks:', appState.tasks.length);
-            
-            // Build schedule for all work days
-            for (let day = 1; day <= totalDays; day++) {
-                const taskDate = calculateDateFromDay(day);
-                const dateKey = formatDateForInput(taskDate);
-                
-                console.log(`Day ${day}: ${dateKey} (${taskDate.toDateString()})`);
-                
-                schedule[dateKey] = {
-                    date: taskDate,
-                    dayNumber: day,
-                    tasks: []
-                };
-                
-                // Find all tasks for this day (including multi-day tasks)
-                appState.tasks.forEach(task => {
-                    // Check if task is active on this day
-                    if (task.startDay <= day && task.startDay + task.duration > day) {
-                        const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
-                        const dayOfTask = day - task.startDay + 1;
-                        
-                        schedule[dateKey].tasks.push({
-                            ...task,
-                            craftsmanName: craftsman ? craftsman.name : 'Ukendt',
-                            craftsmanColor: craftsman ? craftsman.color : '#666',
-                            dayOfTask: dayOfTask,
-                            isFirstDay: dayOfTask === 1,
-                            isLastDay: dayOfTask === task.duration
-                        });
-                        
-                        console.log(`  Task: ${task.title} (Day ${dayOfTask}/${task.duration})`);
-                    }
-                });
-            }
-            
-            // Generate Timeline Overview
-            let timelineHtml = generateTimelineOverview();
-            
-            // Generate Day-by-day schedule
-            let dayScheduleHtml = '';
-            const sortedDates = Object.keys(schedule).sort((a, b) => 
-                new Date(schedule[a].date) - new Date(schedule[b].date)
-            );
-            
-            console.log('Sorted dates:', sortedDates.length);
-            
-            sortedDates.forEach(dateKey => {
-                const dayData = schedule[dateKey];
-                const dayName = formatFullDateDanish(dayData.date);
-                const todayCheck = isToday(dayData.date);
-                
-                dayScheduleHtml += `
-                    <div class="day-block">
-                        <div class="day-header ${todayCheck ? 'today' : ''}">
-                            <div>
-                                <strong>${dayName}</strong>
-                                <div style="font-size: 0.9em; font-weight: normal; opacity: 0.9;">
-                                    Dag ${dayData.dayNumber} af ${totalDays} arbejdsdage
-                                </div>
-                            </div>
-                            <div class="day-weather">
-                                ☀️ Arbejdsdag
-                            </div>
-                        </div>
-                        <div class="day-tasks">
-                `;
-                
-                if (dayData.tasks.length === 0) {
-                    dayScheduleHtml += `
-                        <div class="empty-day">
-                            <strong>🏖️ Fri dag</strong><br>
-                            Ingen opgaver planlagt for denne dag
-                        </div>
-                    `;
-                } else {
-                    dayData.tasks.forEach(task => {
-                        const statusText = task.status === 'planned' ? 'Planlagt' : 
-                                         task.status === 'in-progress' ? 'I gang' : 'Udført';
-                        const priorityText = task.priority === 'high' ? 'Høj' :
-                                           task.priority === 'medium' ? 'Medium' : 'Lav';
-                        const durationText = task.duration === 1 ? '1 dag' : `${task.duration} dage`;
-                        
-                        dayScheduleHtml += `
-                            <div class="task-item priority-${task.priority}">
-                                <div class="craftsman-badge" style="background-color: ${task.craftsmanColor};">
-                                    ${task.craftsmanName}
-                                </div>
-                                <div class="task-content">
-                                    <div class="task-title">
-                                        ${task.title}
-                                        ${task.isFirstDay ? ' 🚀' : ''}
-                                        ${task.isLastDay ? ' 🏁' : ''}
-                                    </div>
-                                    ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
-                                    ${task.notes ? `<div class="task-notes">📝 <strong>Vigtigt:</strong> ${task.notes}</div>` : ''}
-                                    <div class="task-meta">
-                                        <span class="status-indicator status-${task.status}">${statusText}</span>
-                                        <span class="duration-badge">${durationText}</span>
-                                        <span class="priority-badge priority-${task.priority}-badge">${priorityText} prioritet</span>
-                                        ${task.isHalfDay ? '<span class="duration-badge">Halv dag</span>' : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-                
-                dayScheduleHtml += `
-                        </div>
-                    </div>
-                `;
-            });
-            
-            // Generate Craftsman Sections
-            let craftsmanSectionsHtml = generateCraftsmanSections();
-            
-            console.log('Generated HTML length:', timelineHtml.length + dayScheduleHtml.length + craftsmanSectionsHtml.length);
-            
-            // Combine all sections
-            let fullHtml = timelineHtml + dayScheduleHtml + craftsmanSectionsHtml;
-            
-            if (fullHtml.length < 100) {
-                fullHtml = `
-                    <div class="empty-day" style="padding: 40px; text-align: center;">
-                        <h3 style="color: #666;">⚠️ Ingen data fundet</h3>
-                        <p>Der blev ikke fundet nogen opgaver at vise i arbejdsplanen.</p>
-                        <p style="margin-top: 10px; font-size: 0.9em;">
-                            Debug info: ${appState.tasks.length} opgaver, ${totalDays} arbejdsdage
-                        </p>
-                    </div>
-                `;
-            }
-            
-            return fullHtml;
-        }
-        
-        // NEW: Generate Timeline Overview
-        function generateTimelineOverview() {
-            if (appState.tasks.length === 0) return '';
-            
-            const totalDays = appState.weeks * 5;
-            let html = `
-                <div class="timeline-overview">
-                    <h2 style="color: #2E7D32; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                        📊 Timeline Oversigt
-                    </h2>
-                    <div class="timeline-visual">
-            `;
-            
-            // Create visual timeline
-            for (let week = 1; week <= appState.weeks; week++) {
-                html += `<div class="timeline-week">`;
-                html += `<div class="week-label">Uge ${week}</div>`;
-                html += `<div class="week-days">`;
-                
-                for (let dayInWeek = 1; dayInWeek <= 5; dayInWeek++) {
-                    const day = (week - 1) * 5 + dayInWeek;
-                    if (day > totalDays) break;
-                    
-                    const taskDate = calculateDateFromDay(day);
-                    const dayTasks = appState.tasks.filter(task => 
-                        task.startDay <= day && task.startDay + task.duration > day
-                    );
-                    
-                    html += `
-                        <div class="timeline-day ${dayTasks.length > 0 ? 'has-tasks' : 'empty-day-timeline'}">
-                            <div class="day-number">${day}</div>
-                            <div class="day-date">${formatDateForDisplay(taskDate)}</div>
-                            <div class="day-task-count">${dayTasks.length} opgave${dayTasks.length !== 1 ? 'r' : ''}</div>
-                        </div>
-                    `;
-                }
-                
-                html += `</div></div>`;
-            }
-            
-            html += `
-                    </div>
-                </div>
-                <div class="page-break"></div>
-            `;
-            
-            return html;
-        }
-        
-        // NEW: Generate Craftsman Sections
-        function generateCraftsmanSections() {
-            if (appState.craftsmen.length === 0 || appState.tasks.length === 0) return '';
-            
-            let html = `
-                <div class="page-break"></div>
-                <div class="craftsman-sections">
-                    <h2 style="color: #2E7D32; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
-                        👷 Opgaver Sorteret på Håndværker
-                    </h2>
-                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #2196F3;">
-                        <p><strong>💡 Hurtig Reference:</strong> Find nemt alle dine opgaver samlet på ét sted.</p>
-                    </div>
-            `;
-            
-            const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
-            
-            sortedCraftsmen.forEach(craftsman => {
-                const craftsmanTasks = appState.tasks.filter(task => task.craftsman === craftsman.id);
-                
-                if (craftsmanTasks.length === 0) return;
-                
-                // Sort tasks by start day
-                craftsmanTasks.sort((a, b) => a.startDay - b.startDay);
-                
-                html += `
-                    <div class="craftsman-section">
-                        <div class="craftsman-header" style="background-color: ${craftsman.color};">
-                            <h3 style="margin: 0; color: white; display: flex; align-items: center; gap: 10px;">
-                                👤 ${craftsman.name}
-                                <span style="font-size: 0.8em; opacity: 0.9;">(${craftsmanTasks.length} opgave${craftsmanTasks.length !== 1 ? 'r' : ''})</span>
-                            </h3>
-                        </div>
-                        <div class="craftsman-tasks">
-                `;
-                
-                craftsmanTasks.forEach((task, index) => {
-                    const taskStartDate = calculateDateFromDay(task.startDay);
-                    const taskEndDate = new Date(taskStartDate);
-                    taskEndDate.setDate(taskEndDate.getDate() + task.duration - 1);
-                    
-                    const statusText = task.status === 'planned' ? 'Planlagt' : 
-                                     task.status === 'in-progress' ? 'I gang' : 'Udført';
-                    const priorityText = task.priority === 'high' ? 'Høj' :
-                                       task.priority === 'medium' ? 'Medium' : 'Lav';
-                    
-                    html += `
-                        <div class="craftsman-task priority-${task.priority}">
-                            <div class="task-number">${index + 1}</div>
-                            <div class="task-details">
-                                <div class="task-title-section">
-                                    <strong>${task.title}</strong>
-                                    <div class="task-date-range">
-                                        📅 ${formatDateForInput(taskStartDate)}${task.duration > 1 ? ` - ${formatDateForInput(taskEndDate)}` : ''} 
-                                        (Dag ${task.startDay}${task.duration > 1 ? `-${task.startDay + task.duration - 1}` : ''})
-                                    </div>
-                                </div>
-                                ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
-                                ${task.notes ? `<div class="task-notes">📝 <strong>Noter:</strong> ${task.notes}</div>` : ''}
-                                <div class="task-meta-craftsman">
-                                    <span class="status-indicator status-${task.status}">${statusText}</span>
-                                    <span class="priority-badge priority-${task.priority}-badge">${priorityText} prioritet</span>
-                                    <span class="duration-badge">${task.duration} dag${task.duration !== 1 ? 'e' : ''}</span>
-                                    ${task.isHalfDay ? '<span class="duration-badge">Halv dag</span>' : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                html += `
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `</div>`;
-            return html;
-        }
-        
-        // PDF EXPORT FUNCTIONS
-        function exportWorkerPDF() {
-            if (!appState.project.name || appState.tasks.length === 0) {
-                showToast('Tilføj projekt information og opgaver først', 'warning');
-                return;
-            }
-            
-            console.log('🔍 Starting Enhanced Worker PDF Export');
-            console.log('Project:', appState.project);
-            console.log('Tasks:', appState.tasks);
-            console.log('Craftsmen:', appState.craftsmen);
-            
-            const printWindow = window.open('', '_blank');
-            const projectName = appState.project.name || 'Projekt';
-            const projectStart = getProjectStartDate();
-            const projectEnd = new Date(projectStart);
-            projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
-            
-            // Sort tasks by day for worker schedule
-            const sortedTasks = [...appState.tasks].sort((a, b) => {
-                if (a.startDay !== b.startDay) return a.startDay - b.startDay;
-                return a.craftsman.localeCompare(b.craftsman);
-            });
-            
-            console.log('Sorted tasks for PDF:', sortedTasks);
-            
-            const content = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Håndværker Arbejdsplan - ${projectName}</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.4; font-size: 14px; }
-                        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #2E7D32; padding-bottom: 20px; }
-                        .logo { font-size: 2.2em; font-weight: bold; color: #2E7D32; margin-bottom: 10px; }
-                        .subtitle { font-size: 1.3em; color: #666; }
-                        .project-info { 
-                            margin-bottom: 25px; 
-                            background: #f8f9fa; 
-                            padding: 20px; 
-                            border-radius: 8px; 
-                            border-left: 5px solid #2E7D32; 
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            gap: 15px;
-                        }
-                        .info-item { 
-                            display: flex;
-                            align-items: center;
-                            gap: 10px;
-                        }
-                        .info-icon {
-                            width: 20px;
-                            height: 20px;
-                            background: #2E7D32;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            color: white;
-                            font-size: 12px;
-                            font-weight: bold;
-                        }
-                        
-                        /* Timeline Overview Styles */
-                        .timeline-overview {
-                            margin: 25px 0;
-                            background: #f8f9fa;
-                            padding: 20px;
-                            border-radius: 8px;
-                            border-left: 5px solid #4CAF50;
-                        }
-                        .timeline-visual {
-                            display: flex;
-                            gap: 10px;
-                            overflow-x: auto;
-                        }
-                        .timeline-week {
-                            flex: 1;
-                            min-width: 150px;
-                        }
-                        .week-label {
-                            background: #4CAF50;
-                            color: white;
-                            padding: 8px;
-                            text-align: center;
-                            font-weight: bold;
-                            border-radius: 4px 4px 0 0;
-                        }
-                        .week-days {
-                            display: flex;
-                            flex-direction: column;
-                            border: 1px solid #ddd;
-                            border-top: none;
-                            border-radius: 0 0 4px 4px;
-                        }
-                        .timeline-day {
-                            padding: 8px;
-                            border-bottom: 1px solid #eee;
-                            text-align: center;
-                            font-size: 0.8em;
-                        }
-                        .timeline-day:last-child {
-                            border-bottom: none;
-                        }
-                        .timeline-day.has-tasks {
-                            background: #e8f5e8;
-                            font-weight: bold;
-                        }
-                        .timeline-day.empty-day-timeline {
-                            background: #fafafa;
-                            color: #999;
-                        }
-                        .day-number {
-                            font-weight: bold;
-                            color: #2E7D32;
-                        }
-                        .day-date {
-                            font-size: 0.75em;
-                            color: #666;
-                            margin: 2px 0;
-                        }
-                        .day-task-count {
-                            font-size: 0.7em;
-                            color: #4CAF50;
-                        }
-                        
-                        /* Day Schedule Styles */
-                        .schedule { margin-top: 25px; }
-                        .day-block { margin-bottom: 25px; page-break-inside: avoid; }
-                        .day-header { 
-                            background: linear-gradient(135deg, #2E7D32, #4CAF50); 
-                            color: white; 
-                            padding: 15px; 
-                            font-weight: bold; 
-                            font-size: 1.1em; 
-                            border-radius: 8px; 
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                        }
-                        .day-weather { 
-                            font-size: 0.9em; 
-                            opacity: 0.9;
-                        }
-                        .day-tasks { 
-                            background: white; 
-                            border: 1px solid #ddd; 
-                            border-radius: 8px; 
-                            margin-top: 8px; 
-                            overflow: hidden;
-                        }
-                        .task-item { 
-                            padding: 15px; 
-                            border-bottom: 1px solid #eee; 
-                            display: flex; 
-                            align-items: flex-start; 
-                            gap: 15px;
-                        }
-                        .task-item:last-child { border-bottom: none; }
-                        .craftsman-badge { 
-                            display: inline-flex; 
-                            align-items: center;
-                            justify-content: center;
-                            padding: 8px 12px; 
-                            border-radius: 20px; 
-                            color: white; 
-                            font-weight: bold; 
-                            font-size: 0.85em; 
-                            min-width: 110px; 
-                            text-align: center;
-                            flex-shrink: 0;
-                        }
-                        .task-content { flex: 1; min-width: 0; }
-                        .task-title { 
-                            font-weight: bold; 
-                            margin-bottom: 6px; 
-                            font-size: 1.05em;
-                        }
-                        .task-description { 
-                            color: #555; 
-                            font-size: 0.95em; 
-                            margin-bottom: 6px; 
-                            line-height: 1.4;
-                        }
-                        .task-notes { 
-                            color: #777; 
-                            font-size: 0.85em; 
-                            font-style: italic; 
-                            background: #f8f9fa;
-                            padding: 6px 10px;
-                            border-radius: 4px;
-                            border-left: 3px solid #007bff;
-                        }
-                        .task-meta {
-                            display: flex;
-                            gap: 12px;
-                            align-items: center;
-                            margin-top: 8px;
-                        }
-                        .priority-high { border-left: 5px solid #f44336; }
-                        .priority-medium { border-left: 5px solid #ff9800; }
-                        .priority-low { border-left: 5px solid #4caf50; }
-                        .status-indicator { 
-                            padding: 3px 8px; 
-                            border-radius: 12px; 
-                            font-size: 0.75em; 
-                            font-weight: bold; 
-                        }
-                        .status-planned { background: #f3f4f6; color: #374151; }
-                        .status-in-progress { background: #dbeafe; color: #1d4ed8; }
-                        .status-completed { background: #d1fae5; color: #065f46; }
-                        .duration-badge {
-                            background: #e3f2fd;
-                            color: #1976d2;
-                            padding: 3px 8px;
-                            border-radius: 12px;
-                            font-size: 0.75em;
-                            font-weight: bold;
-                        }
-                        .priority-badge {
-                            padding: 3px 8px;
-                            border-radius: 12px;
-                            font-size: 0.75em;
-                            font-weight: bold;
-                        }
-                        .priority-high-badge { background: #ffebee; color: #c62828; }
-                        .priority-medium-badge { background: #fff3e0; color: #ef6c00; }
-                        .priority-low-badge { background: #e8f5e8; color: #2e7d32; }
-                        .empty-day {
-                            padding: 20px;
-                            text-align: center;
-                            color: #999;
-                            font-style: italic;
-                            background: #f8f9fa;
-                        }
-                        
-                        /* Craftsman Sections Styles */
-                        .craftsman-sections {
-                            margin-top: 30px;
-                        }
-                        .craftsman-section {
-                            margin-bottom: 30px;
-                            background: white;
-                            border-radius: 8px;
-                            overflow: hidden;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                        }
-                        .craftsman-header {
-                            padding: 15px 20px;
-                        }
-                        .craftsman-tasks {
-                            padding: 0;
-                        }
-                        .craftsman-task {
-                            padding: 15px 20px;
-                            border-bottom: 1px solid #eee;
-                            display: flex;
-                            gap: 15px;
-                            align-items: flex-start;
-                        }
-                        .craftsman-task:last-child {
-                            border-bottom: none;
-                        }
-                        .task-number {
-                            background: #2196F3;
-                            color: white;
-                            width: 30px;
-                            height: 30px;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-weight: bold;
-                            flex-shrink: 0;
-                        }
-                        .task-details {
-                            flex: 1;
-                        }
-                        .task-title-section {
-                            margin-bottom: 8px;
-                        }
-                        .task-date-range {
-                            font-size: 0.9em;
-                            color: #666;
-                            margin-top: 4px;
-                        }
-                        .task-meta-craftsman {
-                            display: flex;
-                            gap: 10px;
-                            margin-top: 10px;
-                            flex-wrap: wrap;
-                        }
-                        
-                        .footer { 
-                            margin-top: 40px; 
-                            font-size: 0.9em; 
-                            color: #666; 
-                            border-top: 2px solid #ddd; 
-                            padding-top: 20px; 
-                            text-align: center; 
-                        }
-                        @media print { 
-                            .page-break { page-break-before: always; } 
-                            body { font-size: 12px; }
-                            .day-block { break-inside: avoid; }
-                            .craftsman-section { break-inside: avoid; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <div class="logo">🏗️ SWITZEA ApS</div>
-                        <div class="subtitle">Håndværker Arbejdsplan - Enhanced</div>
-                    </div>
-                    
-                    <div class="project-info">
-                        <div class="info-item">
-                            <div class="info-icon">📋</div>
-                            <div><strong>Projekt:</strong> ${projectName}</div>
-                        </div>
-                        ${appState.project.address ? `
-                        <div class="info-item">
-                            <div class="info-icon">📍</div>
-                            <div><strong>Adresse:</strong> ${appState.project.address}</div>
-                        </div>` : ''}
-                        ${appState.project.customer ? `
-                        <div class="info-item">
-                            <div class="info-icon">👤</div>
-                            <div><strong>Kunde:</strong> ${appState.project.customer}</div>
-                        </div>` : ''}
-                        ${appState.project.phone ? `
-                        <div class="info-item">
-                            <div class="info-icon">📞</div>
-                            <div><strong>Telefon:</strong> ${appState.project.phone}</div>
-                        </div>` : ''}
-                        <div class="info-item">
-                            <div class="info-icon">📅</div>
-                            <div><strong>Periode:</strong> ${formatDateForInput(projectStart)} - ${formatDateForInput(projectEnd)}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-icon">⏰</div>
-                            <div><strong>Udskrevet:</strong> ${new Date().toLocaleString('da-DK')}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="schedule">
-                        <h2 style="color: #2E7D32; border-bottom: 2px solid #e3f2fd; padding-bottom: 8px; margin-bottom: 25px;">
-                            📋 Komplet Arbejdsplan
-                        </h2>
-                        ${generateWorkerSchedule(sortedTasks)}
-                    </div>
-                    
-                    <div class="footer">
-                        <p><strong>SWITZEA ApS</strong> | Professional Projektplanlægning</p>
-                        <p>📧 kontakt@switzea.dk | 📞 +45 XX XX XX XX</p>
-                        <p>Udskrevet: ${new Date().toLocaleString('da-DK')}</p>
-                    </div>
-                </body>
-                </html>
-            `;
-            
-            console.log('Enhanced PDF Content generated, length:', content.length);
-            
-            printWindow.document.write(content);
-            printWindow.document.close();
-            printWindow.print();
-            
-            showToast('📋 Enhanced Håndværker PDF med 3 sektioner genereret!');
-        }
-        
-        function exportCustomerPDF() {
-            if (!appState.project.name || appState.tasks.length === 0) {
-                showToast('Tilføj projekt information og opgaver først', 'warning');
-                return;
-            }
-            
-            const printWindow = window.open('', '_blank');
-            const projectName = appState.project.name || 'Projekt';
-            const projectStart = getProjectStartDate();
-            const projectEnd = new Date(projectStart);
-            projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
-            
-            // Calculate project progress
-            const totalTasks = appState.tasks.length;
-            const completedTasks = appState.tasks.filter(t => t.status === 'completed').length;
-            const progressTasks = appState.tasks.filter(t => t.status === 'in-progress').length;
-            const progressPercentage = Math.round((completedTasks / totalTasks) * 100) || 0;
-            
-            const content = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Projekt Status Rapport - ${projectName}</title>
-                    <style>
-                        body { 
-                            font-family: 'Georgia', serif; 
-                            margin: 30px; 
-                            line-height: 1.6; 
-                            color: #333; 
-                            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                        }
-                        .container {
-                            background: white;
-                            padding: 40px;
-                            border-radius: 15px;
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                            max-width: 800px;
-                            margin: 0 auto;
-                        }
-                        .header { 
-                            text-align: center; 
-                            margin-bottom: 40px; 
-                            border-bottom: 3px solid #667eea; 
-                            padding-bottom: 25px; 
-                        }
-                        .logo { 
-                            font-size: 2.8em; 
-                            font-weight: bold; 
-                            background: linear-gradient(135deg, #667eea, #764ba2);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                            margin-bottom: 10px; 
-                        }
-                        .subtitle { 
-                            font-size: 1.4em; 
-                            color: #555; 
-                            font-style: italic; 
-                        }
-                        .customer-greeting { 
-                            font-size: 1.1em; 
-                            margin-bottom: 35px; 
-                            background: linear-gradient(135deg, #f8f9ff, #e3f2fd); 
-                            padding: 25px; 
-                            border-radius: 12px; 
-                            border-left: 6px solid #667eea;
-                            position: relative;
-                        }
-                        .customer-greeting h3 {
-                            margin-top: 0;
-                            color: #667eea;
-                            font-size: 1.3em;
-                        }
-                        .project-overview { 
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            gap: 25px;
-                            margin-bottom: 35px; 
-                        }
-                        .overview-card { 
-                            background: linear-gradient(135deg, #white, #f8f9fa);
-                            padding: 25px; 
-                            border-radius: 12px; 
-                            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
-                            border-left: 6px solid #4CAF50;
-                            transition: transform 0.2s ease;
-                        }
-                        .overview-card:hover {
-                            transform: translateY(-2px);
-                        }
-                        .overview-card h3 {
-                            margin-top: 0;
-                            color: #667eea;
-                            display: flex;
-                            align-items: center;
-                            gap: 10px;
-                        }
-                        .progress-section { margin-bottom: 35px; }
-                        .progress-bar { 
-                            background: #e0e0e0; 
-                            height: 30px; 
-                            border-radius: 15px; 
-                            overflow: hidden; 
-                            margin: 20px 0; 
-                            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-                        }
-                        .progress-fill { 
-                            background: linear-gradient(90deg, #4CAF50, #45a049); 
-                            height: 100%; 
-                            display: flex; 
-                            align-items: center; 
-                            justify-content: center; 
-                            color: white; 
-                            font-weight: bold; 
-                            font-size: 1em;
-                            transition: width 0.3s ease;
-                        }
-                        .footer { 
-                            margin-top: 50px; 
-                            text-align: center; 
-                            font-size: 0.95em; 
-                            color: #666; 
-                            border-top: 2px solid #ddd; 
-                            padding-top: 25px; 
-                        }
-                        @media print { 
-                            body { background: white; }
-                            .container { box-shadow: none; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="header">
-                            <div class="logo">🏗️ SWITZEA ApS</div>
-                            <div class="subtitle">Projekt Status Rapport</div>
-                        </div>
-                        
-                        <div class="customer-greeting">
-                            <h3>Kære ${appState.project.customer || 'Kunde'}</h3>
-                            <p>Vi er glade for at give jer en opdatering på jeres ${projectName.toLowerCase()}. Projektet forløber planmæssigt, og vi arbejder hver dag for at levere det bedste resultat til jer.</p>
-                        </div>
-                        
-                        <div class="project-overview">
-                            <div class="overview-card">
-                                <h3>📋 Projekt Detaljer</h3>
-                                <p><strong>Projekt:</strong> ${projectName}</p>
-                                ${appState.project.address ? `<p><strong>Adresse:</strong> ${appState.project.address}</p>` : ''}
-                                <p><strong>Periode:</strong> ${formatDateForInput(projectStart)} - ${formatDateForInput(projectEnd)}</p>
-                                <p><strong>Varighed:</strong> ${appState.weeks} uger arbejde</p>
-                            </div>
-                            <div class="overview-card">
-                                <h3>📊 Status Oversigt</h3>
-                                <p><strong>Opgaver i alt:</strong> ${totalTasks} stk.</p>
-                                <p><strong>Fuldført:</strong> ${completedTasks} stk.</p>
-                                <p><strong>I gang:</strong> ${progressTasks} stk.</p>
-                                <p><strong>Planlagt:</strong> ${totalTasks - completedTasks - progressTasks} stk.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="progress-section">
-                            <h2>🎯 Projekt Fremgang</h2>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${progressPercentage}%;">
-                                    ${progressPercentage}% Færdig
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="footer">
-                            <p><strong>SWITZEA ApS</strong> | Professional Projektledelse & Håndværk</p>
-                            <p>Rapport genereret: ${new Date().toLocaleString('da-DK')}</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-            `;
-            
-            printWindow.document.write(content);
-            printWindow.document.close();
-            printWindow.print();
-            
-            showToast('📊 Kunde PDF genereret!');
-        }
-        
-        function closeModal(modalId) {
-            if (modalId === 'taskModal' && taskBackup && currentEditingTask) {
-                Object.assign(currentEditingTask, taskBackup);
+            const saved = localStorage.getItem('switzea_project');
+            if (saved) {
+                appState = JSON.parse(saved);
                 renderAll();
-                showToast('🔄 Ændringer annulleret', 'info');
-                taskBackup = null;
+                showToast('Projekt data indlæst');
+            } else {
+                showToast('Ingen gemt data fundet', 'error');
+            }
+        }
+
+        // RETTET: PDF funktioner med korrekt dato håndtering
+        function generateWorkerSchedule() {
+            if (!appState.project.startDate) {
+                return '<p>Indstil projektets startdato først</p>';
             }
             
-            document.getElementById(modalId).classList.remove('show');
-            currentEditingTask = null;
-        }
-        
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
+            let scheduleHTML = '<h3>📅 Uge-for-uge Plan</h3>';
+            const startDate = new Date(appState.project.startDate);
             
-            setTimeout(() => toast.classList.add('show'), 100);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    if (document.body.contains(toast)) {
-                        document.body.removeChild(toast);
-                    }
-                }, 300);
-            }, 4000);
-        }
-        
-        // Global error handling
-        window.addEventListener('error', (e) => {
-            console.error('JavaScript error:', e.message);
-            showToast('Der opstod en fejl - prøv igen', 'error');
-        });
-        
-        // Prevent accidental navigation
-        window.addEventListener('beforeunload', (e) => {
-            if (appState.tasks.length > 0 || appState.craftsmen.length > 0) {
-                e.preventDefault();
-                e.returnValue = '';
-                return 'Er du sikker på du vil forlade appen uden at gemme?';
-            }
-        });
-        
-        // Hide tooltip when scrolling
-        window.addEventListener('scroll', hideTaskTooltip);
-    
-
-    // Forbedret tooltip funktionalitet
-    function showTaskTooltip(event, task) {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'task-tooltip';
-        tooltip.innerHTML = `
-            <strong>${task.title}</strong><br>
-            📅 ${task.startDate} (${task.duration} dage)<br>
-            👷 ${task.craftsman}<br>
-            🔥 ${task.priority} prioritet<br>
-            📊 Status: ${task.status}
-        `;
-
-        document.body.appendChild(tooltip);
-
-        const rect = event.target.getBoundingClientRect();
-        tooltip.style.left = (rect.left + rect.width / 2) + 'px';
-        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
-
-        // Fjern tooltip efter 3 sekunder eller ved mouse leave
-        setTimeout(() => {
-            if (tooltip.parentNode) {
-                tooltip.parentNode.removeChild(tooltip);
-            }
-        }, 3000);
-
-        event.target.addEventListener('mouseleave', () => {
-            if (tooltip.parentNode) {
-                tooltip.parentNode.removeChild(tooltip);
-            }
-        }, { once: true });
-    }
-
-    // Forbedret toast funktion med error support
-    function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'error' ? '#f44336' : '#4CAF50'};
-            color: white;
-            padding: 12px 24px;
-            border-radius: 4px;
-            z-index: 10000;
-            font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        `;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 4000);
-    }
-
-    // Forbedret PDF generation med korrekte datoer
-    function generateWorkerScheduleFixed() {
-        if (!appState.project.startDate) {
-            showToast('Indstil projektets startdato først', 'error');
-            return '';
-        }
-
-        let scheduleHTML = '<h3>📅 Uge-for-uge Plan</h3>';
-        const startDate = new Date(appState.project.startDate);
-
-        // Generer kun hverdage
-        for (let week = 0; week < appState.project.weeks; week++) {
-            scheduleHTML += `<h4>Uge ${week + 1}</h4>`;
-
-            for (let day = 0; day < 7; day++) {
+            // Generer kun hverdage
+            for (let week = 0; week < appState.project.weeks; week++) {
+                scheduleHTML += `<h4>Uge ${week + 1}</h4>`;
+                
+                let weekHasTasks = false;
                 const currentDate = new Date(startDate);
-                currentDate.setDate(startDate.getDate() + (week * 7) + day);
-
-                // Spring weekender over
-                if (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
-                    continue;
-                }
-
-                const dateStr = formatDateForDisplay(currentDate);
-                const dayTasks = appState.tasks.filter(task => {
-                    const taskDate = new Date(task.startDate);
-                    return taskDate.toDateString() === currentDate.toDateString();
-                });
-
-                if (dayTasks.length > 0) {
-                    scheduleHTML += `<p><strong>${dateStr}:</strong></p><ul>`;
-                    dayTasks.forEach(task => {
-                        scheduleHTML += `<li>${task.craftsman}: ${task.title} (${task.priority} prioritet)</li>`;
+                currentDate.setDate(startDate.getDate() + (week * 7));
+                
+                for (let day = 0; day < 7; day++) {
+                    const dayDate = new Date(currentDate);
+                    dayDate.setDate(currentDate.getDate() + day);
+                    
+                    // Spring weekender over
+                    if (isWeekend(dayDate)) {
+                        continue;
+                    }
+                    
+                    const dateStr = formatDateDanish(dayDate);
+                    const dayTasks = appState.tasks.filter(task => {
+                        const taskDate = new Date(task.startDate);
+                        return taskDate.toDateString() === dayDate.toDateString();
                     });
-                    scheduleHTML += '</ul>';
+                    
+                    if (dayTasks.length > 0) {
+                        scheduleHTML += `<p><strong>${dateStr}:</strong></p><ul>`;
+                        dayTasks.forEach(task => {
+                            scheduleHTML += `<li>${task.craftsman}: ${task.title} (${task.priority} prioritet)</li>`;
+                        });
+                        scheduleHTML += '</ul>';
+                        weekHasTasks = true;
+                    }
+                }
+                
+                if (!weekHasTasks) {
+                    scheduleHTML += '<p><em>Ingen opgaver planlagt denne uge</em></p>';
                 }
             }
+            return scheduleHTML;
         }
-        return scheduleHTML;
-    }
 
-    // Auto-scroll til top funktion
-    function scrollModalToTop() {
-        const modal = document.querySelector('.modal.open');
-        if (modal) {
-            modal.scrollTop = 0;
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.scrollTop = 0;
+        function generateCraftsmanSections() {
+            let sectionsHTML = '<h3>👷 Håndværker Oversigt</h3>';
+            
+            appState.craftsmen.forEach(craftsman => {
+                sectionsHTML += `<h4>${craftsman.type}</h4>`;
+                
+                const craftsmanTasks = appState.tasks.filter(task => task.craftsman === craftsman.type);
+                
+                if (craftsmanTasks.length > 0) {
+                    sectionsHTML += '<ul>';
+                    craftsmanTasks.forEach(task => {
+                        sectionsHTML += `<li><strong>${task.title}</strong> - ${formatDateDanish(task.startDate)} (${task.duration} dage) - ${task.priority} prioritet</li>`;
+                    });
+                    sectionsHTML += '</ul>';
+                } else {
+                    sectionsHTML += '<p><em>Ingen opgaver tildelt</em></p>';
+                }
+            });
+            
+            return sectionsHTML;
+        }
+
+        // RETTET: exportWorkerPDF med korrekte datoer
+        function exportWorkerPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(44, 90, 160);
+            doc.text('SWITZEA ApS - Håndværker Rapport', 20, 30);
+            
+            // Projekt info
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            let yPos = 50;
+            
+            if (appState.project.name) {
+                doc.text(`Projekt: ${appState.project.name}`, 20, yPos);
+                yPos += 10;
             }
+            
+            if (appState.project.startDate) {
+                const startDate = new Date(appState.project.startDate);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + (appState.project.weeks * 7) - 1);
+                
+                doc.text(`Periode: ${formatDateDanish(startDate)} - ${formatDateDanish(endDate)}`, 20, yPos);
+                yPos += 20;
+            }
+            
+            // Timeline oversigt
+            doc.setFontSize(14);
+            doc.text('Timeline Oversigt', 20, yPos);
+            yPos += 10;
+            
+            // RETTET: Korrekt task count
+            const totalTasks = appState.tasks.length;
+            doc.setFontSize(10);
+            doc.text(`Total opgaver: ${totalTasks}`, 20, yPos);
+            yPos += 15;
+            
+            // Opgave detaljer med korrekte datoer
+            appState.tasks.forEach((task, index) => {
+                if (yPos > 250) {
+                    doc.addPage();
+                    yPos = 30;
+                }
+                
+                doc.text(`${index + 1}. ${task.title}`, 20, yPos);
+                yPos += 7;
+                doc.text(`   Håndværker: ${task.craftsman}`, 25, yPos);
+                yPos += 7;
+                doc.text(`   Dato: ${formatDateDanish(task.startDate)} (${task.duration} dage)`, 25, yPos);
+                yPos += 7;
+                doc.text(`   Prioritet: ${task.priority} | Status: ${task.status}`, 25, yPos);
+                yPos += 10;
+            });
+            
+            doc.save(`switzea-haandvaerker-rapport-${formatDateDanish(new Date()).replace(/\//g, '-')}.pdf`);
+            showToast('Håndværker PDF eksporteret');
         }
-        // Scroll hele vinduet til top
-        window.scrollTo(0, 0);
-    }
 
-    // Opdateret openTaskModal funktion
-    function openTaskModal(day = null, craftsman = null) {
-        // Auto-scroll til top
-        scrollModalToTop();
-
-        document.getElementById('taskModal').classList.add('open');
-        document.getElementById('modalTitle').textContent = 'Ny Opgave';
-        clearTaskFields();
-
-        if (day !== null) {
-            document.getElementById('taskStartDate').value = formatDateForInput(new Date(day));
+        // RETTET: exportCustomerPDF med korrekt data
+        function exportCustomerPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(44, 90, 160);
+            doc.text('SWITZEA ApS - Kunde Status Rapport', 20, 30);
+            
+            let yPos = 50;
+            
+            // Kunde information
+            if (appState.project.customerName) {
+                doc.setFontSize(14);
+                doc.text(`Kunde: ${appState.project.customerName}`, 20, yPos);
+                yPos += 15;
+            }
+            
+            if (appState.project.name) {
+                doc.setFontSize(12);
+                doc.text(`Projekt: ${appState.project.name}`, 20, yPos);
+                yPos += 10;
+            }
+            
+            if (appState.project.address) {
+                doc.text(`Adresse: ${appState.project.address}`, 20, yPos);
+                yPos += 15;
+            }
+            
+            // Projekt status
+            doc.setFontSize(14);
+            doc.text('Projekt Status', 20, yPos);
+            yPos += 10;
+            
+            if (appState.project.startDate) {
+                const startDate = new Date(appState.project.startDate);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + (appState.project.weeks * 7) - 1);
+                
+                doc.setFontSize(10);
+                doc.text(`Projektperiode: ${formatDateDanish(startDate)} - ${formatDateDanish(endDate)}`, 20, yPos);
+                yPos += 10;
+                
+                // RETTET: Korrekt task counting
+                const totalTasks = appState.tasks.length;
+                const completedTasks = appState.tasks.filter(task => task.status === 'completed').length;
+                const inProgressTasks = appState.tasks.filter(task => task.status === 'in-progress').length;
+                const plannedTasks = appState.tasks.filter(task => task.status === 'planned').length;
+                
+                doc.text(`Total opgaver: ${totalTasks}`, 20, yPos);
+                yPos += 7;
+                doc.text(`Færdige: ${completedTasks} | I gang: ${inProgressTasks} | Planlagt: ${plannedTasks}`, 20, yPos);
+                yPos += 15;
+                
+                // Fremgang
+                const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                doc.text(`Fremgang: ${progressPercent}%`, 20, yPos);
+                yPos += 15;
+            }
+            
+            // Håndværker oversigt
+            doc.setFontSize(14);
+            doc.text('Håndværker Team', 20, yPos);
+            yPos += 10;
+            
+            appState.craftsmen.forEach(craftsman => {
+                const craftsmanTasks = appState.tasks.filter(task => task.craftsman === craftsman.type);
+                doc.setFontSize(10);
+                doc.text(`• ${craftsman.type}: ${craftsmanTasks.length} opgaver`, 20, yPos);
+                yPos += 7;
+            });
+            
+            yPos += 10;
+            
+            // Kommende opgaver
+            doc.setFontSize(14);
+            doc.text('Næste Opgaver', 20, yPos);
+            yPos += 10;
+            
+            const upcomingTasks = appState.tasks
+                .filter(task => task.status !== 'completed')
+                .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+                .slice(0, 5);
+                
+            upcomingTasks.forEach(task => {
+                if (yPos > 250) {
+                    doc.addPage();
+                    yPos = 30;
+                }
+                
+                doc.setFontSize(10);
+                doc.text(`• ${task.title} - ${formatDateDanish(task.startDate)} (${task.craftsman})`, 20, yPos);
+                yPos += 7;
+            });
+            
+            // Footer
+            doc.setFontSize(8);
+            doc.text(`Rapport genereret: ${formatDateDanish(new Date())}`, 20, 280);
+            doc.text('SWITZEA ApS | Professionel håndværker koordinering', 20, 290);
+            
+            doc.save(`switzea-kunde-rapport-${formatDateDanish(new Date()).replace(/\//g, '-')}.pdf`);
+            showToast('Kunde PDF eksporteret');
         }
-        if (craftsman !== null) {
-            document.getElementById('taskCraftsman').value = craftsman;
-        }
 
-        currentTaskIndex = -1;
-        populateCraftsmanDropdown();
-    }
+        // Remove drag over effect when leaving
+        document.addEventListener('dragleave', (e) => {
+            if (e.target.classList.contains('timeline-cell')) {
+                e.target.classList.remove('drop-zone');
+            }
+        });
 
-    
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('open');
+            }
+        });
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+            updateUndoRedoButtons();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            redo();
+                        } else {
+                            undo();
+                        }
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        saveProjectToStorage();
+                        break;
+                }
+            }
+        });
     </script>
 </body>
 </html>
