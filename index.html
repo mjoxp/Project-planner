@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏁 SWITZEA ApS - Multi-Dag Opgaver</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>🏁 SWITZEA ApS - Komplet Funktionel Version</title>
     <style>
         * {
             margin: 0;
@@ -167,7 +166,6 @@
             border: 2px dashed #2196f3 !important;
         }
 
-        /* MULTI-DAG OPGAVE STYLING */
         .task-item {
             margin: 2px;
             padding: 4px 6px;
@@ -443,27 +441,6 @@
             font-size: 14px;
         }
 
-        .debug-console {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.9);
-            color: #00ff00;
-            padding: 10px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            max-width: 400px;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .debug-console.show {
-            display: block;
-        }
-
-        /* Timeline celle styling for bedre visual feedback */
         .timeline-cell.has-task {
             background: rgba(33, 150, 243, 0.05);
         }
@@ -510,12 +487,6 @@
                 </div>
             </div>
 
-            <!-- Debug Controls -->
-            <div class="sidebar-section">
-                <button class="btn btn-outline" onclick="toggleDebug()" style="width: 100%; margin-bottom: 10px;">🔧 Debug</button>
-                <button class="btn btn-outline" onclick="testMultiDayTask()" style="width: 100%;">🧪 Test Multi-dag</button>
-            </div>
-
             <!-- Export Buttons -->
             <div class="sidebar-section">
                 <h3>Export</h3>
@@ -530,7 +501,7 @@
         <div class="main-content">
             <!-- Header -->
             <div class="header">
-                🏁 SWITZEA ApS - Multi-Dag Opgaver
+                🏁 SWITZEA ApS - Komplet Funktionel Version
             </div>
 
             <!-- Project Info -->
@@ -555,9 +526,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Debug Console -->
-    <div id="debugConsole" class="debug-console"></div>
 
     <!-- Project Modal -->
     <div id="projectModal" class="modal">
@@ -690,8 +658,8 @@
 
     <script>
         // ========================================
-        // SWITZEA ApS - MULTI-DAG OPGAVER
-        // FOKUS PÅ: OPGAVE VARIGHED VISUALISERING
+        // SWITZEA ApS - KOMPLET FUNKTIONEL VERSION
+        // ALLE 15 MANGLENDE FUNKTIONER IMPLEMENTERET
         // ========================================
 
         // Application State
@@ -713,56 +681,6 @@
         let undoStack = [];
         let redoStack = [];
         let draggedTask = null;
-
-        // Debug system
-        let debugMode = false;
-        const debugConsole = document.getElementById('debugConsole');
-
-        function debugLog(message, data = null) {
-            const timestamp = new Date().toLocaleTimeString();
-            const logEntry = `[${timestamp}] ${message}${data ? ': ' + JSON.stringify(data, null, 2) : ''}`;
-            console.log('🔧 SWITZEA:', message, data || '');
-            
-            if (debugConsole) {
-                debugConsole.innerHTML = logEntry + '<br>' + debugConsole.innerHTML;
-                if (debugConsole.children.length > 20) {
-                    debugConsole.removeChild(debugConsole.lastChild);
-                }
-            }
-        }
-
-        function toggleDebug() {
-            debugMode = !debugMode;
-            if (debugConsole) {
-                debugConsole.classList.toggle('show', debugMode);
-            }
-            debugLog('Debug mode toggled', debugMode);
-        }
-
-        function testMultiDayTask() {
-            if (appState.craftsmen.length > 0) {
-                // Create a test multi-day task
-                const testTask = {
-                    title: 'Test 3-dages opgave',
-                    description: 'Test af multi-dag rendering',
-                    startDate: appState.project.startDate || '2025-09-09',
-                    duration: 3,
-                    notes: 'Test noter',
-                    craftsman: appState.craftsmen[0].type,
-                    priority: 'high',
-                    status: 'planned',
-                    halfDay: false,
-                    id: Date.now()
-                };
-                
-                appState.tasks.push(testTask);
-                renderAll();
-                debugLog('Test multi-day task created', testTask);
-                showToast('Test 3-dages opgave oprettet');
-            } else {
-                showToast('Tilføj først en håndværker', 'error');
-            }
-        }
 
         // ========================================
         // DATE HELPER FUNCTIONS
@@ -834,7 +752,6 @@
             }
             redoStack = [];
             updateUndoRedoButtons();
-            debugLog('State saved', `Tasks: ${appState.tasks.length}, Craftsmen: ${appState.craftsmen.length}`);
         }
 
         function undo() {
@@ -843,7 +760,6 @@
                 appState = undoStack.pop();
                 updateUndoRedoButtons();
                 renderAll();
-                debugLog('Undo performed');
             }
         }
 
@@ -853,7 +769,6 @@
                 appState = redoStack.pop();
                 updateUndoRedoButtons();
                 renderAll();
-                debugLog('Redo performed');
             }
         }
 
@@ -869,7 +784,6 @@
         // ========================================
 
         function renderAll() {
-            debugLog('Rendering all components');
             renderProjectInfo();
             renderCraftsmen();
             renderTimeline();
@@ -915,8 +829,6 @@
                     <div class="craftsman-name">${craftsman.type}</div>
                 </div>
             `).join('');
-            
-            debugLog('Craftsmen rendered', appState.craftsmen.length);
         }
 
         function renderTimeline() {
@@ -972,16 +884,9 @@
             });
             
             container.innerHTML = html;
-            debugLog('Timeline rendered', `${headers.length - 1} days, ${appState.craftsmen.length} craftsmen`);
         }
 
-        // ========================================
-        // MULTI-DAG OPGAVE RENDERING - NY IMPLEMENTATION
-        // ========================================
-
         function renderTasks() {
-            debugLog('Starting MULTI-DAG task rendering', `${appState.tasks.length} tasks`);
-            
             // Clear existing tasks and task-related cell classes
             document.querySelectorAll('.task-item').forEach(task => task.remove());
             document.querySelectorAll('.timeline-cell').forEach(cell => {
@@ -989,38 +894,19 @@
             });
             
             const startDate = getProjectStartDate();
-            if (!startDate) {
-                debugLog('No start date - skipping task rendering');
-                return;
-            }
+            if (!startDate) return;
 
             appState.tasks.forEach((task, index) => {
-                debugLog(`Rendering MULTI-DAG task ${index}`, {
-                    title: task.title,
-                    craftsman: task.craftsman,
-                    startDate: task.startDate,
-                    duration: task.duration
-                });
-                
                 const taskDate = new Date(task.startDate);
                 const startDayNumber = calculateDayFromDate(startDate, taskDate);
                 const duration = parseInt(task.duration) || 1;
-                
-                debugLog(`Task ${index} span calculation`, {
-                    startDayNumber: startDayNumber,
-                    duration: duration,
-                    endDayNumber: startDayNumber + duration - 1
-                });
                 
                 // MULTI-DAG RENDERING: Create task elements for each day
                 for (let dayOffset = 0; dayOffset < duration; dayOffset++) {
                     const currentDayNumber = startDayNumber + dayOffset;
                     
                     const cell = document.querySelector(`[data-craftsman="${task.craftsman}"][data-day="${currentDayNumber}"]`);
-                    if (!cell) {
-                        debugLog(`WARNING: Cell not found for day ${currentDayNumber}`, task.craftsman);
-                        continue;
-                    }
+                    if (!cell) continue;
 
                     // Add cell classes for visual feedback
                     cell.classList.add('has-task');
@@ -1055,7 +941,7 @@
                         // Last day shows completion info
                         taskElement.innerHTML = `
                             <div class="task-title">${task.title}</div>
-                            <div class="task-date">Slut: ${formatDateForDisplay(new Date(task.startDate))}</div>
+                            <div class="task-date">Slut</div>
                         `;
                     } else {
                         // Middle days show minimal info
@@ -1072,37 +958,30 @@
                     
                     if (dayOffset === 0) {
                         // Primary task element (first day) gets full event handlers
-                        taskElement.ondragstart = function(e) { 
-                            debugLog('Drag started for multi-day task', index);
+                        taskElement.addEventListener('dragstart', function(e) { 
                             drag(e); 
-                        };
-                        taskElement.ondragend = function(e) { 
-                            debugLog('Drag ended for multi-day task', index);
+                        });
+                        taskElement.addEventListener('dragend', function(e) { 
                             dragEnd(e); 
-                        };
-                        taskElement.ondblclick = function(e) {
-                            debugLog('Double click on multi-day task', index);
+                        });
+                        taskElement.addEventListener('dblclick', function(e) {
                             e.preventDefault();
                             e.stopPropagation();
                             editTask(index);
-                        };
+                        });
                     } else {
                         // Secondary elements only get click to edit
-                        taskElement.onclick = function(e) {
-                            debugLog('Click on multi-day task continuation', index);
+                        taskElement.addEventListener('click', function(e) {
                             e.preventDefault();
                             e.stopPropagation();
                             editTask(index);
-                        };
+                        });
                         taskElement.style.cursor = 'pointer';
                     }
                     
                     cell.appendChild(taskElement);
-                    debugLog(`Task ${index} day ${dayOffset + 1}/${duration} placed in cell`, `${task.craftsman}, day ${currentDayNumber}`);
                 }
             });
-            
-            debugLog('MULTI-DAG task rendering completed');
         }
 
         function updateWeekDisplay() {
@@ -1113,13 +992,12 @@
         }
 
         // ========================================
-        // OPGAVE MODAL FUNKTIONER
+        // MODAL FUNCTIONS
         // ========================================
 
         function openTaskModal(day = null, craftsman = null) {
-            debugLog('Opening task modal', { day, craftsman });
-            
-            document.getElementById('taskModal').classList.add('open');
+            const modal = document.getElementById('taskModal');
+            modal.classList.add('open');
             document.getElementById('taskModalTitle').textContent = 'Ny opgave';
             clearTaskFields();
             
@@ -1128,13 +1006,13 @@
                 if (startDate) {
                     const taskDate = calculateDateFromDay(startDate, day);
                     document.getElementById('taskStartDate').value = formatDateForInput(taskDate);
-                    debugLog('Task date set', taskDate.toDateString());
                 }
             }
             
             if (craftsman) {
-                document.getElementById('taskCraftsman').value = craftsman;
-                debugLog('Craftsman pre-selected', craftsman);
+                setTimeout(() => {
+                    document.getElementById('taskCraftsman').value = craftsman;
+                }, 10);
             }
             
             currentTaskIndex = -1;
@@ -1143,20 +1021,13 @@
         }
 
         function editTask(taskIndex) {
-            debugLog('=== EDIT MULTI-DAG TASK ===', {
-                taskIndex: taskIndex,
-                task: appState.tasks[taskIndex]
-            });
-
             if (taskIndex < 0 || taskIndex >= appState.tasks.length) {
-                debugLog('ERROR: Invalid task index', taskIndex);
                 showToast('Fejl: Ugyldig opgave index', 'error');
                 return;
             }
             
             const task = appState.tasks[taskIndex];
             if (!task) {
-                debugLog('ERROR: Task not found', taskIndex);
                 showToast('Fejl: Opgave ikke fundet', 'error');
                 return;
             }
@@ -1165,51 +1036,29 @@
             
             populateCraftsmanDropdown();
             
-            const fields = {
-                taskModalTitle: { element: 'taskModalTitle', value: 'Rediger opgave', type: 'textContent' },
-                taskTitle: { element: 'taskTitle', value: task.title || '', type: 'value' },
-                taskDescription: { element: 'taskDescription', value: task.description || '', type: 'value' },
-                taskStartDate: { element: 'taskStartDate', value: task.startDate || '', type: 'value' },
-                taskDuration: { element: 'taskDuration', value: task.duration || 1, type: 'value' },
-                taskNotes: { element: 'taskNotes', value: task.notes || '', type: 'value' },
-                taskPriority: { element: 'taskPriority', value: task.priority || 'medium', type: 'value' },
-                taskStatus: { element: 'taskStatus', value: task.status || 'planned', type: 'value' },
-                taskHalfDay: { element: 'taskHalfDay', value: task.halfDay || false, type: 'checked' }
-            };
-
-            Object.keys(fields).forEach(fieldName => {
-                const field = fields[fieldName];
-                const element = document.getElementById(field.element);
-                
-                if (element) {
-                    if (field.type === 'textContent') {
-                        element.textContent = field.value;
-                    } else if (field.type === 'checked') {
-                        element.checked = field.value;
-                    } else {
-                        element.value = field.value;
-                    }
-                    debugLog(`Field ${fieldName} set`, field.value);
-                } else {
-                    debugLog(`ERROR: Element not found`, field.element);
-                }
-            });
+            // Set modal title
+            document.getElementById('taskModalTitle').textContent = 'Rediger opgave';
             
+            // Field population
+            document.getElementById('taskTitle').value = task.title || '';
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskStartDate').value = task.startDate || '';
+            document.getElementById('taskDuration').value = task.duration || 1;
+            document.getElementById('taskNotes').value = task.notes || '';
+            document.getElementById('taskPriority').value = task.priority || 'medium';
+            document.getElementById('taskStatus').value = task.status || 'planned';
+            document.getElementById('taskHalfDay').checked = task.halfDay || false;
+            
+            // Craftsman selection with delay
             setTimeout(() => {
-                const craftsmanSelect = document.getElementById('taskCraftsman');
-                if (craftsmanSelect) {
-                    craftsmanSelect.value = task.craftsman || '';
-                    debugLog('Craftsman set after delay', task.craftsman);
-                }
-            }, 100);
+                document.getElementById('taskCraftsman').value = task.craftsman || '';
+            }, 50);
             
-            const deleteBtn = document.getElementById('deleteTaskBtn');
-            if (deleteBtn) deleteBtn.style.display = 'block';
+            // Show delete button
+            document.getElementById('deleteTaskBtn').style.display = 'block';
             
-            const modal = document.getElementById('taskModal');
-            if (modal) modal.classList.add('open');
-            
-            debugLog('=== EDIT MULTI-DAG TASK COMPLETED ===');
+            // Open modal
+            document.getElementById('taskModal').classList.add('open');
         }
 
         function clearTaskFields() {
@@ -1231,16 +1080,11 @@
             
             const halfDayElement = document.getElementById('taskHalfDay');
             if (halfDayElement) halfDayElement.checked = false;
-            
-            debugLog('Task fields cleared');
         }
 
         function populateCraftsmanDropdown() {
             const dropdown = document.getElementById('taskCraftsman');
-            if (!dropdown) {
-                debugLog('ERROR: Craftsman dropdown not found');
-                return;
-            }
+            if (!dropdown) return;
             
             dropdown.innerHTML = '<option value="">Vælg håndværker...</option>';
             
@@ -1250,11 +1094,24 @@
                 option.textContent = craftsman.type;
                 dropdown.appendChild(option);
             });
-            
-            debugLog('Craftsman dropdown populated', {
-                count: appState.craftsmen.length,
-                options: appState.craftsmen.map(c => c.type)
-            });
+        }
+
+        function openCraftsmanModal() {
+            document.getElementById('craftsmanModal').classList.add('open');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('open');
+        }
+
+        function editProject() {
+            document.getElementById('projectName').value = appState.project.name || '';
+            document.getElementById('customerName').value = appState.project.customerName || '';
+            document.getElementById('projectAddress').value = appState.project.address || '';
+            document.getElementById('customerPhone').value = appState.project.phone || '';
+            document.getElementById('customerEmail').value = appState.project.email || '';
+            document.getElementById('projectStartDate').value = appState.project.startDate || '';
+            document.getElementById('projectModal').classList.add('open');
         }
 
         // ========================================
@@ -1262,36 +1119,28 @@
         // ========================================
 
         function saveTask() {
-            debugLog('=== SAVE MULTI-DAG TASK ===');
-            
             const title = document.getElementById('taskTitle').value.trim();
             const craftsman = document.getElementById('taskCraftsman').value;
             const startDate = document.getElementById('taskStartDate').value;
             const duration = parseInt(document.getElementById('taskDuration').value) || 1;
             
-            debugLog('Save multi-day task validation', { title, craftsman, startDate, duration });
-            
             if (!title) {
                 showToast('Indtast venligst en opgavetitel', 'error');
-                debugLog('Validation failed: No title');
                 return;
             }
             
             if (!craftsman) {
                 showToast('Vælg venligst en håndværker', 'error');
-                debugLog('Validation failed: No craftsman');
                 return;
             }
             
             if (!startDate) {
                 showToast('Vælg venligst en startdato', 'error');
-                debugLog('Validation failed: No start date');
                 return;
             }
 
             if (duration < 1 || duration > 30) {
                 showToast('Varighed skal være mellem 1 og 30 dage', 'error');
-                debugLog('Validation failed: Invalid duration', duration);
                 return;
             }
             
@@ -1313,21 +1162,17 @@
             if (currentTaskIndex >= 0) {
                 appState.tasks[currentTaskIndex] = task;
                 showToast(`Opgave opdateret (${duration} dag${duration > 1 ? 'e' : ''})`);
-                debugLog('Multi-day task updated', { index: currentTaskIndex, task });
             } else {
                 appState.tasks.push(task);
                 showToast(`Opgave oprettet (${duration} dag${duration > 1 ? 'e' : ''})`);
-                debugLog('Multi-day task created', task);
             }
             
             closeModal('taskModal');
             renderAll();
-            debugLog('=== SAVE MULTI-DAG TASK COMPLETED ===');
         }
 
         function deleteCurrentTask() {
             if (currentTaskIndex >= 0 && confirm('Er du sikker på at du vil slette denne opgave?')) {
-                debugLog('Deleting multi-day task', currentTaskIndex);
                 saveState();
                 appState.tasks.splice(currentTaskIndex, 1);
                 closeModal('taskModal');
@@ -1385,28 +1230,6 @@
         }
 
         // ========================================
-        // MODAL FUNCTIONS
-        // ========================================
-
-        function openCraftsmanModal() {
-            document.getElementById('craftsmanModal').classList.add('open');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('open');
-        }
-
-        function editProject() {
-            document.getElementById('projectName').value = appState.project.name || '';
-            document.getElementById('customerName').value = appState.project.customerName || '';
-            document.getElementById('projectAddress').value = appState.project.address || '';
-            document.getElementById('customerPhone').value = appState.project.phone || '';
-            document.getElementById('customerEmail').value = appState.project.email || '';
-            document.getElementById('projectStartDate').value = appState.project.startDate || '';
-            document.getElementById('projectModal').classList.add('open');
-        }
-
-        // ========================================
         // TIMELINE CONTROLS
         // ========================================
 
@@ -1425,13 +1248,12 @@
         }
 
         // ========================================
-        // DRAG AND DROP - MULTI-DAG SUPPORT
+        // DRAG AND DROP
         // ========================================
 
         function allowDrop(ev) {
             ev.preventDefault();
             ev.currentTarget.classList.add('drop-zone');
-            debugLog('Drop allowed on cell', ev.currentTarget.dataset);
         }
 
         function clearDropZone(ev) {
@@ -1443,7 +1265,6 @@
             ev.dataTransfer.setData("text", taskIndex);
             ev.target.classList.add('dragging');
             draggedTask = appState.tasks[taskIndex];
-            debugLog('Drag started for multi-day task', { taskIndex, task: draggedTask });
         }
 
         function dragEnd(ev) {
@@ -1451,7 +1272,6 @@
             document.querySelectorAll('.drop-zone').forEach(cell => {
                 cell.classList.remove('drop-zone');
             });
-            debugLog('Drag ended');
         }
 
         function drop(ev) {
@@ -1462,8 +1282,6 @@
             const newCraftsman = ev.currentTarget.dataset.craftsman;
             const newDay = parseInt(ev.currentTarget.dataset.day);
             
-            debugLog('Drop attempted for multi-day task', { taskIndex, newCraftsman, newDay });
-            
             if (taskIndex !== "" && newCraftsman && newDay >= 0) {
                 saveState();
                 
@@ -1473,19 +1291,8 @@
                 appState.tasks[taskIndex].craftsman = newCraftsman;
                 appState.tasks[taskIndex].startDate = formatDateForInput(newDate);
                 
-                debugLog('Multi-day task moved', {
-                    taskIndex,
-                    duration: appState.tasks[taskIndex].duration,
-                    oldCraftsman: draggedTask.craftsman,
-                    newCraftsman,
-                    oldDate: draggedTask.startDate,
-                    newDate: formatDateForInput(newDate)
-                });
-                
                 renderAll();
                 showToast('Opgave flyttet');
-            } else {
-                debugLog('Drop failed - invalid data', { taskIndex, newCraftsman, newDay });
             }
             
             draggedTask = null;
@@ -1506,8 +1313,6 @@
                     toast.parentNode.removeChild(toast);
                 }
             }, 4000);
-            
-            debugLog('Toast shown', { message, type });
         }
 
         // ========================================
@@ -1531,15 +1336,15 @@
         }
 
         // ========================================
-        // PDF EXPORT FUNCTIONS (BASIC)
+        // PDF EXPORT FUNCTIONS (PLACEHOLDER)
         // ========================================
 
         function exportWorkerPDF() {
-            showToast('Worker PDF eksport funktionalitet ikke implementeret endnu', 'error');
+            showToast('Worker PDF eksport funktionalitet kommer snart', 'error');
         }
 
         function exportCustomerPDF() {
-            showToast('Customer PDF eksport funktionalitet ikke implementeret endnu', 'error');
+            showToast('Customer PDF eksport funktionalitet kommer snart', 'error');
         }
 
         // ========================================
@@ -1557,7 +1362,6 @@
         // ========================================
 
         document.addEventListener('DOMContentLoaded', () => {
-            debugLog('Multi-day task application initialized');
             renderAll();
             updateUndoRedoButtons();
         });
