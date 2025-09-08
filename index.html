@@ -910,990 +910,697 @@
     <div class="task-tooltip" id="taskTooltip"></div>
 
     <script>
-        // Application State
-        let appState = {
-            project: {
-                name: "",
-                address: "",
-                customer: "",
-                phone: "",
-                email: "",
-                startDate: ""
-            },
-            craftsmen: [],
-            tasks: [],
-            weeks: 3,
-            startWeekNumber: 1
+    // ========================================
+    // KOMPLET SWITZEA JAVASCRIPT - GENOPBYGGET
+    // ========================================
+
+    // Application state
+    let appState = {
+        project: {
+            name: '',
+            customerName: '',
+            address: '',
+            phone: '',
+            email: '',
+            startDate: '',
+            weeks: 3
+        },
+        craftsmen: [],
+        tasks: [],
+        timeline: {
+            startDate: null,
+            weeks: 3
+        }
+    };
+
+    let currentTaskIndex = -1;
+    let undoStack = [];
+    let redoStack = [];
+
+    // Date helper functions
+    function getProjectStartDate() {
+        return appState.project.startDate ? new Date(appState.project.startDate) : null;
+    }
+
+    function calculateDayFromDate(startDate, targetDate) {
+        const start = new Date(startDate);
+        const target = new Date(targetDate);
+        const diffTime = Math.abs(target - start);
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function calculateDateFromDay(startDate, dayNumber) {
+        const date = new Date(startDate);
+        date.setDate(date.getDate() + dayNumber);
+        return date;
+    }
+
+    function getWeekDateRange(startDate, weeks) {
+        const start = new Date(startDate);
+        const end = new Date(startDate);
+        end.setDate(start.getDate() + (weeks * 7) - 1);
+        return { start, end };
+    }
+
+    function formatDateForDisplay(date) {
+        const options = { weekday: 'short', day: 'numeric', month: 'short' };
+        return date.toLocaleDateString('da-DK', options);
+    }
+
+    function formatDateForInput(date) {
+        return date.toISOString().split('T')[0];
+    }
+
+    function formatFullDateDanish(date) {
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
         };
-        
-        let history = [];
-        let historyIndex = -1;
-        let currentEditingTask = null;
-        let taskBackup = null;
-        let draggedElement = null;
-        let draggedType = null;
-        let tooltipTimeout = null;
-        
-        // Date calculation 
-        // MANGLENDE FUNKTIONER DER FORHINDRER APPEN I AT VIRKE
-        function hideTaskTooltip() {
-            // Fjern tooltip hvis den findes
-            const tooltip = document.querySelector('.task-tooltip');
-            if (tooltip && tooltip.parentNode) {
-                tooltip.parentNode.removeChild(tooltip);
-            }
-        }
+        return date.toLocaleDateString('da-DK', options);
+    }
 
-        function updateWeekDisplay() {
-            // Opdater uge display i UI
-            const weekElement = document.getElementById('weekDisplay');
-            if (weekElement) {
-                weekElement.textContent = `${appState.project.weeks} uger`;
-            }
-        }
+    function isToday(date) {
+        const today = new Date();
+        return date.toDateString() === today.toDateString();
+    }
 
-        functions 
-        function getProjectStartDate() {
-            if (!appState.project.startDate) {
-                const today = new Date();
-                return today;
-            }
-            return new Date(appState.project.startDate);
+    function isWeekend(date) {
+        const day = date.getDay();
+        return day === 0 || day === 6; // 0 = søndag, 6 = lørdag
+    }
+
+    // State management
+    function saveState() {
+        undoStack.push(JSON.parse(JSON.stringify(appState)));
+        if (undoStack.length > 20) {
+            undoStack.shift();
         }
-        
-        function calculateDayFromDate(taskDate) {
-            const projectStart = getProjectStartDate();
-            const task = new Date(taskDate);
-            
-            let dayCount = 0;
-            let currentDate = new Date(projectStart);
-            
-            while (currentDate < task) {
-                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
-                    dayCount++;
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
-            return dayCount + 1;
-        }
-        
-        function calculateDateFromDay(dayNumber) {
-            const projectStart = getProjectStartDate();
-            let currentDate = new Date(projectStart);
-            let weekdayCount = 1;
-            
-            if (dayNumber === 1) {
-                return new Date(projectStart);
-            }
-            
-            while (weekdayCount < dayNumber) {
-                currentDate.setDate(currentDate.getDate() + 1);
-                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
-                    weekdayCount++;
-                }
-            }
-            
-            return currentDate;
-        }
-        
-        function getWeekDateRange(weekNumber) {
-            const projectStart = getProjectStartDate();
-            const weekStart = new Date(projectStart);
-            weekStart.setDate(weekStart.getDate() + (weekNumber - 1) * 7);
-            
-            const dayOfWeek = weekStart.getDay();
-            const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-            weekStart.setDate(weekStart.getDate() + mondayOffset);
-            
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekEnd.getDate() + 4);
-            
-            return {
-                start: weekStart,
-                end: weekEnd
-            };
-        }
-        
-        function formatDateForDisplay(date) {
-            return date.toLocaleDateString('da-DK', { 
-                day: '2-digit', 
-                month: '2-digit' 
-            });
-        }
-        
-        function formatDateForInput(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        }
-        
-        function formatFullDateDanish(date) {
-            return date.toLocaleDateString('da-DK', { 
-                weekday: 'long',
-                day: 'numeric', 
-                month: 'long',
-                year: 'numeric'
-            });
-        }
-        
-        function isToday(date) {
-            const today = new Date();
-            return date.toDateString() === today.toDateString();
-        }
-        
-        function isWeekend(date) {
-            return date.getDay() === 0 || date.getDay() === 6;
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            saveState();
-            renderAll();
-            updateTimelineInfo();
-            showToast('🏁 KOMPLET SYSTEM klar - nu med Afslutnings Rapport!', 'info');
-        });
-        
-        // STATE MANAGEMENT functions (keeping all existing ones)
-        function saveState() {
-            if (historyIndex < history.length - 1) {
-                history = history.slice(0, historyIndex + 1);
-            }
-            history.push(JSON.stringify(appState));
-            historyIndex++;
-            if (history.length > 50) {
-                history.shift();
-                historyIndex--;
-            }
+        redoStack = [];
+        updateUndoRedoButtons();
+    }
+
+    function undo() {
+        if (undoStack.length > 0) {
+            redoStack.push(JSON.parse(JSON.stringify(appState)));
+            appState = undoStack.pop();
             updateUndoRedoButtons();
+            renderAll();
         }
-        
-        function undo() {
-            if (historyIndex > 0) {
-                historyIndex--;
-                appState = JSON.parse(history[historyIndex]);
-                renderAll();
-                updateTimelineInfo();
-                updateUndoRedoButtons();
-                showToast('↺ Handling fortrudt');
-            }
+    }
+
+    function redo() {
+        if (redoStack.length > 0) {
+            undoStack.push(JSON.parse(JSON.stringify(appState)));
+            appState = redoStack.pop();
+            updateUndoRedoButtons();
+            renderAll();
         }
-        
-        function redo() {
-            if (historyIndex < history.length - 1) {
-                historyIndex++;
-                appState = JSON.parse(history[historyIndex]);
-                renderAll();
-                updateTimelineInfo();
-                updateUndoRedoButtons();
-                showToast('↻ Handling gendannet');
-            }
+    }
+
+    function updateUndoRedoButtons() {
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+        if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+    }
+
+    function updateWeekDisplay() {
+        const weekElement = document.getElementById('weekDisplay');
+        if (weekElement) {
+            weekElement.textContent = `${appState.project.weeks} uger`;
         }
-        
-        function updateUndoRedoButtons() {
-            const undoBtn = document.getElementById('undoBtn');
-            const redoBtn = document.getElementById('redoBtn');
-            
-            if (undoBtn) undoBtn.disabled = historyIndex <= 0;
-            if (redoBtn) redoBtn.disabled = historyIndex >= history.length - 1;
-        }
-        
-        function renderAll() {
-            renderProjectInfo();
-            renderCraftsmen();
-            renderTimeline();
-            updateWeekDisplay();
-            
-            if (appState.project.startDate) {
-                document.getElementById('projectStartDate').value = appState.project.startDate;
-            }
-        }
-        
-        function renderProjectInfo() {
-            const titleElement = document.getElementById('projectTitle');
-            const infoElement = document.getElementById('projectInfo');
-            
-            if (appState.project.name) {
-                titleElement.textContent = appState.project.name;
-                let infoText = '';
-                if (appState.project.address) infoText += appState.project.address;
-                if (appState.project.customer) infoText += (infoText ? ' • ' : '') + appState.project.customer;
-                if (appState.project.phone) infoText += (infoText ? ' • ' : '') + appState.project.phone;
-                
-                infoElement.innerHTML = infoText || '<span class="empty-project">Tilføj projekt detaljer</span>';
-                infoElement.className = 'project-info';
+    }
+
+    function updateProjectStartDate() {
+        // Placeholder funktion
+        renderAll();
+    }
+
+    // Rendering functions
+    function renderAll() {
+        renderProjectInfo();
+        renderCraftsmen();
+        renderTimeline();
+        renderTasks();
+    }
+
+    function renderProjectInfo() {
+        const titleElement = document.getElementById('projectTitle');
+        const startDisplay = document.getElementById('projectStartDisplay');
+
+        if (titleElement) {
+            if (appState.project.name && appState.project.startDate) {
+                titleElement.textContent = `Projekt: ${appState.project.name}`;
+                if (startDisplay) {
+                    const startDate = new Date(appState.project.startDate);
+                    const endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + (appState.project.weeks * 7) - 1);
+                    startDisplay.innerHTML = `Start: ${formatDateForDisplay(startDate)} - Slut: ${formatDateForDisplay(endDate)}`;
+                }
+            } else if (appState.project.startDate) {
+                titleElement.textContent = 'Projekt: Tilføj projekt navn';
+                if (startDisplay) {
+                    startDisplay.innerHTML = `Start: ${formatDateForDisplay(new Date(appState.project.startDate))}`;
+                }
             } else {
-                titleElement.textContent = 'Nyt Projekt';
-                infoElement.innerHTML = '<span class="empty-project">Klik "Redigér Projekt" for at tilføje kunde information</span>';
-                infoElement.className = 'project-info';
+                titleElement.textContent = 'Projekt: Start dato mangler';
+                if (startDisplay) {
+                    startDisplay.textContent = 'Tilføj håndværkere og sæt projektets startdato for at se tidslinjen';
+                }
             }
         }
-        
-        function renderCraftsmen() {
-            const list = document.getElementById('craftsmanList');
-            list.innerHTML = '';
-            
-            if (appState.craftsmen.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-craftsmen">
-                        <p>Ingen håndværkere tilføjet endnu</p>
-                        <button class="btn btn-primary" onclick="openCraftsmanModal()">Tilføj første håndværker</button>
-                    </div>
-                `;
-                return;
-            }
-            
-            const sortedCraftsmen = [...appState.craftsmen].sort((a, b) => a.order - b.order);
-            
-            sortedCraftsmen.forEach(craftsman => {
-                const li = document.createElement('li');
-                li.className = 'craftsman-item';
-                li.style.borderLeftColor = craftsman.color;
-                li.draggable = true;
-                li.dataset.id = craftsman.id;
-                
-                li.innerHTML = `
-                    <span>${craftsman.name}</span>
-                    <button class="delete-craftsman" onclick="deleteCraftsman('${craftsman.id}')">×</button>
-                `;
-                
-                // Drag and drop for craftsmen reordering
-                li.addEventListener('dragstart', (e) => {
-                    draggedElement = li;
-                    draggedType = 'craftsman';
-                    li.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                });
-                
-                li.addEventListener('dragend', (e) => {
-                    li.classList.remove('dragging');
-                    document.querySelectorAll('.craftsman-item').forEach(item => {
-                        item.classList.remove('drag-over');
-                    });
-                    draggedElement = null;
-                    draggedType = null;
-                });
-                
-                li.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    if (draggedType === 'craftsman' && draggedElement !== li) {
-                        e.dataTransfer.dropEffect = 'move';
-                        li.classList.add('drag-over');
-                    }
-                });
-                
-                li.addEventListener('dragleave', (e) => {
-                    li.classList.remove('drag-over');
-                });
-                
-                li.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    li.classList.remove('drag-over');
-                    
-                    if (draggedType === 'craftsman' && draggedElement && draggedElement !== li) {
-                        const draggedId = draggedElement.dataset.id;
-                        const targetId = li.dataset.id;
-                        reorderCraftsmen(draggedId, targetId);
-                    }
-                });
-                
-                list.appendChild(li);
-            });
-        }
-        
-        // [Keeping all timeline and task functions as before - renderTimeline, renderTasks, etc.]
-        
-        // PROJECT COMPLETION REPORT GENERATOR - THE NEW FEATURE!
-        function exportCompletionReport() {
-            if (!appState.project.name) {
-                showToast('Tilføj projekt information først', 'warning');
-                return;
-            }
-            
-            console.log('🏁 Starting Project Completion Report Export');
-            console.log('Project:', appState.project);
-            console.log('Tasks:', appState.tasks);
-            console.log('Craftsmen:', appState.craftsmen);
-            
-            const printWindow = window.open('', '_blank');
-            const projectName = appState.project.name || 'Projekt';
-            const projectStart = getProjectStartDate();
-            const projectEnd = new Date(projectStart);
-            projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
-            
-            // Calculate project statistics
-            const totalTasks = appState.tasks.length;
-            const completedTasks = appState.tasks.filter(t => t.status === 'completed').length;
-            const progressTasks = appState.tasks.filter(t => t.status === 'in-progress').length;
-            const plannedTasks = appState.tasks.filter(t => t.status === 'planned').length;
-            const highPriorityTasks = appState.tasks.filter(t => t.priority === 'high').length;
-            const progressPercentage = Math.round((completedTasks / totalTasks) * 100) || 0;
-            
-            const content = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Projekt Afslutnings Rapport - ${projectName}</title>
-                    <style>
-                        body { 
-                            font-family: 'Georgia', serif; 
-                            margin: 0; 
-                            padding: 20px;
-                            line-height: 1.6; 
-                            color: #333; 
-                            background: #f8f9fa;
-                        }
-                        .container {
-                            max-width: 800px;
-                            margin: 0 auto;
-                            background: white;
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                            border-radius: 15px;
-                            overflow: hidden;
-                        }
-                        
-                        /* Header Styles */
-                        .report-header {
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: white;
-                            padding: 40px;
-                            text-align: center;
-                            position: relative;
-                        }
-                        .report-header::after {
-                            content: '';
-                            position: absolute;
-                            bottom: -20px;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            width: 0;
-                            height: 0;
-                            border-left: 30px solid transparent;
-                            border-right: 30px solid transparent;
-                            border-top: 20px solid #764ba2;
-                        }
-                        .company-logo {
-                            font-size: 3em;
-                            font-weight: bold;
-                            margin-bottom: 10px;
-                            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-                        }
-                        .report-title {
-                            font-size: 2.2em;
-                            margin-bottom: 10px;
-                            font-weight: 300;
-                        }
-                        .report-subtitle {
-                            font-size: 1.2em;
-                            opacity: 0.9;
-                            font-style: italic;
-                        }
-                        
-                        /* Content Styles */
-                        .content {
-                            padding: 40px;
-                        }
-                        
-                        .section {
-                            margin-bottom: 40px;
-                            page-break-inside: avoid;
-                        }
-                        
-                        .section-header {
-                            display: flex;
-                            align-items: center;
-                            gap: 15px;
-                            margin-bottom: 25px;
-                            padding-bottom: 10px;
-                            border-bottom: 3px solid #e3f2fd;
-                        }
-                        
-                        .section-icon {
-                            font-size: 2.5em;
-                            color: #667eea;
-                        }
-                        
-                        .section-title {
-                            font-size: 1.8em;
-                            color: #333;
-                            margin: 0;
-                            flex: 1;
-                        }
-                        
-                        /* Project Summary Cards */
-                        .summary-grid {
-                            display: grid;
-                            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                            gap: 20px;
-                            margin: 25px 0;
-                        }
-                        
-                        .summary-card {
-                            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                            padding: 25px;
-                            border-radius: 12px;
-                            border-left: 6px solid #667eea;
-                            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-                            transition: transform 0.2s;
-                        }
-                        
-                        .card-header {
-                            display: flex;
-                            align-items: center;
-                            gap: 10px;
-                            margin-bottom: 15px;
-                        }
-                        
-                        .card-icon {
-                            font-size: 1.5em;
-                            color: #667eea;
-                        }
-                        
-                        .card-title {
-                            font-size: 1.1em;
-                            font-weight: bold;
-                            color: #333;
-                        }
-                        
-                        .card-value {
-                            font-size: 2em;
-                            font-weight: bold;
-                            color: #2E7D32;
-                            margin-bottom: 8px;
-                        }
-                        
-                        .card-description {
-                            font-size: 0.9em;
-                            color: #666;
-                            line-height: 1.4;
-                        }
-                        
-                        /* Progress Bars */
-                        .progress-container {
-                            margin: 25px 0;
-                        }
-                        
-                        .progress-label {
-                            display: flex;
-                            justify-content: space-between;
-                            margin-bottom: 8px;
-                            font-weight: bold;
-                            color: #333;
-                        }
-                        
-                        .progress-bar {
-                            height: 25px;
-                            background: #e0e0e0;
-                            border-radius: 15px;
-                            overflow: hidden;
-                            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-                        }
-                        
-                        .progress-fill {
-                            height: 100%;
-                            background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
-                            border-radius: 15px;
-                            transition: width 0.3s ease;
-                            position: relative;
-                        }
-                        
-                        .progress-text {
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            color: white;
-                            font-weight: bold;
-                            font-size: 0.9em;
-                        }
-                        
-                        /* Timeline Section */
-                        .timeline {
-                            position: relative;
-                            margin: 30px 0;
-                        }
-                        
-                        .timeline::before {
-                            content: '';
-                            position: absolute;
-                            left: 30px;
-                            top: 0;
-                            bottom: 0;
-                            width: 3px;
-                            background: linear-gradient(to bottom, #667eea, #764ba2);
-                        }
-                        
-                        .timeline-item {
-                            display: flex;
-                            align-items: center;
-                            margin-bottom: 25px;
-                            position: relative;
-                        }
-                        
-                        .timeline-marker {
-                            width: 60px;
-                            height: 60px;
-                            border-radius: 50%;
-                            background: linear-gradient(135deg, #667eea, #764ba2);
-                            color: white;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-size: 1.5em;
-                            font-weight: bold;
-                            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                            z-index: 2;
-                            position: relative;
-                        }
-                        
-                        .timeline-content {
-                            flex: 1;
-                            margin-left: 25px;
-                            padding: 20px;
-                            background: white;
-                            border-radius: 10px;
-                            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-                            border-left: 4px solid #667eea;
-                        }
-                        
-                        .timeline-date {
-                            font-size: 0.9em;
-                            color: #667eea;
-                            font-weight: bold;
-                            margin-bottom: 5px;
-                        }
-                        
-                        .timeline-title {
-                            font-size: 1.2em;
-                            font-weight: bold;
-                            color: #333;
-                            margin-bottom: 8px;
-                        }
-                        
-                        .timeline-description {
-                            color: #666;
-                            font-size: 0.95em;
-                        }
-                        
-                        /* Quality Checklist */
-                        .quality-checklist {
-                            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c8 100%);
-                            padding: 25px;
-                            border-radius: 10px;
-                            border-left: 6px solid #4CAF50;
-                            margin: 20px 0;
-                        }
-                        
-                        .checklist-item {
-                            display: flex;
-                            align-items: center;
-                            gap: 15px;
-                            margin-bottom: 12px;
-                            padding: 10px;
-                            background: rgba(255,255,255,0.7);
-                            border-radius: 8px;
-                        }
-                        
-                        .checklist-item:last-child {
-                            margin-bottom: 0;
-                        }
-                        
-                        .checklist-icon {
-                            font-size: 1.5em;
-                            color: #4CAF50;
-                        }
-                        
-                        .checklist-text {
-                            flex: 1;
-                            color: #2e7d32;
-                            font-weight: 500;
-                        }
-                        
-                        /* Footer */
-                        .report-footer {
-                            background: linear-gradient(135deg, #37474f 0%, #263238 100%);
-                            color: white;
-                            padding: 30px;
-                            text-align: center;
-                        }
-                        
-                        .footer-logo {
-                            font-size: 2em;
-                            font-weight: bold;
-                            margin-bottom: 10px;
-                        }
-                        
-                        .footer-tagline {
-                            font-size: 1.1em;
-                            opacity: 0.9;
-                            margin-bottom: 20px;
-                            font-style: italic;
-                        }
-                        
-                        .footer-info {
-                            font-size: 0.9em;
-                            opacity: 0.8;
-                        }
-                        
-                        /* Print Styles */
-                        @media print {
-                            body { background: white; }
-                            .container { box-shadow: none; }
-                            .section { page-break-inside: avoid; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <!-- Header -->
-                        <div class="report-header">
-                            <div class="company-logo">🏗️ SWITZEA ApS</div>
-                            <div class="report-title">Projekt Afslutnings Rapport</div>
-                            <div class="report-subtitle">${projectName}</div>
-                        </div>
-                        
-                        <!-- Content -->
-                        <div class="content">
-                            
-                            <!-- Executive Summary -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <div class="section-icon">📊</div>
-                                    <h2 class="section-title">Projekt Sammenfatning</h2>
-                                </div>
-                                
-                                <div style="background: linear-gradient(135deg, #f8f9ff, #e3f2fd); padding: 25px; border-radius: 12px; border-left: 6px solid #667eea; margin-bottom: 25px;">
-                                    <h3 style="margin-top: 0; color: #667eea;">Kære ${appState.project.customer || 'Kunde'}</h3>
-                                    <p style="font-size: 1.1em; margin-bottom: 15px;">
-                                        Vi er stolte over at præsentere den komplette dokumentation af jeres ${projectName.toLowerCase()}. 
-                                        Projektet er nu afsluttet med stor succès, og vi er glade for at have været en del af jeres rejse.
-                                    </p>
-                                    <p style="margin: 0; color: #555;">
-                                        Nedenfor finder I en detaljeret oversigt over alt det arbejde, vi har udført sammen.
-                                    </p>
-                                </div>
-                                
-                                <div class="summary-grid">
-                                    <div class="summary-card">
-                                        <div class="card-header">
-                                            <div class="card-icon">📋</div>
-                                            <div class="card-title">Projekt Status</div>
-                                        </div>
-                                        <div class="card-value">${progressPercentage}%</div>
-                                        <div class="card-description">
-                                            ${completedTasks} af ${totalTasks} opgaver fuldført med professionel kvalitet
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="summary-card">
-                                        <div class="card-header">
-                                            <div class="card-icon">📅</div>
-                                            <div class="card-title">Projekt Varighed</div>
-                                        </div>
-                                        <div class="card-value">${appState.weeks}</div>
-                                        <div class="card-description">
-                                            uger fra ${formatDateForInput(projectStart)} til ${formatDateForInput(projectEnd)}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="summary-card">
-                                        <div class="card-header">
-                                            <div class="card-icon">👥</div>
-                                            <div class="card-title">Team Størrelse</div>
-                                        </div>
-                                        <div class="card-value">${appState.craftsmen.length}</div>
-                                        <div class="card-description">
-                                            Erfarne specialister arbejdede sammen om jeres projekt
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="summary-card">
-                                        <div class="card-header">
-                                            <div class="card-icon">⚡</div>
-                                            <div class="card-title">Prioriterede Opgaver</div>
-                                        </div>
-                                        <div class="card-value">${highPriorityTasks}</div>
-                                        <div class="card-description">
-                                            Kritiske opgaver blev håndteret med særlig opmærksomhed
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Progress Overview -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <div class="section-icon">📈</div>
-                                    <h2 class="section-title">Projekt Fremgang</h2>
-                                </div>
-                                
-                                <div class="progress-container">
-                                    <div class="progress-label">
-                                        <span>Samlet Projekt Fremgang</span>
-                                        <span>${progressPercentage}%</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: ${progressPercentage}%;">
-                                            <div class="progress-text">${completedTasks}/${totalTasks} opgaver</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <p style="background: #f8f9fa; padding: 15px; border-radius: 8px; color: #555; margin-top: 20px;">
-                                    <strong>📊 Projekt Statistik:</strong> 
-                                    Af de ${totalTasks} planlagte opgaver er ${completedTasks} nu fuldstændig gennemført. 
-                                    ${progressTasks > 0 ? `${progressTasks} opgaver er i gang med færdiggørelse, ` : ''}
-                                    ${plannedTasks > 0 ? `og ${plannedTasks} opgaver afventer påbegyndelse.` : 'Alle opgaver er påbegyndt eller færdige.'}
-                                </p>
-                            </div>
-                            
-                            <!-- Timeline -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <div class="section-icon">⏰</div>
-                                    <h2 class="section-title">Projekt Timeline</h2>
-                                </div>
-                                
-                                <div class="timeline">
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker">🚀</div>
-                                        <div class="timeline-content">
-                                            <div class="timeline-date">${formatDateForInput(projectStart)}</div>
-                                            <div class="timeline-title">Projekt Start</div>
-                                            <div class="timeline-description">
-                                                Projektplanlægning afsluttet og arbejdet påbegyndt med ${appState.craftsmen.length} specialister. 
-                                                Alle materialer bestilt og leveringsplaner koordineret.
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    ${generateTimelineMilestones()}
-                                    
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker">🏁</div>
-                                        <div class="timeline-content">
-                                            <div class="timeline-date">${formatDateForInput(projectEnd)}</div>
-                                            <div class="timeline-title">Projekt Afslutning</div>
-                                            <div class="timeline-description">
-                                                Alle planlagte opgaver gennemført og projekt overdraget til kunden. 
-                                                Kvalitetskontrol udført og dokumentation overleveret.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Quality Assurance -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <div class="section-icon">✅</div>
-                                    <h2 class="section-title">Kvalitetssikring</h2>
-                                </div>
-                                
-                                <div class="quality-checklist">
-                                    <div class="checklist-item">
-                                        <div class="checklist-icon">✅</div>
-                                        <div class="checklist-text">Alle materialer leveret efter specifikationer og certificeret</div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checklist-icon">✅</div>
-                                        <div class="checklist-text">Arbejde udført efter gældende byggeregler og standarder</div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checklist-icon">✅</div>
-                                        <div class="checklist-text">Kvalitetskontrol gennemført på alle opgaver af certificeret tekniker</div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checklist-icon">✅</div>
-                                        <div class="checklist-text">Arbejdsplads ryddet og professionelt rengjort</div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checklist-icon">✅</div>
-                                        <div class="checklist-text">Komplet dokumentation og garantibeviser overdraget</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Warranty Information -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <div class="section-icon">🛡️</div>
-                                    <h2 class="section-title">Garanti & Service</h2>
-                                </div>
-                                
-                                <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%); padding: 25px; border-radius: 10px; border-left: 6px solid #ff9800; margin: 20px 0;">
-                                    <h3 style="color: #e65100; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                                        <span>🛡️</span> Garanti Information
-                                    </h3>
-                                    <div style="display: grid; gap: 15px;">
-                                        <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; border-left: 3px solid #ff9800;">
-                                            <strong>Arbejdsgaranti:</strong> 2 år på alt håndværkerarbejde udført af SWITZEA
-                                        </div>
-                                        <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; border-left: 3px solid #ff9800;">
-                                            <strong>Materialgaranti:</strong> Efter producentens specifikationer (typisk 5-10 år)
-                                        </div>
-                                        <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; border-left: 3px solid #ff9800;">
-                                            <strong>Service:</strong> Gratis eftersyn efter 6 måneder og ved 18 måneder
-                                        </div>
-                                        <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; border-left: 3px solid #ff9800;">
-                                            <strong>Support:</strong> Telefon- og emailsupport i hele garantiperioden
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Contact & Support -->
-                            <div class="section">
-                                <div class="section-header">
-                                    <div class="section-icon">📞</div>
-                                    <h2 class="section-title">Fremtidig Kontakt</h2>
-                                </div>
-                                
-                                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 30px; border-radius: 10px; text-align: center; margin: 25px 0;">
-                                    <h3 style="color: #1976d2; margin-bottom: 15px;">📞 Vi er altid her for jer!</h3>
-                                    <p style="margin-bottom: 20px; font-size: 1.1em; color: #555;">
-                                        Har I spørgsmål eller brug for assistance i fremtiden, så tøv ikke med at kontakte os. 
-                                        Vi er stolte af vores arbejde og står bag det 100%.
-                                    </p>
-                                    
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
-                                        <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px; justify-content: center;">
-                                            <span style="font-size: 1.2em; color: #1976d2;">📧</span>
-                                            <span>kontakt@switzea.dk</span>
-                                        </div>
-                                        <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px; justify-content: center;">
-                                            <span style="font-size: 1.2em; color: #1976d2;">📞</span>
-                                            <span>+45 XX XX XX XX</span>
-                                        </div>
-                                        <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px; justify-content: center;">
-                                            <span style="font-size: 1.2em; color: #1976d2;">🌐</span>
-                                            <span>www.switzea.dk</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Thank You -->
-                            <div class="section">
-                                <div style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c8 100%); padding: 30px; border-radius: 15px; text-align: center; border: 3px solid #4CAF50;">
-                                    <h2 style="color: #2e7d32; margin-bottom: 20px; font-size: 2em;">🙏 Tak for jeres tillid!</h2>
-                                    <p style="font-size: 1.2em; margin-bottom: 15px; color: #388e3c;">
-                                        Det har været en fornøjelse at arbejde med jer på dette projekt. 
-                                        Jeres samarbejde og tålmodighed har gjort hele processen til en succes.
-                                    </p>
-                                    <p style="font-size: 1.1em; color: #2e7d32; font-style: italic;">
-                                        Vi håber I får mange års glæde af det færdige resultat! 
-                                    </p>
-                                </div>
-                            </div>
-                            
-                        </div>
-                        
-                        <!-- Footer -->
-                        <div class="report-footer">
-                            <div class="footer-logo">🏗️ SWITZEA ApS</div>
-                            <div class="footer-tagline">Professional Håndværk • Pålidelig Service • Kvalitet i Focus</div>
-                            <div class="footer-info">
-                                <p>Afslutnings rapport genereret: ${new Date().toLocaleString('da-DK')}</p>
-                                <p><strong>Tak fordi I valgte SWITZEA til jeres projekt!</strong></p>
-                            </div>
-                        </div>
-                    </div>
-                </body>
-                </html>
+    }
+
+    function renderCraftsmen() {
+        const container = document.getElementById('craftsmanList');
+        if (!container) return;
+
+        if (appState.craftsmen.length === 0) {
+            container.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: #666;">
+                    <p>Ingen håndværkere tilføjet endnu</p>
+                    <small>Tilføj første håndværker</small>
+                </div>
             `;
-            
-            console.log('Completion Report Content generated, length:', content.length);
-            
-            printWindow.document.write(content);
-            printWindow.document.close();
-            printWindow.print();
-            
-            showToast('🏁 Komplet projekt afslutnings rapport genereret!', 'success');
+            return;
         }
-        
-        // Generate timeline milestones based on completed tasks
-        function generateTimelineMilestones() {
-            const completedTasks = appState.tasks
-                .filter(t => t.status === 'completed')
-                .sort((a, b) => a.startDay - b.startDay)
-                .slice(0, 3); // Show top 3 major milestones
-            
-            let html = '';
-            completedTasks.forEach((task, index) => {
-                const taskDate = calculateDateFromDay(task.startDay);
-                const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
-                
-                html += `
-                    <div class="timeline-item">
-                        <div class="timeline-marker">${index + 1}</div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">${formatDateForInput(taskDate)}</div>
-                            <div class="timeline-title">${task.title} ✅</div>
-                            <div class="timeline-description">
-                                Udført af ${craftsman ? craftsman.name : 'Specialist'}${task.duration > 1 ? ` over ${task.duration} dage` : ''}.
-                                ${task.description || 'Opgave gennemført succesfuldt med høj kvalitet.'}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            return html;
+
+        container.innerHTML = appState.craftsmen.map(craftsman => `
+            <div class="craftsman-item" data-craftsman="${craftsman.type}" oncontextmenu="deleteCraftsman('${craftsman.id}'); return false;">
+                <div class="craftsman-color" style="background-color: ${craftsman.color}; width: 20px; height: 20px; border-radius: 50%; display: inline-block; margin-right: 10px;"></div>
+                <div class="craftsman-name" style="display: inline-block;">${craftsman.type}</div>
+            </div>
+        `).join('');
+    }
+
+    function renderTimeline() {
+        const container = document.getElementById('timelineGrid');
+        if (!container) return;
+
+        const startDate = getProjectStartDate();
+
+        if (!startDate || appState.craftsmen.length === 0) {
+            container.innerHTML = `
+                <div style="padding: 40px; text-align: center; color: #666;">
+                    <p>Tilføj håndværkere og sæt projektets startdato for at se tidslinjen</p>
+                </div>
+            `;
+            return;
         }
-        
-        // Keeping all existing functions for timeline, tasks, etc. (they're all the same)
-        // ... [All the existing functions remain unchanged]
-        
-        function closeModal(modalId) {
-            if (modalId === 'taskModal' && taskBackup && currentEditingTask) {
-                Object.assign(currentEditingTask, taskBackup);
-                renderAll();
-                showToast('🔄 Ændringer annulleret', 'info');
-                taskBackup = null;
+
+        // Generer headers (kun hverdage)
+        const headers = ['Håndværker'];
+        const currentDate = new Date(startDate);
+
+        for (let week = 0; week < appState.project.weeks; week++) {
+            for (let day = 0; day < 7; day++) {
+                if (!isWeekend(currentDate)) {
+                    const dateStr = formatDateForDisplay(currentDate);
+                    headers.push(dateStr);
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
             }
-            
-            document.getElementById(modalId).classList.remove('show');
-            currentEditingTask = null;
         }
-        
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => toast.classList.add('show'), 100);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    if (document.body.contains(toast)) {
-                        document.body.removeChild(toast);
-                    }
-                }, 300);
-            }, 4000);
-        }
-        
-        // Global error handling
-        window.addEventListener('error', (e) => {
-            console.error('JavaScript error:', e.message);
-            showToast('Der opstod en fejl - prøv igen', 'error');
+
+        container.style.gridTemplateColumns = `200px repeat(${headers.length - 1}, 120px)`;
+
+        let html = '';
+
+        // Headers
+        headers.forEach((header, index) => {
+            html += `<div class="timeline-header" style="background: #343a40; color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 12px;">${header}</div>`;
         });
-        
-        // Prevent accidental navigation
-        window.addEventListener('beforeunload', (e) => {
-            if (appState.tasks.length > 0 || appState.craftsmen.length > 0) {
-                e.preventDefault();
-                e.returnValue = '';
-                return 'Er du sikker på du vil forlade appen uden at gemme?';
+
+        // Håndværker rækker
+        appState.craftsmen.forEach(craftsman => {
+            html += `<div class="craftsman-row-header" style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; font-weight: bold; display: flex; align-items: center;">
+                <div style="background-color: ${craftsman.color}; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px;"></div>
+                ${craftsman.type}
+            </div>`;
+
+            for (let col = 1; col < headers.length; col++) {
+                html += `<div class="timeline-cell" 
+                            data-craftsman="${craftsman.type}" 
+                            data-day="${col - 1}"
+                            ondrop="drop(event)" 
+                            ondragover="allowDrop(event)"
+                            onclick="openTaskModal(${col - 1}, '${craftsman.type}')"
+                            style="border: 1px solid #dee2e6; min-height: 60px; position: relative; background: white; cursor: pointer;">
+                        </div>`;
             }
         });
-        
-        // Hide tooltip when scrolling
-        window.addEventListener('scroll', hideTaskTooltip);
-        
-        // KEEPING ALL OTHER FUNCTIONS AS THEY WERE - JUST ADDING THE COMPLETION REPORT!
-        // (renderTimeline, renderTasks, moveTask, saveTask, etc. - all unchanged)
+
+        container.innerHTML = html;
+    }
+
+    function renderTasks() {
+        // Fjern eksisterende opgaver
+        document.querySelectorAll('.task-item').forEach(task => task.remove());
+
+        const startDate = getProjectStartDate();
+        if (!startDate) return;
+
+        appState.tasks.forEach((task, index) => {
+            const taskElement = document.createElement('div');
+            taskElement.className = `task-item ${task.priority}`;
+            taskElement.style.cssText = `
+                background: ${task.priority === 'high' ? '#ff6b6b' : task.priority === 'medium' ? '#ffa726' : '#66bb6a'};
+                color: white;
+                margin: 2px;
+                padding: 4px 6px;
+                border-radius: 3px;
+                font-size: 11px;
+                cursor: grab;
+                position: relative;
+            `;
+
+            taskElement.innerHTML = `
+                <div class="task-title">${task.title}</div>
+                <div class="task-date">${formatDateForDisplay(new Date(task.startDate))}</div>
+            `;
+
+            taskElement.draggable = true;
+            taskElement.dataset.taskIndex = index;
+            taskElement.ondragstart = drag;
+            taskElement.ondblclick = () => editTask(index);
+
+            const taskDate = new Date(task.startDate);
+            const dayNumber = calculateDayFromDate(startDate, taskDate);
+
+            // Find korrekt celle
+            const cell = document.querySelector(`[data-craftsman="${task.craftsman}"][data-day="${dayNumber}"]`);
+            if (cell) {
+                cell.appendChild(taskElement);
+            }
+        });
+    }
+
+    // Modal functions
+    function openTaskModal(day = null, craftsman = null) {
+        const modal = document.getElementById('taskModal');
+        if (modal) {
+            modal.classList.add('open');
+            const modalTitle = document.getElementById('modalTitle');
+            if (modalTitle) modalTitle.textContent = 'Ny opgave';
+            clearTaskFields();
+
+            if (day !== null) {
+                const startDate = getProjectStartDate();
+                if (startDate) {
+                    const taskDate = calculateDateFromDay(startDate, day);
+                    const dateInput = document.getElementById('taskStartDate');
+                    if (dateInput) dateInput.value = formatDateForInput(taskDate);
+                }
+            }
+            if (craftsman !== null) {
+                const craftsmanSelect = document.getElementById('taskCraftsman');
+                if (craftsmanSelect) craftsmanSelect.value = craftsman;
+            }
+
+            currentTaskIndex = -1;
+            populateCraftsmanDropdown();
+            const deleteBtn = document.getElementById('deleteTaskBtn');
+            if (deleteBtn) deleteBtn.style.display = 'none';
+        }
+    }
+
+    function openCraftsmanModal() {
+        const modal = document.getElementById('craftsmanModal');
+        if (modal) {
+            modal.classList.add('open');
+        }
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('open');
+        }
+    }
+
+    function editProject() {
+        const elements = {
+            projectName: document.getElementById('projectName'),
+            customerName: document.getElementById('customerName'),
+            projectAddress: document.getElementById('projectAddress'),
+            customerPhone: document.getElementById('customerPhone'),
+            customerEmail: document.getElementById('customerEmail'),
+            projectStartDate: document.getElementById('projectStartDate')
+        };
+
+        if (elements.projectName) elements.projectName.value = appState.project.name || '';
+        if (elements.customerName) elements.customerName.value = appState.project.customerName || '';
+        if (elements.projectAddress) elements.projectAddress.value = appState.project.address || '';
+        if (elements.customerPhone) elements.customerPhone.value = appState.project.phone || '';
+        if (elements.customerEmail) elements.customerEmail.value = appState.project.email || '';
+        if (elements.projectStartDate) elements.projectStartDate.value = appState.project.startDate || '';
+
+        const modal = document.getElementById('projectModal');
+        if (modal) modal.classList.add('open');
+    }
+
+    function editTask(taskIndex) {
+        const task = appState.tasks[taskIndex];
+        currentTaskIndex = taskIndex;
+
+        const elements = {
+            modalTitle: document.getElementById('modalTitle'),
+            taskTitle: document.getElementById('taskTitle'),
+            taskDescription: document.getElementById('taskDescription'),
+            taskStartDate: document.getElementById('taskStartDate'),
+            taskDuration: document.getElementById('taskDuration'),
+            taskNotes: document.getElementById('taskNotes'),
+            taskCraftsman: document.getElementById('taskCraftsman'),
+            taskPriority: document.getElementById('taskPriority'),
+            taskStatus: document.getElementById('taskStatus'),
+            taskHalfDay: document.getElementById('taskHalfDay')
+        };
+
+        if (elements.modalTitle) elements.modalTitle.textContent = 'Rediger opgave';
+        if (elements.taskTitle) elements.taskTitle.value = task.title;
+        if (elements.taskDescription) elements.taskDescription.value = task.description || '';
+        if (elements.taskStartDate) elements.taskStartDate.value = task.startDate;
+        if (elements.taskDuration) elements.taskDuration.value = task.duration;
+        if (elements.taskNotes) elements.taskNotes.value = task.notes || '';
+        if (elements.taskCraftsman) elements.taskCraftsman.value = task.craftsman;
+        if (elements.taskPriority) elements.taskPriority.value = task.priority;
+        if (elements.taskStatus) elements.taskStatus.value = task.status;
+        if (elements.taskHalfDay) elements.taskHalfDay.checked = task.halfDay || false;
+
+        populateCraftsmanDropdown();
+        const deleteBtn = document.getElementById('deleteTaskBtn');
+        if (deleteBtn) deleteBtn.style.display = 'block';
+
+        const modal = document.getElementById('taskModal');
+        if (modal) modal.classList.add('open');
+    }
+
+    function clearTaskFields() {
+        const fields = {
+            taskTitle: '',
+            taskDescription: '',
+            taskStartDate: '',
+            taskDuration: '1',
+            taskNotes: '',
+            taskCraftsman: '',
+            taskPriority: 'medium',
+            taskStatus: 'planned'
+        };
+
+        Object.keys(fields).forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.value = fields[id];
+        });
+
+        const halfDayElement = document.getElementById('taskHalfDay');
+        if (halfDayElement) halfDayElement.checked = false;
+    }
+
+    // Save functions
+    function saveProject() {
+        saveState();
+
+        const elements = {
+            projectName: document.getElementById('projectName'),
+            customerName: document.getElementById('customerName'),
+            projectAddress: document.getElementById('projectAddress'),
+            customerPhone: document.getElementById('customerPhone'),
+            customerEmail: document.getElementById('customerEmail'),
+            projectStartDate: document.getElementById('projectStartDate')
+        };
+
+        if (elements.projectName) appState.project.name = elements.projectName.value;
+        if (elements.customerName) appState.project.customerName = elements.customerName.value;
+        if (elements.projectAddress) appState.project.address = elements.projectAddress.value;
+        if (elements.customerPhone) appState.project.phone = elements.customerPhone.value;
+        if (elements.customerEmail) appState.project.email = elements.customerEmail.value;
+        if (elements.projectStartDate) appState.project.startDate = elements.projectStartDate.value;
+
+        closeModal('projectModal');
+        renderAll();
+        showToast('Projekt information gemt');
+    }
+
+    function saveTask() {
+        const titleElement = document.getElementById('taskTitle');
+        const craftsmanElement = document.getElementById('taskCraftsman');
+
+        const title = titleElement ? titleElement.value.trim() : '';
+        const craftsman = craftsmanElement ? craftsmanElement.value : '';
+
+        if (!title) {
+            alert('Indtast venligst en opgavetitel');
+            return;
+        }
+
+        if (!craftsman) {
+            alert('Vælg venligst en håndværker');
+            return;
+        }
+
+        saveState();
+
+        const elements = {
+            taskDescription: document.getElementById('taskDescription'),
+            taskStartDate: document.getElementById('taskStartDate'),
+            taskDuration: document.getElementById('taskDuration'),
+            taskNotes: document.getElementById('taskNotes'),
+            taskPriority: document.getElementById('taskPriority'),
+            taskStatus: document.getElementById('taskStatus'),
+            taskHalfDay: document.getElementById('taskHalfDay')
+        };
+
+        const task = {
+            title: title,
+            description: elements.taskDescription ? elements.taskDescription.value : '',
+            startDate: elements.taskStartDate ? elements.taskStartDate.value : '',
+            duration: elements.taskDuration ? parseInt(elements.taskDuration.value) : 1,
+            notes: elements.taskNotes ? elements.taskNotes.value : '',
+            craftsman: craftsman,
+            priority: elements.taskPriority ? elements.taskPriority.value : 'medium',
+            status: elements.taskStatus ? elements.taskStatus.value : 'planned',
+            halfDay: elements.taskHalfDay ? elements.taskHalfDay.checked : false
+        };
+
+        if (currentTaskIndex >= 0) {
+            appState.tasks[currentTaskIndex] = task;
+            showToast('Opgave opdateret');
+        } else {
+            appState.tasks.push(task);
+            showToast('Opgave oprettet');
+        }
+
+        closeModal('taskModal');
+        renderAll();
+    }
+
+    function saveCraftsman() {
+        const typeElement = document.getElementById('craftsmanType');
+        const colorElement = document.getElementById('craftsmanColor');
+
+        const type = typeElement ? typeElement.value : '';
+        const color = colorElement ? colorElement.value : '#3498db';
+
+        if (!type) {
+            alert('Vælg venligst en håndværkertype');
+            return;
+        }
+
+        saveState();
+
+        appState.craftsmen.push({
+            type: type,
+            color: color,
+            id: Date.now() // Unik ID
+        });
+
+        closeModal('craftsmanModal');
+        renderAll();
+        showToast('Håndværker tilføjet');
+    }
+
+    function deleteCurrentTask() {
+        if (currentTaskIndex >= 0 && confirm('Er du sikker på at du vil slette denne opgave?')) {
+            saveState();
+            appState.tasks.splice(currentTaskIndex, 1);
+            closeModal('taskModal');
+            renderAll();
+            showToast('Opgave slettet');
+        }
+    }
+
+    function deleteTask(taskIndex) {
+        if (confirm('Er du sikker på at du vil slette denne opgave?')) {
+            saveState();
+            appState.tasks.splice(taskIndex, 1);
+            renderAll();
+            showToast('Opgave slettet');
+        }
+    }
+
+    function deleteCraftsman(craftsmanId) {
+        const craftsman = appState.craftsmen.find(c => c.id == craftsmanId);
+        if (craftsman && confirm(`Er du sikker på at du vil slette håndværkeren "${craftsman.type}"?`)) {
+            saveState();
+            appState.craftsmen = appState.craftsmen.filter(c => c.id != craftsmanId);
+            appState.tasks = appState.tasks.filter(t => t.craftsman !== craftsman.type);
+            renderAll();
+            showToast('Håndværker slettet');
+        }
+    }
+
+    function populateCraftsmanDropdown() {
+        const dropdown = document.getElementById('taskCraftsman');
+        if (!dropdown) return;
+
+        dropdown.innerHTML = '<option value="">Vælg håndværker...</option>';
+
+        appState.craftsmen.forEach(craftsman => {
+            const option = document.createElement('option');
+            option.value = craftsman.type;
+            option.textContent = craftsman.type;
+            dropdown.appendChild(option);
+        });
+    }
+
+    // Timeline controls
+    function addWeek() {
+        saveState();
+        appState.project.weeks++;
+        updateWeekDisplay();
+        renderAll();
+    }
+
+    function removeWeek() {
+        if (appState.project.weeks > 1) {
+            saveState();
+            appState.project.weeks--;
+            updateWeekDisplay();
+            renderAll();
+        }
+    }
+
+    // Toast funktion
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'error' ? '#f44336' : '#4CAF50'};
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            z-index: 10000;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 4000);
+    }
+
+    function hideTaskTooltip() {
+        const tooltip = document.querySelector('.task-tooltip');
+        if (tooltip && tooltip.parentNode) {
+            tooltip.parentNode.removeChild(tooltip);
+        }
+    }
+
+    // Drag and drop
+    function allowDrop(ev) {
+        ev.preventDefault();
+        ev.currentTarget.classList.add('drop-zone');
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.dataset.taskIndex);
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        ev.currentTarget.classList.remove('drop-zone');
+
+        const taskIndex = ev.dataTransfer.getData("text");
+        const craftsman = ev.currentTarget.dataset.craftsman;
+        const day = parseInt(ev.currentTarget.dataset.day);
+
+        if (taskIndex !== "" && craftsman && day >= 0) {
+            saveState();
+
+            const startDate = getProjectStartDate();
+            const newDate = calculateDateFromDay(startDate, day);
+
+            appState.tasks[taskIndex].craftsman = craftsman;
+            appState.tasks[taskIndex].startDate = formatDateForInput(newDate);
+
+            renderAll();
+            showToast('Opgave flyttet');
+        }
+    }
+
+    // Storage functions
+    function saveProjectToStorage() {
+        localStorage.setItem('switzea_project', JSON.stringify(appState));
+        showToast('Projekt data gemt lokalt');
+    }
+
+    function loadProjectFromStorage() {
+        const saved = localStorage.getItem('switzea_project');
+        if (saved) {
+            appState = JSON.parse(saved);
+            renderAll();
+            showToast('Projekt data indlæst');
+        } else {
+            showToast('Ingen gemt data fundet', 'error');
+        }
+    }
+
+    // PDF Export functions (basic implementations)
+    function exportWorkerPDF() {
+        showToast('Worker PDF eksport ikke implementeret endnu', 'error');
+    }
+
+    function exportCustomerPDF() {
+        showToast('Customer PDF eksport ikke implementeret endnu', 'error');
+    }
+
+    function exportCompletionReport() {
+        showToast('Completion rapport eksport ikke implementeret endnu', 'error');
+    }
+
+    // Placeholder function
+    function functions() {
+        // Placeholder funktion
+    }
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+        renderAll();
+        updateUndoRedoButtons();
+        updateWeekDisplay();
+    });
+
+    // Forhindre drag over effekt når man forlader
+    document.addEventListener('dragleave', (e) => {
+        if (e.target.classList.contains('timeline-cell')) {
+            e.target.classList.remove('drop-zone');
+        }
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            e.target.classList.remove('open');
+        }
+    });
     </script>
 </body>
 </html>
