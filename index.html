@@ -1,4 +1,15 @@
-<!DOCTYPE html>
+
+    // RETTET: Dansk datoformat funktion
+    function formatDateDanish(date) {
+        if (!date) return '';
+        const d = new Date(date);
+        const day = d.getDate().toString().padStart(2, '0');
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}-${year}`;
+    }
+    
+    <!DOCTYPE html>
 <html lang="da">
 <head>
     <meta charset="UTF-8">
@@ -794,7 +805,7 @@
             
             <div class="modal-buttons">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('projectModal')">Annullér</button>
-                <button type="button" class="btn btn-primary" onclick="saveProject()">Gem Projekt</button>
+                <button type="button" class="btn btn-primary" onclick="saveProject()">Opret Projekt</button>
             </div>
         </div>
     </div>
@@ -1876,6 +1887,51 @@
         
         // KEEPING ALL OTHER FUNCTIONS AS THEY WERE - JUST ADDING THE COMPLETION REPORT!
         // (renderTimeline, renderTasks, moveTask, saveTask, etc. - all unchanged)
+    
+    // RETTET: Tooltip funktioner tilføjet
+    let currentTooltip = null;
+
+    function showTaskTooltip(event, task) {
+        hideTaskTooltip(); 
+
+        const tooltip = document.createElement('div');
+        tooltip.style.cssText = `
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            max-width: 250px;
+        `;
+
+        tooltip.innerHTML = `
+            <strong>${task.title}</strong><br>
+            📅 ${formatDateDanish(task.startDate)} (${task.duration} dage)<br>
+            👷 ${task.craftsman}<br>
+            🔥 ${task.priority} prioritet<br>
+            📊 Status: ${task.status}
+        `;
+
+        document.body.appendChild(tooltip);
+        currentTooltip = tooltip;
+
+        const rect = event.target.getBoundingClientRect();
+        tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+    }
+
+    function hideTaskTooltip() {
+        if (currentTooltip) {
+            document.body.removeChild(currentTooltip);
+            currentTooltip = null;
+        }
+    }
+    
     </script>
 </body>
 </html>
