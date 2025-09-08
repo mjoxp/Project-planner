@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏁 SWITZEA ApS - Opgave Styring Rettet</title>
+    <title>🏁 SWITZEA ApS - Genåbning Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
@@ -176,6 +176,15 @@
             color: white;
             word-wrap: break-word;
             user-select: none;
+            min-height: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .task-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .task-item.high {
@@ -197,6 +206,16 @@
         .task-item.dragging {
             opacity: 0.5;
             transform: rotate(2deg);
+        }
+
+        .task-title {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .task-date {
+            font-size: 10px;
+            opacity: 0.9;
         }
 
         .sidebar-section {
@@ -387,17 +406,24 @@
             font-size: 14px;
         }
 
-        .debug-info {
+        .debug-console {
             position: fixed;
             bottom: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.8);
-            color: white;
+            right: 10px;
+            background: rgba(0,0,0,0.9);
+            color: #00ff00;
             padding: 10px;
             border-radius: 4px;
+            font-family: 'Courier New', monospace;
             font-size: 12px;
-            max-width: 300px;
+            max-width: 400px;
+            max-height: 200px;
+            overflow-y: auto;
             display: none;
+        }
+
+        .debug-console.show {
+            display: block;
         }
     </style>
 </head>
@@ -434,6 +460,12 @@
                 </div>
             </div>
 
+            <!-- Debug Controls -->
+            <div class="sidebar-section">
+                <button class="btn btn-outline" onclick="toggleDebug()" style="width: 100%; margin-bottom: 10px;">🔧 Debug</button>
+                <button class="btn btn-outline" onclick="testTaskEdit()" style="width: 100%;">🧪 Test Edit</button>
+            </div>
+
             <!-- Export Buttons -->
             <div class="sidebar-section">
                 <h3>Export</h3>
@@ -448,7 +480,7 @@
         <div class="main-content">
             <!-- Header -->
             <div class="header">
-                🏁 SWITZEA ApS - Opgave Styring Rettet
+                🏁 SWITZEA ApS - Genåbning Fix
             </div>
 
             <!-- Project Info -->
@@ -474,8 +506,8 @@
         </div>
     </div>
 
-    <!-- Debug Info -->
-    <div id="debugInfo" class="debug-info"></div>
+    <!-- Debug Console -->
+    <div id="debugConsole" class="debug-console"></div>
 
     <!-- Project Modal -->
     <div id="projectModal" class="modal">
@@ -607,8 +639,8 @@
 
     <script>
         // ========================================
-        // SWITZEA ApS - OPGAVE STYRING RETTET
-        // FOKUS PÅ: OPRETTELSE, REDIGERING, FLYTNING
+        // SWITZEA ApS - GENÅBNING FIX
+        // FOKUS PÅ: OPGAVE EDIT FUNKTIONALITET
         // ========================================
 
         // Application State
@@ -631,20 +663,38 @@
         let redoStack = [];
         let draggedTask = null;
 
-        // Debug flag - set to true for console logging
-        const DEBUG = true;
+        // Debug system
+        let debugMode = false;
+        const debugConsole = document.getElementById('debugConsole');
 
         function debugLog(message, data = null) {
-            if (DEBUG) {
-                console.log('🔧 SWITZEA DEBUG:', message, data || '');
-                const debugDiv = document.getElementById('debugInfo');
-                if (debugDiv) {
-                    debugDiv.style.display = 'block';
-                    debugDiv.innerHTML = `${message}<br>${debugDiv.innerHTML}`;
-                    setTimeout(() => {
-                        debugDiv.style.display = 'none';
-                    }, 3000);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}${data ? ': ' + JSON.stringify(data, null, 2) : ''}`;
+            console.log('🔧 SWITZEA:', message, data || '');
+            
+            if (debugConsole) {
+                debugConsole.innerHTML = logEntry + '<br>' + debugConsole.innerHTML;
+                if (debugConsole.children.length > 20) {
+                    debugConsole.removeChild(debugConsole.lastChild);
                 }
+            }
+        }
+
+        function toggleDebug() {
+            debugMode = !debugMode;
+            if (debugConsole) {
+                debugConsole.classList.toggle('show', debugMode);
+            }
+            debugLog('Debug mode toggled', debugMode);
+        }
+
+        function testTaskEdit() {
+            if (appState.tasks.length > 0) {
+                debugLog('Testing edit for first task', appState.tasks[0]);
+                editTask(0);
+            } else {
+                debugLog('No tasks to test edit');
+                showToast('Ingen opgaver at teste - opret en opgave først', 'error');
             }
         }
 
@@ -660,7 +710,6 @@
             const start = new Date(startDate);
             const target = new Date(targetDate);
             
-            // Reset time to avoid timezone issues
             start.setHours(0, 0, 0, 0);
             target.setHours(0, 0, 0, 0);
             
@@ -705,7 +754,7 @@
 
         function isWeekend(date) {
             const day = date.getDay();
-            return day === 0 || day === 6; // 0 = søndag, 6 = lørdag
+            return day === 0 || day === 6;
         }
 
         // ========================================
@@ -817,7 +866,6 @@
                 return;
             }
 
-            // Generate headers (kun hverdage)
             const headers = ['Håndværker'];
             const currentDate = new Date(startDate);
             
@@ -835,12 +883,10 @@
             
             let html = '';
             
-            // Headers
             headers.forEach(header => {
                 html += `<div class="timeline-header">${header}</div>`;
             });
             
-            // Craftsman rows
             appState.craftsmen.forEach(craftsman => {
                 html += `<div class="craftsman-row-header">
                     <div class="craftsman-color" style="background-color: ${craftsman.color}"></div>
@@ -864,13 +910,12 @@
         }
 
         // ========================================
-        // OPGAVE RENDERING - RETTET VERSION
+        // OPGAVE RENDERING - GENÅBNING FOKUS
         // ========================================
 
         function renderTasks() {
             debugLog('Starting task rendering', `${appState.tasks.length} tasks`);
             
-            // Clear existing tasks
             document.querySelectorAll('.task-item').forEach(task => task.remove());
             
             const startDate = getProjectStartDate();
@@ -880,7 +925,11 @@
             }
 
             appState.tasks.forEach((task, index) => {
-                debugLog(`Rendering task ${index}`, task.title);
+                debugLog(`Rendering task ${index}`, {
+                    title: task.title,
+                    craftsman: task.craftsman,
+                    startDate: task.startDate
+                });
                 
                 const taskElement = document.createElement('div');
                 taskElement.className = `task-item ${task.priority}`;
@@ -889,16 +938,38 @@
                     <div class="task-date">${formatDateForDisplay(new Date(task.startDate))}</div>
                 `;
                 
-                // RETTET: Korrekt drag setup
+                // RETTET: Korrekt event setup for genåbning
                 taskElement.draggable = true;
                 taskElement.dataset.taskIndex = index;
                 
-                // RETTET: Event handlers
-                taskElement.addEventListener('dragstart', (e) => drag(e));
-                taskElement.addEventListener('dragend', (e) => dragEnd(e));
-                taskElement.addEventListener('dblclick', () => editTask(index));
+                // VIGTIG FIX: Direct event handlers for bedre debugging
+                taskElement.ondragstart = function(e) { 
+                    debugLog('Drag started for task', index);
+                    drag(e); 
+                };
+                taskElement.ondragend = function(e) { 
+                    debugLog('Drag ended for task', index);
+                    dragEnd(e); 
+                };
                 
-                // RETTET: Korrekt dato beregning
+                // KRITISK FIX: Dobbeltklik handler med debugging
+                taskElement.ondblclick = function(e) {
+                    debugLog('Double click on task', {
+                        index: index,
+                        task: task,
+                        element: taskElement
+                    });
+                    e.preventDefault();
+                    e.stopPropagation();
+                    editTask(index);
+                };
+
+                // Add single click for debugging
+                taskElement.onclick = function(e) {
+                    debugLog('Single click on task', index);
+                    e.stopPropagation();
+                };
+                
                 const taskDate = new Date(task.startDate);
                 const dayNumber = calculateDayFromDate(startDate, taskDate);
                 
@@ -908,13 +979,16 @@
                     dayNumber: dayNumber
                 });
                 
-                // RETTET: Find korrekt celle
                 const cell = document.querySelector(`[data-craftsman="${task.craftsman}"][data-day="${dayNumber}"]`);
                 if (cell) {
                     cell.appendChild(taskElement);
                     debugLog(`Task ${index} placed in cell`, `${task.craftsman}, day ${dayNumber}`);
                 } else {
-                    debugLog(`ERROR: Cell not found for task ${index}`, `${task.craftsman}, day ${dayNumber}`);
+                    debugLog(`ERROR: Cell not found for task ${index}`, {
+                        craftsman: task.craftsman,
+                        dayNumber: dayNumber,
+                        availableCells: document.querySelectorAll('.timeline-cell').length
+                    });
                 }
             });
         }
@@ -927,7 +1001,7 @@
         }
 
         // ========================================
-        // OPGAVE MODAL FUNKTIONER - RETTET
+        // OPGAVE MODAL FUNKTIONER - GENÅBNING FIX
         // ========================================
 
         function openTaskModal(day = null, craftsman = null) {
@@ -937,7 +1011,6 @@
             document.getElementById('taskModalTitle').textContent = 'Ny opgave';
             clearTaskFields();
             
-            // RETTET: Korrekt dato sætning
             if (day !== null && day >= 0) {
                 const startDate = getProjectStartDate();
                 if (startDate) {
@@ -947,7 +1020,6 @@
                 }
             }
             
-            // RETTET: Håndværker pre-selection
             if (craftsman) {
                 document.getElementById('taskCraftsman').value = craftsman;
                 debugLog('Craftsman pre-selected', craftsman);
@@ -958,48 +1030,129 @@
             document.getElementById('deleteTaskBtn').style.display = 'none';
         }
 
+        // KRITISK FIX: Forbedret editTask funktion
         function editTask(taskIndex) {
-            debugLog('Editing task', { taskIndex, task: appState.tasks[taskIndex] });
+            debugLog('=== EDIT TASK CALLED ===', {
+                taskIndex: taskIndex,
+                totalTasks: appState.tasks.length,
+                task: appState.tasks[taskIndex]
+            });
+
+            if (taskIndex < 0 || taskIndex >= appState.tasks.length) {
+                debugLog('ERROR: Invalid task index', taskIndex);
+                showToast('Fejl: Ugyldig opgave index', 'error');
+                return;
+            }
             
             const task = appState.tasks[taskIndex];
+            if (!task) {
+                debugLog('ERROR: Task not found', taskIndex);
+                showToast('Fejl: Opgave ikke fundet', 'error');
+                return;
+            }
+
             currentTaskIndex = taskIndex;
             
-            // RETTET: Korrekt field population
-            document.getElementById('taskModalTitle').textContent = 'Rediger opgave';
-            document.getElementById('taskTitle').value = task.title || '';
-            document.getElementById('taskDescription').value = task.description || '';
-            document.getElementById('taskStartDate').value = task.startDate || '';
-            document.getElementById('taskDuration').value = task.duration || 1;
-            document.getElementById('taskNotes').value = task.notes || '';
-            document.getElementById('taskPriority').value = task.priority || 'medium';
-            document.getElementById('taskStatus').value = task.status || 'planned';
-            document.getElementById('taskHalfDay').checked = task.halfDay || false;
-            
+            // Først populer dropdown
             populateCraftsmanDropdown();
             
-            // RETTET: Set craftsman after dropdown is populated
-            setTimeout(() => {
-                document.getElementById('taskCraftsman').value = task.craftsman || '';
-            }, 10);
+            // RETTET: Meget specifik field population med debugging
+            const fields = {
+                taskModalTitle: { element: 'taskModalTitle', value: 'Rediger opgave', type: 'textContent' },
+                taskTitle: { element: 'taskTitle', value: task.title || '', type: 'value' },
+                taskDescription: { element: 'taskDescription', value: task.description || '', type: 'value' },
+                taskStartDate: { element: 'taskStartDate', value: task.startDate || '', type: 'value' },
+                taskDuration: { element: 'taskDuration', value: task.duration || 1, type: 'value' },
+                taskNotes: { element: 'taskNotes', value: task.notes || '', type: 'value' },
+                taskPriority: { element: 'taskPriority', value: task.priority || 'medium', type: 'value' },
+                taskStatus: { element: 'taskStatus', value: task.status || 'planned', type: 'value' },
+                taskHalfDay: { element: 'taskHalfDay', value: task.halfDay || false, type: 'checked' }
+            };
+
+            Object.keys(fields).forEach(fieldName => {
+                const field = fields[fieldName];
+                const element = document.getElementById(field.element);
+                
+                if (element) {
+                    if (field.type === 'textContent') {
+                        element.textContent = field.value;
+                    } else if (field.type === 'checked') {
+                        element.checked = field.value;
+                    } else {
+                        element.value = field.value;
+                    }
+                    debugLog(`Field ${fieldName} set`, field.value);
+                } else {
+                    debugLog(`ERROR: Element not found`, field.element);
+                }
+            });
             
-            document.getElementById('deleteTaskBtn').style.display = 'block';
-            document.getElementById('taskModal').classList.add('open');
+            // RETTET: Håndværker sættes med delay for at sikre dropdown er populeret
+            setTimeout(() => {
+                const craftsmanSelect = document.getElementById('taskCraftsman');
+                if (craftsmanSelect) {
+                    craftsmanSelect.value = task.craftsman || '';
+                    debugLog('Craftsman set after delay', task.craftsman);
+                    
+                    // Verificer at værdien faktisk blev sat
+                    if (craftsmanSelect.value !== task.craftsman) {
+                        debugLog('WARNING: Craftsman value not set correctly', {
+                            expected: task.craftsman,
+                            actual: craftsmanSelect.value,
+                            options: Array.from(craftsmanSelect.options).map(o => o.value)
+                        });
+                    }
+                } else {
+                    debugLog('ERROR: Craftsman select element not found');
+                }
+            }, 100);
+            
+            // Vis delete knap og åbn modal
+            const deleteBtn = document.getElementById('deleteTaskBtn');
+            if (deleteBtn) {
+                deleteBtn.style.display = 'block';
+                debugLog('Delete button shown');
+            }
+            
+            const modal = document.getElementById('taskModal');
+            if (modal) {
+                modal.classList.add('open');
+                debugLog('Modal opened');
+            }
+            
+            debugLog('=== EDIT TASK COMPLETED ===');
         }
 
         function clearTaskFields() {
-            document.getElementById('taskTitle').value = '';
-            document.getElementById('taskDescription').value = '';
-            document.getElementById('taskStartDate').value = '';
-            document.getElementById('taskDuration').value = '1';
-            document.getElementById('taskNotes').value = '';
-            document.getElementById('taskCraftsman').value = '';
-            document.getElementById('taskPriority').value = 'medium';
-            document.getElementById('taskStatus').value = 'planned';
-            document.getElementById('taskHalfDay').checked = false;
+            const fields = {
+                taskTitle: '',
+                taskDescription: '',
+                taskStartDate: '',
+                taskDuration: '1',
+                taskNotes: '',
+                taskCraftsman: '',
+                taskPriority: 'medium',
+                taskStatus: 'planned'
+            };
+            
+            Object.keys(fields).forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = fields[id];
+            });
+            
+            const halfDayElement = document.getElementById('taskHalfDay');
+            if (halfDayElement) halfDayElement.checked = false;
+            
+            debugLog('Task fields cleared');
         }
 
         function populateCraftsmanDropdown() {
             const dropdown = document.getElementById('taskCraftsman');
+            if (!dropdown) {
+                debugLog('ERROR: Craftsman dropdown not found');
+                return;
+            }
+            
             dropdown.innerHTML = '<option value="">Vælg håndværker...</option>';
             
             appState.craftsmen.forEach(craftsman => {
@@ -1009,21 +1162,25 @@
                 dropdown.appendChild(option);
             });
             
-            debugLog('Craftsman dropdown populated', appState.craftsmen.length);
+            debugLog('Craftsman dropdown populated', {
+                count: appState.craftsmen.length,
+                options: appState.craftsmen.map(c => c.type)
+            });
         }
 
         // ========================================
-        // OPGAVE SAVE FUNKTIONER - RETTET
+        // SAVE FUNCTIONS
         // ========================================
 
         function saveTask() {
-            debugLog('Saving task');
+            debugLog('=== SAVE TASK CALLED ===');
             
             const title = document.getElementById('taskTitle').value.trim();
             const craftsman = document.getElementById('taskCraftsman').value;
             const startDate = document.getElementById('taskStartDate').value;
             
-            // RETTET: Grundig validering
+            debugLog('Save task validation', { title, craftsman, startDate });
+            
             if (!title) {
                 showToast('Indtast venligst en opgavetitel', 'error');
                 debugLog('Validation failed: No title');
@@ -1044,7 +1201,6 @@
             
             saveState();
             
-            // RETTET: Komplet task objekt
             const task = {
                 title: title,
                 description: document.getElementById('taskDescription').value.trim(),
@@ -1061,7 +1217,7 @@
             if (currentTaskIndex >= 0) {
                 appState.tasks[currentTaskIndex] = task;
                 showToast('Opgave opdateret');
-                debugLog('Task updated', task);
+                debugLog('Task updated', { index: currentTaskIndex, task });
             } else {
                 appState.tasks.push(task);
                 showToast('Opgave oprettet');
@@ -1070,6 +1226,7 @@
             
             closeModal('taskModal');
             renderAll();
+            debugLog('=== SAVE TASK COMPLETED ===');
         }
 
         function deleteCurrentTask() {
@@ -1082,99 +1239,6 @@
                 showToast('Opgave slettet');
             }
         }
-
-        // ========================================
-        // DRAG AND DROP - KOMPLET RETTET
-        // ========================================
-
-        function allowDrop(ev) {
-            ev.preventDefault();
-            ev.currentTarget.classList.add('drop-zone');
-            debugLog('Drop allowed on cell', ev.currentTarget.dataset);
-        }
-
-        function clearDropZone(ev) {
-            ev.currentTarget.classList.remove('drop-zone');
-        }
-
-        function drag(ev) {
-            const taskIndex = ev.target.dataset.taskIndex;
-            ev.dataTransfer.setData("text", taskIndex);
-            ev.target.classList.add('dragging');
-            draggedTask = appState.tasks[taskIndex];
-            debugLog('Drag started', { taskIndex, task: draggedTask });
-        }
-
-        function dragEnd(ev) {
-            ev.target.classList.remove('dragging');
-            document.querySelectorAll('.drop-zone').forEach(cell => {
-                cell.classList.remove('drop-zone');
-            });
-            debugLog('Drag ended');
-        }
-
-        function drop(ev) {
-            ev.preventDefault();
-            ev.currentTarget.classList.remove('drop-zone');
-            
-            const taskIndex = ev.dataTransfer.getData("text");
-            const newCraftsman = ev.currentTarget.dataset.craftsman;
-            const newDay = parseInt(ev.currentTarget.dataset.day);
-            
-            debugLog('Drop attempted', { taskIndex, newCraftsman, newDay });
-            
-            if (taskIndex !== "" && newCraftsman && newDay >= 0) {
-                saveState();
-                
-                const startDate = getProjectStartDate();
-                const newDate = calculateDateFromDay(startDate, newDay);
-                
-                // RETTET: Opdater task med nye værdier
-                appState.tasks[taskIndex].craftsman = newCraftsman;
-                appState.tasks[taskIndex].startDate = formatDateForInput(newDate);
-                
-                debugLog('Task moved', {
-                    taskIndex,
-                    oldCraftsman: draggedTask.craftsman,
-                    newCraftsman,
-                    oldDate: draggedTask.startDate,
-                    newDate: formatDateForInput(newDate)
-                });
-                
-                renderAll();
-                showToast('Opgave flyttet');
-            } else {
-                debugLog('Drop failed - invalid data', { taskIndex, newCraftsman, newDay });
-            }
-            
-            draggedTask = null;
-        }
-
-        // ========================================
-        // ANDRE MODAL FUNKTIONER
-        // ========================================
-
-        function openCraftsmanModal() {
-            document.getElementById('craftsmanModal').classList.add('open');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('open');
-        }
-
-        function editProject() {
-            document.getElementById('projectName').value = appState.project.name || '';
-            document.getElementById('customerName').value = appState.project.customerName || '';
-            document.getElementById('projectAddress').value = appState.project.address || '';
-            document.getElementById('customerPhone').value = appState.project.phone || '';
-            document.getElementById('customerEmail').value = appState.project.email || '';
-            document.getElementById('projectStartDate').value = appState.project.startDate || '';
-            document.getElementById('projectModal').classList.add('open');
-        }
-
-        // ========================================
-        // SAVE FUNCTIONS
-        // ========================================
 
         function saveProject() {
             saveState();
@@ -1225,6 +1289,28 @@
         }
 
         // ========================================
+        // MODAL FUNCTIONS
+        // ========================================
+
+        function openCraftsmanModal() {
+            document.getElementById('craftsmanModal').classList.add('open');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('open');
+        }
+
+        function editProject() {
+            document.getElementById('projectName').value = appState.project.name || '';
+            document.getElementById('customerName').value = appState.project.customerName || '';
+            document.getElementById('projectAddress').value = appState.project.address || '';
+            document.getElementById('customerPhone').value = appState.project.phone || '';
+            document.getElementById('customerEmail').value = appState.project.email || '';
+            document.getElementById('projectStartDate').value = appState.project.startDate || '';
+            document.getElementById('projectModal').classList.add('open');
+        }
+
+        // ========================================
         // TIMELINE CONTROLS
         // ========================================
 
@@ -1240,6 +1326,72 @@
                 appState.project.weeks--;
                 renderAll();
             }
+        }
+
+        // ========================================
+        // DRAG AND DROP
+        // ========================================
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drop-zone');
+            debugLog('Drop allowed on cell', ev.currentTarget.dataset);
+        }
+
+        function clearDropZone(ev) {
+            ev.currentTarget.classList.remove('drop-zone');
+        }
+
+        function drag(ev) {
+            const taskIndex = ev.target.dataset.taskIndex;
+            ev.dataTransfer.setData("text", taskIndex);
+            ev.target.classList.add('dragging');
+            draggedTask = appState.tasks[taskIndex];
+            debugLog('Drag started', { taskIndex, task: draggedTask });
+        }
+
+        function dragEnd(ev) {
+            ev.target.classList.remove('dragging');
+            document.querySelectorAll('.drop-zone').forEach(cell => {
+                cell.classList.remove('drop-zone');
+            });
+            debugLog('Drag ended');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drop-zone');
+            
+            const taskIndex = ev.dataTransfer.getData("text");
+            const newCraftsman = ev.currentTarget.dataset.craftsman;
+            const newDay = parseInt(ev.currentTarget.dataset.day);
+            
+            debugLog('Drop attempted', { taskIndex, newCraftsman, newDay });
+            
+            if (taskIndex !== "" && newCraftsman && newDay >= 0) {
+                saveState();
+                
+                const startDate = getProjectStartDate();
+                const newDate = calculateDateFromDay(startDate, newDay);
+                
+                appState.tasks[taskIndex].craftsman = newCraftsman;
+                appState.tasks[taskIndex].startDate = formatDateForInput(newDate);
+                
+                debugLog('Task moved', {
+                    taskIndex,
+                    oldCraftsman: draggedTask.craftsman,
+                    newCraftsman,
+                    oldDate: draggedTask.startDate,
+                    newDate: formatDateForInput(newDate)
+                });
+                
+                renderAll();
+                showToast('Opgave flyttet');
+            } else {
+                debugLog('Drop failed - invalid data', { taskIndex, newCraftsman, newDay });
+            }
+            
+            draggedTask = null;
         }
 
         // ========================================
@@ -1297,7 +1449,6 @@
         // EVENT LISTENERS
         // ========================================
 
-        // Close modals when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
                 e.target.classList.remove('open');
@@ -1312,6 +1463,11 @@
             debugLog('Application initialized');
             renderAll();
             updateUndoRedoButtons();
+            
+            // Auto-enable debug mode for testing
+            setTimeout(() => {
+                toggleDebug();
+            }, 1000);
         });
     </script>
 </body>
