@@ -2345,7 +2345,7 @@
                 appState.weeks--;
                 const newTotalDays = appState.weeks * 5;
                 
-                const removedTasks = appState.tasks.filter(task => 
+                const removedTasks = appState.tasks.filter(task =>
                     task.startDay > newTotalDays || (task.startDay + task.duration - 1) > newTotalDays
                 );
                 
