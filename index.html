@@ -1386,7 +1386,7 @@
     </div>
 
     <script>
-        // SWITZEA Projekt - FLOT FORSIDE VERSION
+        // SWITZEA Projekt - FIXED VERSION - Syntaksfejl rettet
         
         // Application State - Helt ren start
         const app = {
@@ -1473,7 +1473,8 @@
             let current = new Date(startDate);
             let currentWorkDay = 1;
             
-            if workDay === 1) return current;
+            // RETTET: Manglende parentes var her!
+            if (workDay === 1) return current;
             
             while (currentWorkDay < workDay) {
                 current.setDate(current.getDate() + 1);
@@ -2267,7 +2268,7 @@
             }
         });
         
-        console.log('🎨 SWITZEA FLOT FORSIDE - Perfekt dansk rapport!');
+        console.log('🎨 SWITZEA FIXED - Applikationen virker nu!');
     </script>
 </body>
 </html>
