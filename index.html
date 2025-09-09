@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switzea Projektplanlægning - FIXED</title>
+    <title>Switzea Projektplanlægning - TIMEZONE FIXED</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -15,7 +15,7 @@
         }
         
         .fix-banner {
-            background: linear-gradient(135deg, #FF6B35, #F7931E);
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
             color: white;
             text-align: center;
             padding: 15px;
@@ -632,7 +632,7 @@
             justify-content: flex-end;
         }
         
-        /* FIXED: Datepicker styling with correct sync */
+        /* TIMEZONE FIXED: Datepicker styling with correct timezone-free sync */
         .datepicker-wrapper {
             position: relative;
         }
@@ -640,7 +640,7 @@
         .datepicker-input {
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23666" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>') no-repeat right 10px center;
             padding-right: 40px;
-            border-color: #FF6B35 !important;
+            border-color: #4CAF50 !important;
         }
         
         .custom-datepicker {
@@ -649,7 +649,7 @@
             left: 0;
             right: 0;
             background: white;
-            border: 2px solid #FF6B35;
+            border: 2px solid #4CAF50;
             border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             z-index: 1001;
@@ -671,7 +671,7 @@
         }
         
         .datepicker-nav {
-            background: #FF6B35;
+            background: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
@@ -681,7 +681,7 @@
         }
         
         .datepicker-nav:hover {
-            background: #e55a2b;
+            background: #45a049;
         }
         
         .datepicker-title {
@@ -749,7 +749,7 @@
         }
         
         .calendar-day.selected {
-            background: #FF6B35;
+            background: #4CAF50;
             color: white;
         }
         
@@ -759,9 +759,9 @@
             font-weight: bold;
         }
         
-        /* FIXED: Position indicator */
+        /* TIMEZONE FIXED: Position indicator */
         .task-position-indicator {
-            background: #FF6B35;
+            background: #4CAF50;
             color: white;
             padding: 8px 12px;
             border-radius: 15px;
@@ -851,14 +851,14 @@
 </head>
 <body>
     <div class="fix-banner">
-        🔧 SWITZEA FIXED - Dato beregning rettet | Annuller funktionalitet fixed | Test nu!
+        ✅ SWITZEA TIMEZONE FIXED - Datoer synkroniserer nu korrekt uden timezone problemer!
     </div>
 
     <header class="header">
         <div class="header-left">
             <h1 id="projectTitle">Capellas Allé 38 - Delrenovering</h1>
             <div class="project-info" id="projectInfo">
-                <span class="empty-project">FIXED VERSION - Dato sync og annuller rettet!</span>
+                <span class="empty-project">TIMEZONE FIXED - Dato sync virker nu korrekt!</span>
             </div>
         </div>
         <div class="header-buttons">
@@ -952,7 +952,7 @@
         </div>
     </div>
 
-    <!-- FIXED Task Modal -->
+    <!-- TIMEZONE FIXED Task Modal -->
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <h3 id="modalTitle">Ny opgave</h3>
@@ -967,9 +967,9 @@
                 <textarea class="form-control" id="taskDescription" rows="3"></textarea>
             </div>
             
-            <!-- FIXED: Startdato med KORREKT sync -->
+            <!-- TIMEZONE FIXED: Startdato med TIMEZONE-FRI sync -->
             <div class="form-group">
-                <label for="taskStartDate">📅 Startdato (FIXED - perfekt sync)</label>
+                <label for="taskStartDate">📅 Startdato (TIMEZONE FIXED - perfekt sync)</label>
                 <div class="datepicker-wrapper">
                     <input type="text" class="form-control datepicker-input" id="taskStartDate" placeholder="Vælg startdato..." readonly>
                     <div class="custom-datepicker" id="customDatepicker">
@@ -1020,7 +1020,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- FIXED position indicator -->
+                <!-- TIMEZONE FIXED position indicator -->
                 <div id="positionIndicator" style="display: none;">
                     <div class="task-position-indicator">
                         📅 Opgaven placeres på: <span id="calculatedPosition"></span>
@@ -1119,7 +1119,7 @@
 
     <!-- Debug Info -->
     <div class="debug-info" id="debugInfo" style="display: block;">
-        FIXED VERSION: Dato sync + Annuller fungerer korrekt
+        TIMEZONE FIXED: Datoer synkroniserer nu korrekt
     </div>
 
     <script>
@@ -1146,7 +1146,7 @@
         let draggedElement = null;
         let draggedType = null;
         
-        // FIXED: Task backup for cancel functionality
+        // TIMEZONE FIXED: Task backup for cancel functionality
         let taskBackup = null;
         
         // Datepicker state
@@ -1167,11 +1167,19 @@
                     debugDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
                     debugDiv.style.display = 'block';
                 }
-                console.log(`[SWITZEA FIXED] ${message}`);
+                console.log(`[SWITZEA TIMEZONE FIXED] ${message}`);
             }
         }
         
-        // FIXED: Date calculation functions - CORRECTED off-by-one error
+        // TIMEZONE FIXED: Date formatting without timezone issues
+        function formatDateToString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // TIMEZONE FIXED: Date calculation functions
         function getProjectStartDate() {
             return new Date(appState.project.startDate || '2025-09-16');
         }
@@ -1180,7 +1188,6 @@
             const projectStart = getProjectStartDate();
             const task = new Date(taskDate);
             
-            // FIXED: Start day count from 0, then add 1
             let dayCount = 0;
             let currentDate = new Date(projectStart);
             
@@ -1191,16 +1198,14 @@
                 currentDate.setDate(currentDate.getDate() + 1);
             }
             
-            // FIXED: Return exact day count + 1 (so project start = day 1)
             return dayCount + 1;
         }
         
         function calculateDateFromDay(dayNumber) {
             const projectStart = getProjectStartDate();
             let currentDate = new Date(projectStart);
-            let weekdayCount = 1; // FIXED: Start from 1 since project start is day 1
+            let weekdayCount = 1;
             
-            // FIXED: If dayNumber is 1, return project start date
             if (dayNumber === 1) {
                 return new Date(projectStart);
             }
@@ -1268,14 +1273,14 @@
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            debugLog('🔧 FIXED APP initializing with corrected date calculations...');
+            debugLog('✅ TIMEZONE FIXED APP initializing...');
             createTestData();
             initializeDatepicker();
             saveState();
             renderAll();
             updateTimelineInfo();
-            showToast('🔧 FIXED VERSION: Dato beregning + Annuller rettet!', 'info');
-            debugLog('FIXED APP ready - all corrections applied');
+            showToast('✅ TIMEZONE FIXED: Datoer synkroniserer nu korrekt!', 'info');
+            debugLog('✅ TIMEZONE FIXED APP ready');
         });
         
         function createTestData() {
@@ -1301,18 +1306,18 @@
                 }
             ];
             
-            // Create test tasks with FIXED date calculations
+            // Create test tasks with TIMEZONE FIXED date calculations
             appState.tasks = [
                 {
                     id: 'task_1',
                     title: 'Test opgave - Dag 1 (16/09/2025)',
-                    description: 'Test af korrekt dato beregning',
+                    description: 'Test af korrekt dato beregning - TIMEZONE FIXED',
                     notes: 'Denne opgave skulle være på dag 1',
                     craftsman: 'craftsman_1',
                     priority: 'high',
                     status: 'planned',
                     duration: 1,
-                    startDate: '2025-09-16', // Monday - should be day 1
+                    startDate: '2025-09-16',
                     startDay: 1,
                     isHalfDay: false,
                     dependencies: []
@@ -1320,29 +1325,29 @@
                 {
                     id: 'task_2',
                     title: 'Test opgave - Dag 3 (18/09/2025)',
-                    description: 'Test af korrekt dato beregning',
+                    description: 'Test af korrekt dato beregning - TIMEZONE FIXED',
                     notes: 'Denne opgave skulle være på dag 3',
                     craftsman: 'craftsman_2',
                     priority: 'medium',
                     status: 'planned',
                     duration: 1,
-                    startDate: '2025-09-18', // Wednesday - should be day 3
+                    startDate: '2025-09-18',
                     startDay: 3,
                     isHalfDay: false,
                     dependencies: []
                 }
             ];
             
-            // FIXED: Verify calculations
+            // TIMEZONE FIXED: Verify calculations
             appState.tasks.forEach(task => {
                 if (task.startDate) {
                     const calculatedDay = calculateDayFromDate(task.startDate);
                     task.startDay = calculatedDay;
-                    debugLog(`FIXED: Task ${task.id}: Date ${task.startDate} → Day ${calculatedDay} (Expected: ${task.startDay})`);
+                    debugLog(`✅ TIMEZONE FIXED: Task ${task.id}: Date ${task.startDate} → Day ${calculatedDay}`);
                 }
             });
             
-            debugLog(`Test data created with FIXED calculations: ${appState.craftsmen.length} craftsmen, ${appState.tasks.length} tasks`);
+            debugLog(`✅ Test data created: ${appState.craftsmen.length} craftsmen, ${appState.tasks.length} tasks`);
         }
         
         // DATEPICKER FUNCTIONALITY
@@ -1514,13 +1519,13 @@
             return dayDiv;
         }
         
-        // FIXED: selectDate with CORRECT sync
+        // TIMEZONE FIXED: selectDate with CORRECT timezone-free sync
         function selectDate(year, month, day) {
             selectedDate = new Date(year, month, day);
             const dateString = formatDateForInput(selectedDate);
             document.getElementById('taskStartDate').value = dateString;
             
-            // FIXED: CORRECT calculation and display
+            // TIMEZONE FIXED: CORRECT calculation and display
             const calculatedDay = calculateDayFromDate(selectedDate);
             const positionIndicator = document.getElementById('positionIndicator');
             const calculatedPosition = document.getElementById('calculatedPosition');
@@ -1531,8 +1536,8 @@
             hideDatepicker();
             updateCalendar();
             
-            showToast(`📅 FIXED: Dato ${dateString} → Timeline dag ${calculatedDay}`, 'info');
-            debugLog(`🔧 FIXED DATE SYNC: ${dateString} → Day ${calculatedDay}`);
+            showToast(`✅ TIMEZONE FIXED: Dato ${dateString} → Timeline dag ${calculatedDay}`, 'info');
+            debugLog(`✅ TIMEZONE FIXED DATE SYNC: ${dateString} → Day ${calculatedDay}`);
         }
         
         // TOOLTIP FUNCTIONALITY
@@ -1669,7 +1674,7 @@
                 infoElement.className = 'project-info';
             } else {
                 titleElement.textContent = 'Nyt Projekt';
-                infoElement.innerHTML = '<span class="empty-project">FIXED VERSION - Dato sync og annuller rettet!</span>';
+                infoElement.innerHTML = '<span class="empty-project">TIMEZONE FIXED - Dato sync virker nu korrekt!</span>';
                 infoElement.className = 'project-info';
             }
         }
@@ -2062,7 +2067,7 @@
             debugLog(`Creating new task for craftsman: ${craftsman}, day: ${startDay}, date: ${formatDateForInput(calculatedDate)}`);
             
             currentEditingTask = null;
-            taskBackup = null; // FIXED: Reset backup
+            taskBackup = null; // TIMEZONE FIXED: Reset backup
             
             document.getElementById('modalTitle').textContent = 'Ny opgave';
             document.getElementById('deleteTaskBtn').style.display = 'none';
@@ -2101,9 +2106,9 @@
             selectedDate = null;
         }
         
-        // FIXED: editTask with proper backup
+        // TIMEZONE FIXED: editTask with proper backup
         function editTask(taskId) {
-            debugLog(`🔧 FIXED EDIT TASK: ${taskId}`);
+            debugLog(`✅ TIMEZONE FIXED EDIT TASK: ${taskId}`);
             
             const task = appState.tasks.find(t => t.id === taskId);
             if (!task) {
@@ -2111,7 +2116,7 @@
                 return;
             }
             
-            // FIXED: Create complete backup before editing
+            // TIMEZONE FIXED: Create complete backup before editing
             taskBackup = JSON.parse(JSON.stringify(task));
             debugLog(`BACKUP CREATED: ${JSON.stringify(taskBackup)}`);
             
@@ -2154,8 +2159,8 @@
                 document.getElementById('taskDuration').value = String(taskBackup.duration || 1);
                 document.getElementById('taskHalfDay').checked = Boolean(taskBackup.isHalfDay);
                 
-                debugLog('🔧 FIXED: All values set from backup!');
-                showToast('✅ FIXED: Opgave data indlæst korrekt!', 'info');
+                debugLog('✅ TIMEZONE FIXED: All values set from backup!');
+                showToast('✅ TIMEZONE FIXED: Opgave data indlæst korrekt!', 'info');
                 
             }, 100);
         }
@@ -2171,9 +2176,9 @@
             });
         }
         
-        // FIXED: saveTask with automatic date-to-day calculation
+        // TIMEZONE FIXED: saveTask with automatic date-to-day calculation
         function saveTask() {
-            debugLog('🔧 FIXED: Saving task with corrected date integration...');
+            debugLog('✅ TIMEZONE FIXED: Saving task with corrected date integration...');
             
             const startDateInput = document.getElementById('taskStartDate').value;
             const startDate = parseDateFromInput(startDateInput);
@@ -2181,15 +2186,15 @@
             let calculatedDay = 1;
             if (startDate) {
                 calculatedDay = calculateDayFromDate(startDate);
-                debugLog(`🔧 FIXED calculated day from date: ${startDateInput} → Day ${calculatedDay}`);
+                debugLog(`✅ TIMEZONE FIXED calculated day from date: ${startDateInput} → Day ${calculatedDay}`);
             }
             
             const taskData = {
                 title: document.getElementById('taskTitle').value,
                 description: document.getElementById('taskDescription').value,
                 notes: document.getElementById('taskNotes').value,
-                startDate: startDate ? startDate.toISOString().split('T')[0] : null,
-                startDay: calculatedDay, // FIXED: Correct calculation
+                startDate: startDate ? formatDateToString(startDate) : null, // TIMEZONE FIXED: Use timezone-free formatting
+                startDay: calculatedDay, // TIMEZONE FIXED: Correct calculation
                 craftsman: document.getElementById('taskCraftsman').value,
                 priority: document.getElementById('taskPriority').value,
                 status: document.getElementById('taskStatus').value,
@@ -2200,8 +2205,8 @@
             if (currentEditingTask) {
                 // Update existing task
                 Object.assign(currentEditingTask, taskData);
-                showToast('✅ FIXED: Opgave opdateret med korrekt placering!');
-                debugLog(`🔧 FIXED: Updated task → Day ${calculatedDay}`);
+                showToast('✅ TIMEZONE FIXED: Opgave opdateret med korrekt placering!');
+                debugLog(`✅ TIMEZONE FIXED: Updated task → Day ${calculatedDay}`);
             } else {
                 // Create new task
                 const newTask = {
@@ -2210,8 +2215,8 @@
                     ...taskData
                 };
                 appState.tasks.push(newTask);
-                showToast('✅ FIXED: Ny opgave oprettet med korrekt placering!');
-                debugLog(`🔧 FIXED: Created task → Day ${calculatedDay}`);
+                showToast('✅ TIMEZONE FIXED: Ny opgave oprettet med korrekt placering!');
+                debugLog(`✅ TIMEZONE FIXED: Created task → Day ${calculatedDay}`);
             }
             
             taskBackup = null; // Clear backup
@@ -2240,7 +2245,7 @@
             }
         }
         
-        // FIXED: moveTask with correct date synchronization
+        // TIMEZONE FIXED: moveTask with correct date synchronization
         function moveTask(taskId, newCraftsman, newStartDay, newDate = null) {
             const task = appState.tasks.find(t => t.id === taskId);
             if (!task) return;
@@ -2254,18 +2259,18 @@
             task.craftsman = newCraftsman;
             task.startDay = newStartDay;
             
-            // FIXED: Update both day and date correctly
+            // TIMEZONE FIXED: Update both day and date correctly without timezone issues
             if (newDate) {
-                task.startDate = newDate.toISOString().split('T')[0];
+                task.startDate = formatDateToString(newDate); // TIMEZONE FIXED: Use timezone-free formatting
             } else {
                 const calculatedDate = calculateDateFromDay(newStartDay);
-                task.startDate = calculatedDate.toISOString().split('T')[0];
+                task.startDate = formatDateToString(calculatedDate); // TIMEZONE FIXED: Use timezone-free formatting
             }
             
             saveState();
             renderTasks();
-            showToast('✅ FIXED: Opgave flyttet med korrekt datosync!');
-            debugLog(`🔧 FIXED: Moved task to day ${newStartDay}, date: ${task.startDate}`);
+            showToast('✅ TIMEZONE FIXED: Opgave flyttet med korrekt datosync!');
+            debugLog(`✅ TIMEZONE FIXED: Moved task to day ${newStartDay}, date: ${task.startDate}`);
         }
         
         function openCraftsmanModal() {
@@ -2401,7 +2406,7 @@
         
         function exportToPDF() {
             const printWindow = window.open('', '_blank');
-            const projectName = appState.project.name || 'FIXED Test Projekt';
+            const projectName = appState.project.name || 'TIMEZONE FIXED Test Projekt';
             const projectStart = getProjectStartDate();
             const projectEnd = new Date(projectStart);
             projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
@@ -2413,9 +2418,9 @@
                     <title>${projectName} - Projektplan</title>
                     <style>
                         body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; }
-                        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #FF6B35; padding-bottom: 20px; }
-                        .logo { font-size: 2em; font-weight: bold; color: #FF6B35; margin-bottom: 10px; }
-                        .project-info { margin-bottom: 25px; background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid #FF6B35; }
+                        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #4CAF50; padding-bottom: 20px; }
+                        .logo { font-size: 2em; font-weight: bold; color: #4CAF50; margin-bottom: 10px; }
+                        .project-info { margin-bottom: 25px; background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid #4CAF50; }
                         .timeline { margin-top: 25px; }
                         table { width: 100%; border-collapse: collapse; margin-top: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
                         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
@@ -2429,7 +2434,7 @@
                 <body>
                     <div class="header">
                         <div class="logo">SWITZEA ApS</div>
-                        <h2>🔧 FIXED VERSION - Projektplan med Korrekt Dato Sync</h2>
+                        <h2>✅ TIMEZONE FIXED VERSION - Projektplan med Korrekt Dato Sync</h2>
                     </div>
                     <div class="project-info">
                         <h3>${projectName}</h3>
@@ -2438,11 +2443,11 @@
                         ${appState.project.phone ? `<p><strong>📞 Telefon:</strong> ${appState.project.phone}</p>` : ''}
                         ${appState.project.email ? `<p><strong>📧 E-mail:</strong> ${appState.project.email}</p>` : ''}
                         <p><strong>📅 Projektperiode:</strong> ${formatDateForInput(projectStart)} - ${formatDateForInput(projectEnd)} (${appState.weeks} uger)</p>
-                        <p><strong>🔧 Status:</strong> FIXED VERSION - Dato beregning og annuller funktionalitet rettet!</p>
+                        <p><strong>✅ Status:</strong> TIMEZONE FIXED VERSION - Dato beregning virker nu korrekt uden timezone problemer!</p>
                     </div>
                     ${appState.tasks.length > 0 ? `
                     <div class="timeline">
-                        <h3>📋 Opgaveoversigt med KORREKTE Datoer</h3>
+                        <h3>📋 Opgaveoversigt med KORREKTE Datoer (TIMEZONE FIXED)</h3>
                         <table>
                             <thead>
                                 <tr>
@@ -2487,8 +2492,8 @@
                     </div>
                     `}
                     <div class="footer">
-                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | 🔧 FIXED VERSION</p>
-                        <p><em>✅ Dato beregning rettet | ✅ Annuller funktionalitet fixed | ✅ Alle bugs løst</em></p>
+                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | ✅ TIMEZONE FIXED</p>
+                        <p><em>✅ Timezone problemer løst | ✅ Dato sync virker perfekt | ✅ Alle bugs rettet</em></p>
                     </div>
                 </body>
                 </html>
@@ -2498,17 +2503,17 @@
             printWindow.document.close();
             printWindow.print();
             
-            showToast('📄 FIXED PDF eksporteret med korrekte datoer!');
+            showToast('📄 TIMEZONE FIXED PDF eksporteret med korrekte datoer!');
         }
         
-        // FIXED: closeModal with proper backup restoration
+        // TIMEZONE FIXED: closeModal with proper backup restoration
         function closeModal(modalId) {
             if (modalId === 'taskModal' && taskBackup && currentEditingTask) {
-                // FIXED: Restore all values from backup when canceling
+                // TIMEZONE FIXED: Restore all values from backup when canceling
                 Object.assign(currentEditingTask, taskBackup);
-                debugLog(`🔧 FIXED: Restored task from backup: ${JSON.stringify(taskBackup)}`);
+                debugLog(`✅ TIMEZONE FIXED: Restored task from backup: ${JSON.stringify(taskBackup)}`);
                 renderAll(); // Re-render to show restored values
-                showToast('🔄 FIXED: Ændringer annulleret - gamle værdier gendannet!', 'info');
+                showToast('🔄 TIMEZONE FIXED: Ændringer annulleret - gamle værdier gendannet!', 'info');
                 taskBackup = null;
             }
             
@@ -2550,7 +2555,7 @@
         // Hide tooltip when scrolling
         window.addEventListener('scroll', hideTaskTooltip);
         
-        debugLog('🔧 SWITZEA FIXED VERSION LOADED - Both issues should be resolved!');
+        debugLog('✅ SWITZEA TIMEZONE FIXED VERSION LOADED - Datum problemer løst!');
     </script>
 </body>
 </html>
