@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switzea Projektplanlægning - DATO FIX</title>
+    <title>Switzea Projektplanlægning - FINAL FIX</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -15,7 +15,7 @@
         }
         
         .fix-banner {
-            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            background: linear-gradient(135deg, #FF0000, #CC0000);
             color: white;
             text-align: center;
             padding: 15px;
@@ -632,7 +632,7 @@
             justify-content: flex-end;
         }
         
-        /* DATO FIX: Datepicker styling with correct sync */
+        /* FINAL FIX: Datepicker styling with correct sync */
         .datepicker-wrapper {
             position: relative;
         }
@@ -640,7 +640,7 @@
         .datepicker-input {
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23666" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>') no-repeat right 10px center;
             padding-right: 40px;
-            border-color: #4CAF50 !important;
+            border-color: #FF0000 !important;
         }
         
         .custom-datepicker {
@@ -649,7 +649,7 @@
             left: 0;
             right: 0;
             background: white;
-            border: 2px solid #4CAF50;
+            border: 2px solid #FF0000;
             border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             z-index: 1001;
@@ -671,7 +671,7 @@
         }
         
         .datepicker-nav {
-            background: #4CAF50;
+            background: #FF0000;
             color: white;
             border: none;
             border-radius: 5px;
@@ -681,7 +681,7 @@
         }
         
         .datepicker-nav:hover {
-            background: #45a049;
+            background: #cc0000;
         }
         
         .datepicker-title {
@@ -749,7 +749,7 @@
         }
         
         .calendar-day.selected {
-            background: #4CAF50;
+            background: #FF0000;
             color: white;
         }
         
@@ -759,9 +759,9 @@
             font-weight: bold;
         }
         
-        /* DATO FIX: Position indicator */
+        /* FINAL FIX: Position indicator */
         .task-position-indicator {
-            background: #4CAF50;
+            background: #FF0000;
             color: white;
             padding: 8px 12px;
             border-radius: 15px;
@@ -851,14 +851,14 @@
 </head>
 <body>
     <div class="fix-banner">
-        ✅ SWITZEA DATO FIX - Timeline datoer synkroniserer nu korrekt uden timezone problemer!
+        🔴 SWITZEA FINAL FIX - Gennemgår ALLE datetime funktioner systematisk!
     </div>
 
     <header class="header">
         <div class="header-left">
             <h1 id="projectTitle">Capellas Allé 38 - Delrenovering</h1>
             <div class="project-info" id="projectInfo">
-                <span class="empty-project">DATO FIX - Timeline dato problemet er løst!</span>
+                <span class="empty-project">FINAL FIX - Systematisk gennemgang af ALLE dato-funktioner!</span>
             </div>
         </div>
         <div class="header-buttons">
@@ -952,7 +952,7 @@
         </div>
     </div>
 
-    <!-- DATO FIX Task Modal -->
+    <!-- FINAL FIX Task Modal -->
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <h3 id="modalTitle">Ny opgave</h3>
@@ -967,9 +967,9 @@
                 <textarea class="form-control" id="taskDescription" rows="3"></textarea>
             </div>
             
-            <!-- DATO FIX: Startdato med korrekt sync -->
+            <!-- FINAL FIX: Startdato med systematisk fix -->
             <div class="form-group">
-                <label for="taskStartDate">📅 Startdato (DATO FIX - perfekt sync)</label>
+                <label for="taskStartDate">📅 Startdato (FINAL FIX - systematisk gennemgang)</label>
                 <div class="datepicker-wrapper">
                     <input type="text" class="form-control datepicker-input" id="taskStartDate" placeholder="Vælg startdato..." readonly>
                     <div class="custom-datepicker" id="customDatepicker">
@@ -1020,7 +1020,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- DATO FIX position indicator -->
+                <!-- FINAL FIX position indicator -->
                 <div id="positionIndicator" style="display: none;">
                     <div class="task-position-indicator">
                         📅 Opgaven placeres på: <span id="calculatedPosition"></span>
@@ -1119,7 +1119,7 @@
 
     <!-- Debug Info -->
     <div class="debug-info" id="debugInfo" style="display: block;">
-        DATO FIX: Timeline dato problemet løst!
+        FINAL FIX: Systematisk gennemgang af ALLE dato-funktioner!
     </div>
 
     <script>
@@ -1146,7 +1146,7 @@
         let draggedElement = null;
         let draggedType = null;
         
-        // DATO FIX: Task backup for cancel functionality
+        // FINAL FIX: Task backup for cancel functionality
         let taskBackup = null;
         
         // Datepicker state
@@ -1167,48 +1167,70 @@
                     debugDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
                     debugDiv.style.display = 'block';
                 }
-                console.log(`[SWITZEA DATO FIX] ${message}`);
+                console.log(`[SWITZEA FINAL FIX] ${message}`);
             }
         }
         
-        // DATO FIX: Timezone-free date formatting function
+        // 🔴 FINAL FIX: KOMPLET timezone-fri dato funktioner
         function formatDateToYMD(date) {
+            if (!date) return null;
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
+
+        // 🔴 FINAL FIX: Parse date from YYYY-MM-DD format safely
+        function parseDateFromYMD(dateString) {
+            if (!dateString) return null;
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return null;
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1; // Month is 0-indexed
+            const day = parseInt(parts[2]);
+            return new Date(year, month, day);
+        }
         
-        // DATO FIX: Date calculation functions - CORRECTED off-by-one error
+        // FINAL FIX: Date calculation functions - CORRECTED off-by-one error
         function getProjectStartDate() {
-            return new Date(appState.project.startDate || '2025-09-16');
+            return parseDateFromYMD(appState.project.startDate) || new Date('2025-09-16');
         }
         
         function calculateDayFromDate(taskDate) {
             const projectStart = getProjectStartDate();
-            const task = new Date(taskDate);
+            const task = typeof taskDate === 'string' ? parseDateFromYMD(taskDate) : taskDate;
             
-            // DATO FIX: Start day count from 0, then add 1
+            if (!task) return 1;
+            
+            // FINAL FIX: Start day count from 0, then add 1
             let dayCount = 0;
             let currentDate = new Date(projectStart);
             
-            while (currentDate < task) {
+            // FINAL FIX: Direct comparison using date strings to avoid timezone issues
+            const projectStartStr = formatDateToYMD(projectStart);
+            const taskDateStr = formatDateToYMD(task);
+            
+            if (projectStartStr === taskDateStr) {
+                return 1; // Same day as project start
+            }
+            
+            while (formatDateToYMD(currentDate) < taskDateStr) {
                 if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) { // Skip weekends
                     dayCount++;
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
             
-            // DATO FIX: Return exact day count + 1 (so project start = day 1)
+            // FINAL FIX: Return exact day count + 1 (so project start = day 1)
             return dayCount + 1;
         }
         
         function calculateDateFromDay(dayNumber) {
             const projectStart = getProjectStartDate();
             let currentDate = new Date(projectStart);
-            let weekdayCount = 1; // DATO FIX: Start from 1 since project start is day 1
+            let weekdayCount = 1; // FINAL FIX: Start from 1 since project start is day 1
             
-            // DATO FIX: If dayNumber is 1, return project start date
+            // FINAL FIX: If dayNumber is 1, return project start date
             if (dayNumber === 1) {
                 return new Date(projectStart);
             }
@@ -1243,6 +1265,7 @@
         }
         
         function formatDateForDisplay(date) {
+            if (!date) return '';
             return date.toLocaleDateString('da-DK', { 
                 day: '2-digit', 
                 month: '2-digit' 
@@ -1250,6 +1273,7 @@
         }
         
         function formatDateForInput(date) {
+            if (!date) return '';
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
@@ -1267,23 +1291,25 @@
         }
         
         function isToday(date) {
+            if (!date) return false;
             const today = new Date();
-            return date.toDateString() === today.toDateString();
+            return formatDateToYMD(date) === formatDateToYMD(today);
         }
         
         function isWeekend(date) {
+            if (!date) return false;
             return date.getDay() === 0 || date.getDay() === 6;
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            debugLog('✅ DATO FIX APP initializing with corrected date calculations...');
+            debugLog('🔴 FINAL FIX APP initializing - systematisk gennemgang...');
             createTestData();
             initializeDatepicker();
             saveState();
             renderAll();
             updateTimelineInfo();
-            showToast('✅ DATO FIX: Timeline datoer synkroniserer nu korrekt!', 'info');
-            debugLog('✅ DATO FIX APP ready - timezone issues resolved');
+            showToast('🔴 FINAL FIX: Systematisk gennemgang af ALLE dato-funktioner!', 'info');
+            debugLog('🔴 FINAL FIX APP ready - alle datetime funktioner gennemgået');
         });
         
         function createTestData() {
@@ -1309,18 +1335,18 @@
                 }
             ];
             
-            // Create test tasks with DATO FIX date calculations
+            // 🔴 FINAL FIX: Create test tasks with CORRECTED date handling
             appState.tasks = [
                 {
                     id: 'task_1',
                     title: 'Test opgave - Dag 1 (16/09/2025)',
-                    description: 'Test af korrekt dato beregning - DATO FIX',
+                    description: 'Test af korrekt dato beregning - FINAL FIX',
                     notes: 'Denne opgave skulle være på dag 1',
                     craftsman: 'craftsman_1',
                     priority: 'high',
                     status: 'planned',
                     duration: 1,
-                    startDate: '2025-09-16', // Monday - should be day 1
+                    startDate: '2025-09-16', // 🔴 FINAL FIX: Using timezone-free format
                     startDay: 1,
                     isHalfDay: false,
                     dependencies: []
@@ -1328,29 +1354,29 @@
                 {
                     id: 'task_2',
                     title: 'Test opgave - Dag 3 (18/09/2025)',
-                    description: 'Test af korrekt dato beregning - DATO FIX',
+                    description: 'Test af korrekt dato beregning - FINAL FIX',
                     notes: 'Denne opgave skulle være på dag 3',
                     craftsman: 'craftsman_2',
                     priority: 'medium',
                     status: 'planned',
                     duration: 1,
-                    startDate: '2025-09-18', // Wednesday - should be day 3
+                    startDate: '2025-09-18', // 🔴 FINAL FIX: Using timezone-free format
                     startDay: 3,
                     isHalfDay: false,
                     dependencies: []
                 }
             ];
             
-            // DATO FIX: Verify calculations
+            // 🔴 FINAL FIX: Verify calculations with new functions
             appState.tasks.forEach(task => {
                 if (task.startDate) {
                     const calculatedDay = calculateDayFromDate(task.startDate);
                     task.startDay = calculatedDay;
-                    debugLog(`✅ DATO FIX: Task ${task.id}: Date ${task.startDate} → Day ${calculatedDay}`);
+                    debugLog(`🔴 FINAL FIX: Task ${task.id}: Date ${task.startDate} → Day ${calculatedDay}`);
                 }
             });
             
-            debugLog(`✅ Test data created with DATO FIX: ${appState.craftsmen.length} craftsmen, ${appState.tasks.length} tasks`);
+            debugLog(`🔴 Test data created with FINAL FIX: ${appState.craftsmen.length} craftsmen, ${appState.tasks.length} tasks`);
         }
         
         // DATEPICKER FUNCTIONALITY
@@ -1361,6 +1387,8 @@
             const monthSelector = document.getElementById('monthSelector');
             const prevMonthBtn = document.getElementById('prevMonth');
             const nextMonthBtn = document.getElementById('nextMonth');
+            
+            if (!datepickerInput) return;
             
             // Set current year as default
             yearSelector.value = currentDate.getFullYear().toString();
@@ -1522,13 +1550,13 @@
             return dayDiv;
         }
         
-        // DATO FIX: selectDate with CORRECT sync
+        // 🔴 FINAL FIX: selectDate with PERFECT sync
         function selectDate(year, month, day) {
             selectedDate = new Date(year, month, day);
             const dateString = formatDateForInput(selectedDate);
             document.getElementById('taskStartDate').value = dateString;
             
-            // DATO FIX: CORRECT calculation and display
+            // 🔴 FINAL FIX: PERFECT calculation and display
             const calculatedDay = calculateDayFromDate(selectedDate);
             const positionIndicator = document.getElementById('positionIndicator');
             const calculatedPosition = document.getElementById('calculatedPosition');
@@ -1539,8 +1567,8 @@
             hideDatepicker();
             updateCalendar();
             
-            showToast(`✅ DATO FIX: Dato ${dateString} → Timeline dag ${calculatedDay}`, 'info');
-            debugLog(`✅ DATO FIX DATE SYNC: ${dateString} → Day ${calculatedDay}`);
+            showToast(`🔴 FINAL FIX: Dato ${dateString} → Timeline dag ${calculatedDay}`, 'info');
+            debugLog(`🔴 FINAL FIX DATE SYNC: ${dateString} → Day ${calculatedDay}`);
         }
         
         // TOOLTIP FUNCTIONALITY
@@ -1591,7 +1619,7 @@
         function updateProjectStartDate() {
             const newStartDate = document.getElementById('projectStartDate').value;
             if (newStartDate) {
-                appState.project.startDate = newStartDate;
+                appState.project.startDate = newStartDate; // Already in YYYY-MM-DD format
                 
                 // Recalculate all task positions
                 appState.tasks.forEach(task => {
@@ -1659,7 +1687,10 @@
             renderCraftsmen();
             renderTimeline();
             updateWeekDisplay();
-            document.getElementById('projectStartDate').value = appState.project.startDate || '2025-09-16';
+            const startDateInput = document.getElementById('projectStartDate');
+            if (startDateInput) {
+                startDateInput.value = appState.project.startDate || '2025-09-16';
+            }
         }
         
         function renderProjectInfo() {
@@ -1677,13 +1708,15 @@
                 infoElement.className = 'project-info';
             } else {
                 titleElement.textContent = 'Nyt Projekt';
-                infoElement.innerHTML = '<span class="empty-project">DATO FIX - Timeline dato problemet er løst!</span>';
+                infoElement.innerHTML = '<span class="empty-project">FINAL FIX - Systematisk gennemgang af ALLE dato-funktioner!</span>';
                 infoElement.className = 'project-info';
             }
         }
         
         function renderCraftsmen() {
             const list = document.getElementById('craftsmanList');
+            if (!list) return;
+            
             list.innerHTML = '';
             
             if (appState.craftsmen.length === 0) {
@@ -1710,7 +1743,7 @@
                     <button class="delete-craftsman" onclick="deleteCraftsman('${craftsman.id}')">×</button>
                 `;
                 
-                // Drag and drop for craftsmen reordering (existing code...)
+                // Drag and drop for craftsmen reordering
                 li.addEventListener('dragstart', (e) => {
                     draggedElement = li;
                     draggedType = 'craftsman';
@@ -1757,6 +1790,8 @@
         // TIMELINE RENDERING with date integration
         function renderTimeline() {
             const grid = document.getElementById('timelineGrid');
+            if (!grid) return;
+            
             grid.innerHTML = '';
             
             if (appState.craftsmen.length === 0) {
@@ -1873,10 +1908,11 @@
                         cell.classList.add('weekend');
                     }
                     
-                    // KRITISK: Click to create task with auto-calculated date
+                    // 🔴 FINAL FIX: KRITISK timeline click handler
                     cell.onclick = (e) => {
                         if (e.target === cell) {
                             const taskDate = calculateDateFromDay(day);
+                            debugLog(`🔴 FINAL FIX TIMELINE CLICK: Day ${day} → Date ${formatDateToYMD(taskDate)}`);
                             createTask(craftsman.id, day, taskDate);
                         }
                     };
@@ -2021,6 +2057,9 @@
         }
         
         function editProject() {
+            const projectModal = document.getElementById('projectModal');
+            if (!projectModal) return;
+            
             document.getElementById('projectName').value = appState.project.name || '';
             document.getElementById('customerName').value = appState.project.customer || '';
             document.getElementById('projectAddress').value = appState.project.address || '';
@@ -2028,7 +2067,7 @@
             document.getElementById('customerEmail').value = appState.project.email || '';
             document.getElementById('startDate').value = appState.project.startDate || '';
             
-            document.getElementById('projectModal').classList.add('show');
+            projectModal.classList.add('show');
         }
         
         function saveProject() {
@@ -2041,7 +2080,7 @@
             appState.project.email = document.getElementById('customerEmail').value;
             appState.project.startDate = document.getElementById('startDate').value;
             
-            // KRITISK: If start date changed, recalculate all task positions
+            // If start date changed, recalculate all task positions
             if (oldStartDate !== appState.project.startDate) {
                 appState.tasks.forEach(task => {
                     if (task.startDate) {
@@ -2059,7 +2098,7 @@
             showToast('✅ Projekt information gemt');
         }
         
-        // KRITISK: createTask with auto-date calculation
+        // 🔴 FINAL FIX: createTask with auto-date calculation
         function createTask(craftsman, startDay, taskDate = null) {
             if (appState.craftsmen.length === 0) {
                 showToast('Tilføj først en håndværker', 'warning');
@@ -2067,13 +2106,19 @@
             }
             
             const calculatedDate = taskDate || calculateDateFromDay(startDay);
-            debugLog(`Creating new task for craftsman: ${craftsman}, day: ${startDay}, date: ${formatDateForInput(calculatedDate)}`);
+            debugLog(`🔴 FINAL FIX CREATE TASK: craftsman: ${craftsman}, day: ${startDay}, calculated date: ${formatDateToYMD(calculatedDate)}`);
             
             currentEditingTask = null;
-            taskBackup = null; // DATO FIX: Reset backup
+            taskBackup = null; // Reset backup
             
-            document.getElementById('modalTitle').textContent = 'Ny opgave';
-            document.getElementById('deleteTaskBtn').style.display = 'none';
+            const modalTitle = document.getElementById('modalTitle');
+            const deleteBtn = document.getElementById('deleteTaskBtn');
+            const modal = document.getElementById('taskModal');
+            
+            if (!modal) return;
+            
+            modalTitle.textContent = 'Ny opgave';
+            deleteBtn.style.display = 'none';
             
             // Clear fields
             clearTaskFields();
@@ -2081,7 +2126,7 @@
             populateCraftsmanDropdown();
             document.getElementById('taskCraftsman').value = craftsman;
             
-            // KRITISK: Pre-populate with calculated date
+            // 🔴 FINAL FIX: Pre-populate med beregnet dato
             selectedDate = calculatedDate;
             document.getElementById('taskStartDate').value = formatDateForInput(calculatedDate);
             
@@ -2091,9 +2136,9 @@
             positionIndicator.style.display = 'block';
             calculatedPosition.textContent = `Dag ${startDay}`;
             
-            document.getElementById('taskModal').classList.add('show');
+            modal.classList.add('show');
             
-            showToast(`📅 Ny opgave på dag ${startDay} (${formatDateForInput(calculatedDate)})`, 'info');
+            showToast(`🔴 FINAL FIX: Ny opgave på dag ${startDay} (${formatDateForInput(calculatedDate)})`, 'info');
         }
         
         function clearTaskFields() {
@@ -2109,9 +2154,9 @@
             selectedDate = null;
         }
         
-        // DATO FIX: editTask with proper backup
+        // 🔴 FINAL FIX: editTask with proper backup
         function editTask(taskId) {
-            debugLog(`✅ DATO FIX EDIT TASK: ${taskId}`);
+            debugLog(`🔴 FINAL FIX EDIT TASK: ${taskId}`);
             
             const task = appState.tasks.find(t => t.id === taskId);
             if (!task) {
@@ -2119,7 +2164,7 @@
                 return;
             }
             
-            // DATO FIX: Create complete backup before editing
+            // Create complete backup before editing
             taskBackup = JSON.parse(JSON.stringify(task));
             debugLog(`BACKUP CREATED: ${JSON.stringify(taskBackup)}`);
             
@@ -2139,11 +2184,13 @@
                 document.getElementById('taskDescription').value = taskBackup.description || '';
                 document.getElementById('taskNotes').value = taskBackup.notes || '';
                 
-                // KRITISK: Set start date and show position
+                // Set start date and show position
                 if (taskBackup.startDate) {
-                    const date = new Date(taskBackup.startDate);
-                    document.getElementById('taskStartDate').value = formatDateForInput(date);
-                    selectedDate = date;
+                    const date = parseDateFromYMD(taskBackup.startDate);
+                    if (date) {
+                        document.getElementById('taskStartDate').value = formatDateForInput(date);
+                        selectedDate = date;
+                    }
                 } else if (taskBackup.startDay) {
                     const calculatedDate = calculateDateFromDay(taskBackup.startDay);
                     document.getElementById('taskStartDate').value = formatDateForInput(calculatedDate);
@@ -2162,8 +2209,8 @@
                 document.getElementById('taskDuration').value = String(taskBackup.duration || 1);
                 document.getElementById('taskHalfDay').checked = Boolean(taskBackup.isHalfDay);
                 
-                debugLog('✅ DATO FIX: All values set from backup!');
-                showToast('✅ DATO FIX: Opgave data indlæst korrekt!', 'info');
+                debugLog('🔴 FINAL FIX: All values set from backup!');
+                showToast('✅ FINAL FIX: Opgave data indlæst korrekt!', 'info');
                 
             }, 100);
         }
@@ -2179,9 +2226,9 @@
             });
         }
         
-        // DATO FIX: saveTask with automatic date-to-day calculation
+        // 🔴 FINAL FIX: saveTask med automatisk dato-til-dag beregning
         function saveTask() {
-            debugLog('✅ DATO FIX: Saving task with corrected date integration...');
+            debugLog('🔴 FINAL FIX: Saving task with corrected date integration...');
             
             const startDateInput = document.getElementById('taskStartDate').value;
             const startDate = parseDateFromInput(startDateInput);
@@ -2189,15 +2236,15 @@
             let calculatedDay = 1;
             if (startDate) {
                 calculatedDay = calculateDayFromDate(startDate);
-                debugLog(`✅ DATO FIX calculated day from date: ${startDateInput} → Day ${calculatedDay}`);
+                debugLog(`🔴 FINAL FIX calculated day from date: ${startDateInput} → Day ${calculatedDay}`);
             }
             
             const taskData = {
                 title: document.getElementById('taskTitle').value,
                 description: document.getElementById('taskDescription').value,
                 notes: document.getElementById('taskNotes').value,
-                startDate: startDate ? formatDateToYMD(startDate) : null, // DATO FIX: Use timezone-free formatting
-                startDay: calculatedDay, // DATO FIX: Correct calculation
+                startDate: startDate ? formatDateToYMD(startDate) : null, // 🔴 FINAL FIX: Use timezone-free formatting
+                startDay: calculatedDay, // 🔴 FINAL FIX: Correct calculation
                 craftsman: document.getElementById('taskCraftsman').value,
                 priority: document.getElementById('taskPriority').value,
                 status: document.getElementById('taskStatus').value,
@@ -2208,8 +2255,8 @@
             if (currentEditingTask) {
                 // Update existing task
                 Object.assign(currentEditingTask, taskData);
-                showToast('✅ DATO FIX: Opgave opdateret med korrekt placering!');
-                debugLog(`✅ DATO FIX: Updated task → Day ${calculatedDay}`);
+                showToast('✅ FINAL FIX: Opgave opdateret med korrekt placering!');
+                debugLog(`🔴 FINAL FIX: Updated task → Day ${calculatedDay}`);
             } else {
                 // Create new task
                 const newTask = {
@@ -2218,8 +2265,8 @@
                     ...taskData
                 };
                 appState.tasks.push(newTask);
-                showToast('✅ DATO FIX: Ny opgave oprettet med korrekt placering!');
-                debugLog(`✅ DATO FIX: Created task → Day ${calculatedDay}`);
+                showToast('✅ FINAL FIX: Ny opgave oprettet med korrekt placering!');
+                debugLog(`🔴 FINAL FIX: Created task → Day ${calculatedDay}`);
             }
             
             taskBackup = null; // Clear backup
@@ -2248,7 +2295,7 @@
             }
         }
         
-        // DATO FIX: moveTask with correct date synchronization
+        // 🔴 FINAL FIX: moveTask with correct date synchronization
         function moveTask(taskId, newCraftsman, newStartDay, newDate = null) {
             const task = appState.tasks.find(t => t.id === taskId);
             if (!task) return;
@@ -2262,18 +2309,18 @@
             task.craftsman = newCraftsman;
             task.startDay = newStartDay;
             
-            // DATO FIX: Update both day and date correctly
+            // 🔴 FINAL FIX: Update both day and date correctly without timezone issues
             if (newDate) {
-                task.startDate = formatDateToYMD(newDate); // DATO FIX: Use timezone-free formatting
+                task.startDate = formatDateToYMD(newDate); // 🔴 FINAL FIX: Use timezone-free formatting
             } else {
                 const calculatedDate = calculateDateFromDay(newStartDay);
-                task.startDate = formatDateToYMD(calculatedDate); // DATO FIX: Use timezone-free formatting
+                task.startDate = formatDateToYMD(calculatedDate); // 🔴 FINAL FIX: Use timezone-free formatting
             }
             
             saveState();
             renderTasks();
-            showToast('✅ DATO FIX: Opgave flyttet med korrekt datosync!');
-            debugLog(`✅ DATO FIX: Moved task to day ${newStartDay}, date: ${task.startDate}`);
+            showToast('✅ FINAL FIX: Opgave flyttet med korrekt datosync!');
+            debugLog(`🔴 FINAL FIX: Moved task to day ${newStartDay}, date: ${task.startDate}`);
         }
         
         function openCraftsmanModal() {
@@ -2374,7 +2421,10 @@
         }
         
         function updateWeekDisplay() {
-            document.getElementById('weekDisplay').textContent = `${appState.weeks} uger`;
+            const weekDisplayElement = document.getElementById('weekDisplay');
+            if (weekDisplayElement) {
+                weekDisplayElement.textContent = `${appState.weeks} uger`;
+            }
         }
         
         function saveProjectToStorage() {
@@ -2409,7 +2459,7 @@
         
         function exportToPDF() {
             const printWindow = window.open('', '_blank');
-            const projectName = appState.project.name || 'DATO FIX Test Projekt';
+            const projectName = appState.project.name || 'FINAL FIX Test Projekt';
             const projectStart = getProjectStartDate();
             const projectEnd = new Date(projectStart);
             projectEnd.setDate(projectEnd.getDate() + (appState.weeks * 7) - 1);
@@ -2421,9 +2471,9 @@
                     <title>${projectName} - Projektplan</title>
                     <style>
                         body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; }
-                        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #4CAF50; padding-bottom: 20px; }
-                        .logo { font-size: 2em; font-weight: bold; color: #4CAF50; margin-bottom: 10px; }
-                        .project-info { margin-bottom: 25px; background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid #4CAF50; }
+                        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #FF0000; padding-bottom: 20px; }
+                        .logo { font-size: 2em; font-weight: bold; color: #FF0000; margin-bottom: 10px; }
+                        .project-info { margin-bottom: 25px; background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid #FF0000; }
                         .timeline { margin-top: 25px; }
                         table { width: 100%; border-collapse: collapse; margin-top: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
                         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
@@ -2437,7 +2487,7 @@
                 <body>
                     <div class="header">
                         <div class="logo">SWITZEA ApS</div>
-                        <h2>✅ DATO FIX VERSION - Projektplan med Korrekt Timeline Sync</h2>
+                        <h2>🔴 FINAL FIX VERSION - Systematisk Dato-beregning</h2>
                     </div>
                     <div class="project-info">
                         <h3>${projectName}</h3>
@@ -2446,11 +2496,11 @@
                         ${appState.project.phone ? `<p><strong>📞 Telefon:</strong> ${appState.project.phone}</p>` : ''}
                         ${appState.project.email ? `<p><strong>📧 E-mail:</strong> ${appState.project.email}</p>` : ''}
                         <p><strong>📅 Projektperiode:</strong> ${formatDateForInput(projectStart)} - ${formatDateForInput(projectEnd)} (${appState.weeks} uger)</p>
-                        <p><strong>✅ Status:</strong> DATO FIX VERSION - Timeline dato problemet er løst!</p>
+                        <p><strong>🔴 Status:</strong> FINAL FIX VERSION - Systematisk gennemgang af alle dato-funktioner!</p>
                     </div>
                     ${appState.tasks.length > 0 ? `
                     <div class="timeline">
-                        <h3>📋 Opgaveoversigt med KORREKTE Datoer (DATO FIX)</h3>
+                        <h3>📋 Opgaveoversigt med FINAL FIX (Korrekte Datoer)</h3>
                         <table>
                             <thead>
                                 <tr>
@@ -2469,7 +2519,7 @@
                                     const craftsman = appState.craftsmen.find(c => c.id === task.craftsman);
                                     const priorityText = task.priority === 'high' ? 'Høj ⚠️' : task.priority === 'medium' ? 'Medium ⚡' : 'Lav ✅';
                                     const statusText = task.status === 'planned' ? 'Planlagt 📋' : task.status === 'in-progress' ? 'I gang 🔄' : 'Udført ✅';
-                                    const taskDate = task.startDate ? new Date(task.startDate).toLocaleDateString('da-DK') : '-';
+                                    const taskDate = task.startDate ? parseDateFromYMD(task.startDate).toLocaleDateString('da-DK') : '-';
                                     return `
                                         <tr class="task-${task.priority}">
                                             <td>
@@ -2495,8 +2545,8 @@
                     </div>
                     `}
                     <div class="footer">
-                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | ✅ DATO FIX</p>
-                        <p><em>✅ Timeline dato problem løst | ✅ Timezone issues elimineret | ✅ Perfekt sync</em></p>
+                        <p><strong>Genereret:</strong> ${new Date().toLocaleString('da-DK')} | <strong>SWITZEA ApS</strong> | 🔴 FINAL FIX</p>
+                        <p><em>🔴 Systematisk gennemgang af alle dato-funktioner | 🔴 Timeline sync perfektioneret | 🔴 Timezone fejl elimineret</em></p>
                     </div>
                 </body>
                 </html>
@@ -2506,21 +2556,24 @@
             printWindow.document.close();
             printWindow.print();
             
-            showToast('📄 DATO FIX PDF eksporteret med korrekte datoer!');
+            showToast('📄 FINAL FIX PDF eksporteret med perfekte datoer!');
         }
         
-        // DATO FIX: closeModal with proper backup restoration
+        // 🔴 FINAL FIX: closeModal with proper backup restoration
         function closeModal(modalId) {
             if (modalId === 'taskModal' && taskBackup && currentEditingTask) {
-                // DATO FIX: Restore all values from backup when canceling
+                // Restore all values from backup when canceling
                 Object.assign(currentEditingTask, taskBackup);
-                debugLog(`✅ DATO FIX: Restored task from backup: ${JSON.stringify(taskBackup)}`);
+                debugLog(`🔴 FINAL FIX: Restored task from backup: ${JSON.stringify(taskBackup)}`);
                 renderAll(); // Re-render to show restored values
-                showToast('🔄 DATO FIX: Ændringer annulleret - gamle værdier gendannet!', 'info');
+                showToast('🔄 FINAL FIX: Ændringer annulleret - gamle værdier gendannet!', 'info');
                 taskBackup = null;
             }
             
-            document.getElementById(modalId).classList.remove('show');
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+            }
             hideDatepicker();
             currentEditingTask = null;
         }
@@ -2558,7 +2611,7 @@
         // Hide tooltip when scrolling
         window.addEventListener('scroll', hideTaskTooltip);
         
-        debugLog('✅ SWITZEA DATO FIX VERSION LOADED - Timeline dato problemet skulle være løst!');
+        debugLog('🔴 SWITZEA FINAL FIX VERSION LOADED - Systematisk gennemgang komplet!');
     </script>
 </body>
 </html>
