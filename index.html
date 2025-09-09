@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SWITZEA Projektplanlægning - Ny Version</title>
+    <title>SWITZEA Projektplanlægning - Fixed Version</title>
     <style>
         /* Reset og base styling */
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
         
         :root {
             --primary-color: #2563eb;
@@ -31,6 +36,8 @@
             background: var(--gray-50);
             color: var(--gray-900);
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
         }
         
         /* Header */
@@ -39,6 +46,7 @@
             color: white;
             padding: 1.5rem 2rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
         }
         
         .header-content {
@@ -107,15 +115,16 @@
         .btn-danger { background: var(--danger-color); color: white; }
         .btn-danger:hover { background: #b91c1c; }
         
-        /* Main layout */
+        /* Main layout - FIXED: Fylder hele browseren */
         .main-container {
+            flex: 1;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1.5rem 2rem;
             display: grid;
             grid-template-columns: 280px 1fr;
             gap: 2rem;
-            min-height: calc(100vh - 120px);
+            min-height: 0; /* Vigtig for grid flex kombination */
         }
         
         /* Sidebar */
@@ -125,6 +134,8 @@
             padding: 1.5rem;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             height: fit-content;
+            max-height: 100%;
+            overflow-y: auto;
         }
         
         .sidebar h3 {
@@ -200,12 +211,15 @@
             margin-bottom: 1rem;
         }
         
-        /* Timeline */
+        /* Timeline - FIXED: Fylder hele højden */
         .timeline-container {
             background: white;
             border-radius: 0.75rem;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
         
         .timeline-header {
@@ -217,6 +231,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
+            flex-shrink: 0;
         }
         
         .timeline-title {
@@ -260,9 +275,11 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
-        /* Timeline Grid */
+        /* Timeline Grid - FIXED: Scroll container */
         .timeline-grid {
-            overflow-x: auto;
+            overflow: auto;
+            flex: 1;
+            min-height: 0;
         }
         
         .grid-header {
@@ -271,6 +288,9 @@
             background: var(--gray-100);
             border-bottom: 2px solid var(--gray-200);
             min-width: fit-content;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         .grid-header-cell {
@@ -340,6 +360,9 @@
             display: flex;
             align-items: center;
             border-left: 4px solid var(--primary-color);
+            position: sticky;
+            left: 0;
+            z-index: 5;
         }
         
         .day-cell {
@@ -649,7 +672,7 @@
         <div class="header-content">
             <div class="header-left">
                 <h1>SWITZEA Projektplanlægning</h1>
-                <div class="subtitle">Ny version - Simpel og pålidelig</div>
+                <div class="subtitle">Fixed version - Fylder hele browseren</div>
             </div>
             <div class="header-actions">
                 <button class="btn btn-outline" onclick="openProjectModal()">
@@ -859,8 +882,8 @@
     </div>
 
     <script>
-        // 🎯 SWITZEA Projektplanlægning - Ny Version
-        // Simpel, pålidelig arkitektur med korrekt dato-håndtering
+        // 🎯 SWITZEA Projektplanlægning - FIXED Version
+        // Løser: Fylder browseren, håndværker bug, rapport problemer
         
         // Application State
         const app = {
@@ -953,7 +976,7 @@
         function initApp() {
             loadTestData();
             renderAll();
-            showToast('🎯 SWITZEA Projektplanlægning klar!', 'success');
+            showToast('🎯 SWITZEA Fixed Version klar!', 'success');
         }
         
         function loadTestData() {
@@ -1176,8 +1199,12 @@
             showModal('craftsmanModal');
         }
         
+        // FIXED: Task modal - populér dropdown FØRST, så sæt værdi
         function openTaskModal(taskId = null) {
             app.currentEditingTask = taskId;
+            
+            // VIGTIG: Populér dropdown FØRST
+            populateTaskCraftsmanSelect();
             
             if (taskId) {
                 const task = app.tasks.find(t => t.id === taskId);
@@ -1185,7 +1212,10 @@
                     document.getElementById('taskModalTitle').textContent = 'Redigér Opgave';
                     document.getElementById('taskTitle').value = task.title;
                     document.getElementById('taskDescription').value = task.description || '';
-                    document.getElementById('taskCraftsman').value = task.craftsman;
+                    // FIXED: Sæt håndværker EFTER dropdown er populeret
+                    setTimeout(() => {
+                        document.getElementById('taskCraftsman').value = task.craftsman;
+                    }, 10);
                     document.getElementById('taskPriority').value = task.priority;
                     document.getElementById('taskStatus').value = task.status;
                     document.getElementById('taskDuration').value = task.duration;
@@ -1206,7 +1236,6 @@
                 document.getElementById('taskDayInfo').textContent = '';
             }
             
-            populateTaskCraftsmanSelect();
             showModal('taskModal');
         }
         
@@ -1300,10 +1329,13 @@
         }
         
         function createTask(craftsmanId, date) {
-            document.getElementById('taskCraftsman').value = craftsmanId;
-            document.getElementById('taskStartDate').value = date;
-            updateTaskDayInfo();
+            // FIXED: Sæt værdierne efter modal åbnes
             openTaskModal();
+            setTimeout(() => {
+                document.getElementById('taskCraftsman').value = craftsmanId;
+                document.getElementById('taskStartDate').value = date;
+                updateTaskDayInfo();
+            }, 10);
         }
         
         function editTask(taskId) {
@@ -1402,8 +1434,10 @@
             }
         }
         
-        // Report Functions
+        // FIXED: Report Functions - Bedre håndtering af print dialog
         function generateCustomerReport() {
+            console.log('🎯 Genererer kunde rapport...');
+            
             const reportContainer = document.getElementById('reportContainer');
             const reportTitle = document.getElementById('reportTitle');
             const reportSubtitle = document.getElementById('reportSubtitle');
@@ -1509,14 +1543,29 @@
                 </div>
             `;
             
+            // FIXED: Vis rapport først, så print, så skjul igen
             reportContainer.style.display = 'block';
+            
+            // FIXED: Bedre håndtering af print dialog
             setTimeout(() => {
-                window.print();
-                reportContainer.style.display = 'none';
-            }, 100);
+                try {
+                    window.print();
+                } catch (error) {
+                    console.error('Print error:', error);
+                } finally {
+                    // FIXED: Skjul rapport efter 3 sekunder (tid til print)
+                    setTimeout(() => {
+                        reportContainer.style.display = 'none';
+                    }, 3000);
+                }
+            }, 500);
+            
+            showToast('📊 Kunde rapport genereret!', 'info');
         }
         
         function generateCraftsmanReport() {
+            console.log('🔨 Genererer håndværker rapport...');
+            
             const reportContainer = document.getElementById('reportContainer');
             const reportTitle = document.getElementById('reportTitle');
             const reportSubtitle = document.getElementById('reportSubtitle');
@@ -1596,11 +1645,22 @@
             
             reportContent.innerHTML = contentHtml;
             
+            // FIXED: Samme forbedrede håndtering som kunde rapport
             reportContainer.style.display = 'block';
+            
             setTimeout(() => {
-                window.print();
-                reportContainer.style.display = 'none';
-            }, 100);
+                try {
+                    window.print();
+                } catch (error) {
+                    console.error('Print error:', error);
+                } finally {
+                    setTimeout(() => {
+                        reportContainer.style.display = 'none';
+                    }, 3000);
+                }
+            }, 500);
+            
+            showToast('🔨 Håndværker rapport genereret!', 'info');
         }
         
         // Toast Function
@@ -1648,7 +1708,10 @@
             saveProject();
         });
         
-        console.log('🎯 SWITZEA Projektplanlægning - Ny Version Loaded!');
+        console.log('🎯 SWITZEA Fixed Version Loaded!');
+        console.log('✅ Fylder browseren');
+        console.log('✅ Håndværker bug fixed');
+        console.log('✅ Rapport problemer fixed');
     </script>
 </body>
 </html>
