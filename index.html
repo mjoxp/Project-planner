@@ -646,7 +646,7 @@
             color: var(--gray-600);
         }
         
-        /* 🎨 PERFEKT PDF RAPPORT MED SIDEHOVED OG SIDEFOD! */
+        /* 🎨 PERFEKT PDF RAPPORT - ENSARTEDE TABELBREDDER! */
         @media print {
             * { 
                 -webkit-print-color-adjust: exact !important; 
@@ -987,7 +987,7 @@
                 line-height: 1.6 !important;
             }
             
-            /* 📋 MIDTERSTILLET TABEL - FIXED! */
+            /* 📋 ENSARTET TABELBREDDE - ALLE TABELLER ENS! */
             .tasks-section {
                 margin: 15mm 0 !important;
                 page-break-inside: avoid;
@@ -1004,9 +1004,12 @@
                 page-break-after: avoid;
             }
             
-            .report-table {
-                width: calc(100% - 40mm) !important; /* MIDTERSTILLET MED MARGENER */
-                margin: 10mm 20mm !important; /* CENTRERET POSITION */
+            /* 🎯 ENSARTET TABELBREDDE - ALLE TABELLER IDENTISKE! */
+            .report-table,
+            table {
+                /* FAST BREDDE FOR ALLE TABELLER */
+                width: 170mm !important; /* FAST BREDDE */
+                margin: 10mm auto !important; /* CENTRERET */
                 border-collapse: separate !important;
                 border-spacing: 0 !important;
                 border: 3px solid #334155 !important;
@@ -1014,14 +1017,20 @@
                 overflow: hidden !important;
                 box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
                 page-break-inside: auto;
+                /* TVUNG ENSARTET STYLING */
+                font-family: 'Segoe UI', Arial, sans-serif !important;
+                font-size: 10pt !important;
+                background: white !important;
             }
             
-            .report-table thead {
+            .report-table thead,
+            table thead {
                 background: linear-gradient(90deg, #334155 0%, #475569 100%) !important;
                 color: white !important;
             }
             
-            .report-table th {
+            .report-table th,
+            table th {
                 background: transparent !important;
                 color: white !important;
                 padding: 6mm !important;
@@ -1033,13 +1042,16 @@
                 letter-spacing: 1px !important;
                 text-transform: uppercase !important;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+                font-family: 'Segoe UI', Arial, sans-serif !important;
             }
             
-            .report-table th:last-child {
+            .report-table th:last-child,
+            table th:last-child {
                 border-right: none !important;
             }
             
-            .report-table td {
+            .report-table td,
+            table td {
                 padding: 6mm !important;
                 font-size: 10pt !important;
                 border: none !important;
@@ -1048,17 +1060,21 @@
                 vertical-align: top !important;
                 background: white !important;
                 line-height: 1.5 !important;
+                font-family: 'Segoe UI', Arial, sans-serif !important;
             }
             
-            .report-table td:last-child {
+            .report-table td:last-child,
+            table td:last-child {
                 border-right: none !important;
             }
             
-            .report-table tr:nth-child(even) td {
+            .report-table tr:nth-child(even) td,
+            table tr:nth-child(even) td {
                 background: #f8fafc !important;
             }
             
-            .report-table tr {
+            .report-table tr,
+            table tr {
                 page-break-inside: avoid;
             }
             
@@ -1452,13 +1468,13 @@
         </div>
         <div class="report-controls">
             <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;" id="regenerateBtn">🔄 Generer ny rapport</button>
-            <button class="btn btn-primary" onclick="window.print()">📄 Print professionel rapport</button>
+            <button class="btn btn-primary" onclick="window.print()">📄 Print ensartede tabeller</button>
             <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
         </div>
     </div>
 
     <script>
-        // SWITZEA Projekt - PERFEKT PDF VERSION
+        // SWITZEA Projekt - ENSARTEDE TABELBREDDER
         
         // Application State
         const app = {
@@ -2034,7 +2050,7 @@
             `;
         }
         
-        // Report Functions - PERFEKT PDF MED SIDEHOVED OG SIDEFOD
+        // Report Functions - ENSARTEDE TABELBREDDER
         function generateCustomerReport() {
             app.lastReportType = 'customer';
             
@@ -2054,7 +2070,7 @@
                 </div>
                 <div class="report-controls">
                     <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;">🔄 Generer ny rapport</button>
-                    <button class="btn btn-primary" onclick="window.print()">📄 Print professionel rapport</button>
+                    <button class="btn btn-primary" onclick="window.print()">📄 Print ensartede tabeller</button>
                     <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
                 </div>
             `;
@@ -2168,7 +2184,7 @@
                 requestAnimationFrame(() => {
                     reportContainer.style.display = 'block';
                     reportContainer.scrollTop = 0;
-                    showToast('🎨 Professionel rapport genereret!', 'success');
+                    showToast('🎨 Ensartede tabeller genereret!', 'success');
                 });
             });
         }
@@ -2190,7 +2206,7 @@
                 </div>
                 <div class="report-controls">
                     <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;">🔄 Generer ny rapport</button>
-                    <button class="btn btn-primary" onclick="window.print()">📄 Print professionel rapport</button>
+                    <button class="btn btn-primary" onclick="window.print()">📄 Print ensartede tabeller</button>
                     <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
                 </div>
             `;
@@ -2263,7 +2279,7 @@
                 requestAnimationFrame(() => {
                     reportContainer.style.display = 'block';
                     reportContainer.scrollTop = 0;
-                    showToast('🔨 Professionel rapport genereret!', 'success');
+                    showToast('🔨 Ensartede tabeller genereret!', 'success');
                 });
             });
         }
@@ -2339,7 +2355,7 @@
             }
         });
         
-        console.log('🎨 SWITZEA PERFEKT PDF - Sidehoved, sidefod og midterstillet tabel!');
+        console.log('🎨 SWITZEA ENSARTEDE TABELLER - Alle tabeller har nu samme bredde!');
     </script>
 </body>
 </html>
