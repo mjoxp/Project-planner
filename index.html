@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SWITZEA Projektplanlægning - Fixed Version</title>
+    <title>SWITZEA Projektplanlægning - Rettet Version</title>
     <style>
         /* Reset og base styling */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        html, body {
-            height: 100%;
-            overflow-x: hidden;
-        }
         
         :root {
             --primary-color: #2563eb;
@@ -29,6 +24,11 @@
             --gray-700: #374151;
             --gray-800: #1f2937;
             --gray-900: #111827;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
         }
         
         body {
@@ -50,8 +50,7 @@
         }
         
         .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
+            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -115,16 +114,15 @@
         .btn-danger { background: var(--danger-color); color: white; }
         .btn-danger:hover { background: #b91c1c; }
         
-        /* Main layout - FIXED: Fylder hele browseren */
+        /* Main layout - RETTET: Fylder hele browseren */
         .main-container {
-            flex: 1;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1.5rem 2rem;
+            width: 100%;
+            padding: 2rem;
             display: grid;
             grid-template-columns: 280px 1fr;
             gap: 2rem;
-            min-height: 0; /* Vigtig for grid flex kombination */
+            flex: 1;
+            min-height: 0;
         }
         
         /* Sidebar */
@@ -134,8 +132,6 @@
             padding: 1.5rem;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             height: fit-content;
-            max-height: 100%;
-            overflow-y: auto;
         }
         
         .sidebar h3 {
@@ -211,7 +207,7 @@
             margin-bottom: 1rem;
         }
         
-        /* Timeline - FIXED: Fylder hele højden */
+        /* Timeline */
         .timeline-container {
             background: white;
             border-radius: 0.75rem;
@@ -219,7 +215,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 0;
+            height: 100%;
         }
         
         .timeline-header {
@@ -275,11 +271,10 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
-        /* Timeline Grid - FIXED: Scroll container */
+        /* Timeline Grid */
         .timeline-grid {
             overflow: auto;
             flex: 1;
-            min-height: 0;
         }
         
         .grid-header {
@@ -360,9 +355,6 @@
             display: flex;
             align-items: center;
             border-left: 4px solid var(--primary-color);
-            position: sticky;
-            left: 0;
-            z-index: 5;
         }
         
         .day-cell {
@@ -672,7 +664,7 @@
         <div class="header-content">
             <div class="header-left">
                 <h1>SWITZEA Projektplanlægning</h1>
-                <div class="subtitle">Fixed version - Fylder hele browseren</div>
+                <div class="subtitle">Rettet version - Fylder hele browseren</div>
             </div>
             <div class="header-actions">
                 <button class="btn btn-outline" onclick="openProjectModal()">
@@ -882,8 +874,7 @@
     </div>
 
     <script>
-        // 🎯 SWITZEA Projektplanlægning - FIXED Version
-        // Løser: Fylder browseren, håndværker bug, rapport problemer
+        // 🎯 SWITZEA Projektplanlægning - Rettet Version
         
         // Application State
         const app = {
@@ -976,9 +967,10 @@
         function initApp() {
             loadTestData();
             renderAll();
-            showToast('🎯 SWITZEA Fixed Version klar!', 'success');
+            showToast('🎯 SWITZEA Projektplanlægning klar!', 'success');
         }
         
+        // RETTET: Korrekt antal test opgaver (3 opgaver)
         function loadTestData() {
             // Add some test craftsmen
             app.craftsmen = [
@@ -987,7 +979,7 @@
                 { id: 'c3', name: 'VVS-montør', color: '#059669' }
             ];
             
-            // Add some test tasks
+            // RETTET: Kun 3 opgaver i test data
             app.tasks = [
                 {
                     id: 't1',
@@ -1008,6 +1000,16 @@
                     status: 'planned',
                     duration: 2,
                     date: '2025-09-17'
+                },
+                {
+                    id: 't3',
+                    title: 'VVS arbejde',
+                    description: 'Nye rør og afløb',
+                    craftsman: 'c3',
+                    priority: 'medium',
+                    status: 'planned',
+                    duration: 1,
+                    date: '2025-09-18'
                 }
             ];
             
@@ -1199,11 +1201,11 @@
             showModal('craftsmanModal');
         }
         
-        // FIXED: Task modal - populér dropdown FØRST, så sæt værdi
+        // RETTET: Håndværker dropdown populeres FØRST, så værdien kan sættes korrekt
         function openTaskModal(taskId = null) {
             app.currentEditingTask = taskId;
             
-            // VIGTIG: Populér dropdown FØRST
+            // VIGTIG: Populer dropdown FØRST
             populateTaskCraftsmanSelect();
             
             if (taskId) {
@@ -1212,15 +1214,15 @@
                     document.getElementById('taskModalTitle').textContent = 'Redigér Opgave';
                     document.getElementById('taskTitle').value = task.title;
                     document.getElementById('taskDescription').value = task.description || '';
-                    // FIXED: Sæt håndværker EFTER dropdown er populeret
-                    setTimeout(() => {
-                        document.getElementById('taskCraftsman').value = task.craftsman;
-                    }, 10);
                     document.getElementById('taskPriority').value = task.priority;
                     document.getElementById('taskStatus').value = task.status;
                     document.getElementById('taskDuration').value = task.duration;
                     document.getElementById('taskStartDate').value = task.date;
                     document.getElementById('deleteTaskBtn').style.display = 'block';
+                    
+                    // RETTET: Sæt håndværker EFTER dropdown er populeret
+                    document.getElementById('taskCraftsman').value = task.craftsman;
+                    
                     updateTaskDayInfo();
                 }
             } else {
@@ -1329,13 +1331,14 @@
         }
         
         function createTask(craftsmanId, date) {
-            // FIXED: Sæt værdierne efter modal åbnes
-            openTaskModal();
+            // Pre-populate form
             setTimeout(() => {
                 document.getElementById('taskCraftsman').value = craftsmanId;
                 document.getElementById('taskStartDate').value = date;
                 updateTaskDayInfo();
-            }, 10);
+            }, 100);
+            
+            openTaskModal();
         }
         
         function editTask(taskId) {
@@ -1434,11 +1437,12 @@
             }
         }
         
-        // FIXED: Report Functions - Bedre håndtering af print dialog
+        // RETTET: Kunde rapport funktionalitet med bedre state management
         function generateCustomerReport() {
-            console.log('🎯 Genererer kunde rapport...');
-            
+            // Skjul først report container
             const reportContainer = document.getElementById('reportContainer');
+            reportContainer.style.display = 'none';
+            
             const reportTitle = document.getElementById('reportTitle');
             const reportSubtitle = document.getElementById('reportSubtitle');
             const reportDate = document.getElementById('reportDate');
@@ -1448,7 +1452,7 @@
             reportSubtitle.innerHTML = `<strong>${app.project.name}</strong> - ${app.project.customer}`;
             reportDate.textContent = formatDate(new Date(), 'DD/MM/YYYY');
             
-            // Calculate statistics
+            // RETTET: Beregn korrekte statistikker
             const totalTasks = app.tasks.length;
             const completedTasks = app.tasks.filter(t => t.status === 'completed').length;
             const inProgressTasks = app.tasks.filter(t => t.status === 'in-progress').length;
@@ -1543,30 +1547,21 @@
                 </div>
             `;
             
-            // FIXED: Vis rapport først, så print, så skjul igen
+            // RETTET: Vis rapport og print med korrekt delay
             reportContainer.style.display = 'block';
-            
-            // FIXED: Bedre håndtering af print dialog
             setTimeout(() => {
-                try {
-                    window.print();
-                } catch (error) {
-                    console.error('Print error:', error);
-                } finally {
-                    // FIXED: Skjul rapport efter 3 sekunder (tid til print)
-                    setTimeout(() => {
-                        reportContainer.style.display = 'none';
-                    }, 3000);
-                }
-            }, 500);
-            
-            showToast('📊 Kunde rapport genereret!', 'info');
+                window.print();
+                // Skjul igen efter print
+                setTimeout(() => {
+                    reportContainer.style.display = 'none';
+                }, 1000);
+            }, 200);
         }
         
         function generateCraftsmanReport() {
-            console.log('🔨 Genererer håndværker rapport...');
-            
             const reportContainer = document.getElementById('reportContainer');
+            reportContainer.style.display = 'none';
+            
             const reportTitle = document.getElementById('reportTitle');
             const reportSubtitle = document.getElementById('reportSubtitle');
             const reportDate = document.getElementById('reportDate');
@@ -1645,22 +1640,13 @@
             
             reportContent.innerHTML = contentHtml;
             
-            // FIXED: Samme forbedrede håndtering som kunde rapport
             reportContainer.style.display = 'block';
-            
             setTimeout(() => {
-                try {
-                    window.print();
-                } catch (error) {
-                    console.error('Print error:', error);
-                } finally {
-                    setTimeout(() => {
-                        reportContainer.style.display = 'none';
-                    }, 3000);
-                }
-            }, 500);
-            
-            showToast('🔨 Håndværker rapport genereret!', 'info');
+                window.print();
+                setTimeout(() => {
+                    reportContainer.style.display = 'none';
+                }, 1000);
+            }, 200);
         }
         
         // Toast Function
@@ -1708,10 +1694,7 @@
             saveProject();
         });
         
-        console.log('🎯 SWITZEA Fixed Version Loaded!');
-        console.log('✅ Fylder browseren');
-        console.log('✅ Håndværker bug fixed');
-        console.log('✅ Rapport problemer fixed');
+        console.log('🎯 SWITZEA Projektplanlægning - Rettet Version Loaded!');
     </script>
 </body>
 </html>
