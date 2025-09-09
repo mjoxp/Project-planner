@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SWITZEA Projektplanlægning - Rettet Version</title>
+    <title>SWITZEA Projektplanlægning - Final Version</title>
     <style>
         /* Reset og base styling */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -114,7 +114,7 @@
         .btn-danger { background: var(--danger-color); color: white; }
         .btn-danger:hover { background: #b91c1c; }
         
-        /* Main layout - RETTET: Fylder hele browseren */
+        /* Main layout */
         .main-container {
             width: 100%;
             padding: 2rem;
@@ -165,11 +165,6 @@
         .craftsman-item:hover {
             background: var(--gray-100);
             transform: translateX(2px);
-        }
-        
-        .craftsman-item.dragging {
-            opacity: 0.6;
-            transform: rotate(2deg);
         }
         
         .craftsman-name {
@@ -336,6 +331,7 @@
             grid-template-columns: 200px repeat(15, 120px);
             border-bottom: 1px solid var(--gray-200);
             min-height: 80px;
+            position: relative;
         }
         
         .grid-row:nth-child(even) {
@@ -383,12 +379,11 @@
             border: 2px dashed var(--success-color) !important;
         }
         
-        /* Tasks */
+        /* RETTET: Tasks spanning multiple days */
         .task {
             position: absolute;
             top: 4px;
             left: 4px;
-            right: 4px;
             background: var(--primary-color);
             color: white;
             padding: 0.5rem;
@@ -401,11 +396,13 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            z-index: 5;
         }
         
         .task:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 6;
         }
         
         .task.dragging {
@@ -570,15 +567,58 @@
         .toast.warning { background: var(--warning-color); }
         .toast.info { background: var(--primary-color); }
         
+        /* Print styles */
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
+            
+            body { 
+                background: white !important; 
+                font-size: 12px !important;
+                line-height: 1.4 !important;
+            }
+            
+            .header, 
+            .main-container, 
+            .modal,
+            .toast { 
+                display: none !important; 
+            }
+            
+            .report-container { 
+                display: block !important; 
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                max-width: none !important;
+                padding: 20px !important;
+            }
+            
+            .report-table {
+                page-break-inside: avoid;
+            }
+            
+            .report-table th,
+            .report-table td {
+                border: 1px solid #333 !important;
+                padding: 8px !important;
+            }
+            
+            .priority-badge {
+                border: 1px solid #333 !important;
+            }
+        }
+        
         /* Report styles */
         .report-container {
             display: none;
-            padding: 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             background: white;
-            margin: 2rem auto;
-            max-width: 900px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-radius: 0.75rem;
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 2rem;
         }
         
         .report-header {
@@ -625,16 +665,25 @@
         .priority-medium { background: #fef3c7; color: var(--warning-color); }
         .priority-low { background: #f0fdf4; color: var(--success-color); }
         
-        /* Print styles */
-        @media print {
-            body { background: white; }
-            .header, .main-container { display: none; }
-            .report-container { 
-                display: block !important; 
-                box-shadow: none; 
-                margin: 0; 
-                max-width: none;
-            }
+        /* Close button for reports */
+        .report-close {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 10000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .report-close:hover {
+            background: #b91c1c;
         }
         
         /* Responsive adjustments */
@@ -664,7 +713,7 @@
         <div class="header-content">
             <div class="header-left">
                 <h1>SWITZEA Projektplanlægning</h1>
-                <div class="subtitle">Rettet version - Fylder hele browseren</div>
+                <div class="subtitle">Final version - Multi-dag opgaver + Fungerende rapporter</div>
             </div>
             <div class="header-actions">
                 <button class="btn btn-outline" onclick="openProjectModal()">
@@ -861,8 +910,9 @@
         </div>
     </div>
 
-    <!-- Report Container (hidden, for printing) -->
+    <!-- Report Container -->
     <div class="report-container" id="reportContainer">
+        <button class="report-close" onclick="closeReport()">×</button>
         <div class="report-header">
             <div class="report-logo">SWITZEA ApS</div>
             <h2 id="reportTitle">Projekt Rapport</h2>
@@ -871,10 +921,14 @@
         <div id="reportContent">
             <!-- Generated by JavaScript -->
         </div>
+        <div style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+            <button class="btn btn-primary" onclick="window.print()">📄 Print Rapport</button>
+            <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
+        </div>
     </div>
 
     <script>
-        // 🎯 SWITZEA Projektplanlægning - Rettet Version
+        // 🎯 SWITZEA Projektplanlægning - Final Version
         
         // Application State
         const app = {
@@ -892,7 +946,7 @@
             currentEditingTask: null
         };
         
-        // Utility Functions - Timezone Safe!
+        // Utility Functions
         function formatDate(date, format = 'YYYY-MM-DD') {
             if (!date) return '';
             const d = new Date(date);
@@ -908,7 +962,7 @@
         
         function parseDate(dateString) {
             if (!dateString) return new Date();
-            return new Date(dateString + 'T00:00:00'); // Timezone safe
+            return new Date(dateString + 'T00:00:00');
         }
         
         function addDays(date, days) {
@@ -924,7 +978,7 @@
         
         function isWeekend(date) {
             const day = date.getDay();
-            return day === 0 || day === 6; // Sunday or Saturday
+            return day === 0 || day === 6;
         }
         
         function isToday(date) {
@@ -967,19 +1021,17 @@
         function initApp() {
             loadTestData();
             renderAll();
-            showToast('🎯 SWITZEA Projektplanlægning klar!', 'success');
+            showToast('🎯 SWITZEA Final Version klar!', 'success');
         }
         
-        // RETTET: Korrekt antal test opgaver (3 opgaver)
         function loadTestData() {
-            // Add some test craftsmen
             app.craftsmen = [
                 { id: 'c1', name: 'Projektleder', color: '#2563eb' },
                 { id: 'c2', name: 'Elektriker', color: '#dc2626' },
                 { id: 'c3', name: 'VVS-montør', color: '#059669' }
             ];
             
-            // RETTET: Kun 3 opgaver i test data
+            // Test opgaver med forskellige varigheder
             app.tasks = [
                 {
                     id: 't1',
@@ -993,23 +1045,23 @@
                 },
                 {
                     id: 't2',
-                    title: 'Elinstallation',
-                    description: 'Opsætning af ny el-tavle',
+                    title: 'Elinstallation (3 dage)',
+                    description: 'Opsætning af ny el-tavle og ledninger',
                     craftsman: 'c2',
                     priority: 'medium',
                     status: 'planned',
-                    duration: 2,
+                    duration: 3, // Strækker sig over 3 dage
                     date: '2025-09-17'
                 },
                 {
                     id: 't3',
-                    title: 'VVS arbejde',
+                    title: 'VVS arbejde (2 dage)',
                     description: 'Nye rør og afløb',
                     craftsman: 'c3',
                     priority: 'medium',
                     status: 'planned',
-                    duration: 1,
-                    date: '2025-09-18'
+                    duration: 2, // Strækker sig over 2 dage
+                    date: '2025-09-20'
                 }
             ];
             
@@ -1063,14 +1115,14 @@
         function renderTimelineHeader() {
             const header = document.getElementById('gridHeader');
             const startDate = parseDate(app.project.startDate);
-            const totalDays = app.weeks * 5; // 5 work days per week
+            const totalDays = app.weeks * 5;
             
             let headerHtml = '<div class="grid-header-cell">Håndværkere</div>';
             
             for (let i = 0; i < totalDays; i++) {
                 const date = getDateFromWorkDay(startDate, i + 1);
-                const dayName = getWeekdayName(date).slice(0, 3); // Short day name
-                const dayDate = formatDate(date, 'DD/MM/YYYY').slice(0, 5); // DD/MM
+                const dayName = getWeekdayName(date).slice(0, 3);
+                const dayDate = formatDate(date, 'DD/MM/YYYY').slice(0, 5);
                 
                 let classes = '';
                 if (isWeekend(date)) classes += ' weekend';
@@ -1087,10 +1139,7 @@
             }
             
             header.innerHTML = headerHtml;
-            
-            // Update grid template
-            const gridTemplateColumns = `200px repeat(${totalDays}, 120px)`;
-            header.style.gridTemplateColumns = gridTemplateColumns;
+            header.style.gridTemplateColumns = `200px repeat(${totalDays}, 120px)`;
         }
         
         function renderTimelineBody() {
@@ -1132,16 +1181,17 @@
                         <div class="${classes}" 
                              data-craftsman="${craftsman.id}" 
                              data-date="${dateStr}"
+                             data-day="${i + 1}"
                              onclick="createTask('${craftsman.id}', '${dateStr}')">
                     `;
                     
-                    // Check if there's a task for this craftsman and date
+                    // RETTET: Check if there's a task that STARTS on this date
                     const task = app.tasks.find(t => 
                         t.craftsman === craftsman.id && t.date === dateStr
                     );
                     
                     if (task) {
-                        bodyHtml += renderTask(task);
+                        bodyHtml += renderTask(task, i + 1);
                     }
                     
                     bodyHtml += '</div>';
@@ -1152,22 +1202,26 @@
             
             body.innerHTML = bodyHtml;
             
-            // Update grid template
-            const gridTemplateColumns = `200px repeat(${totalDays}, 120px)`;
             document.querySelectorAll('.grid-row').forEach(row => {
-                row.style.gridTemplateColumns = gridTemplateColumns;
+                row.style.gridTemplateColumns = `200px repeat(${totalDays}, 120px)`;
             });
         }
         
-        function renderTask(task) {
+        // RETTET: Task rendering with multi-day spanning
+        function renderTask(task, dayIndex) {
             const priorityClass = `${task.priority}-priority`;
             const statusClass = task.status === 'completed' ? 'completed' : '';
+            
+            // Calculate width based on duration (120px per day - 4px for padding)
+            const cellWidth = 120;
+            const taskWidth = (task.duration * cellWidth) - 4;
             
             return `
                 <div class="task ${priorityClass} ${statusClass}" 
                      data-task-id="${task.id}"
                      ondblclick="editTask('${task.id}')"
-                     draggable="true">
+                     draggable="true"
+                     style="width: ${taskWidth}px; right: auto;">
                     <div class="task-title">${task.title}</div>
                     <div class="task-meta">
                         <span>${task.duration}d</span>
@@ -1201,11 +1255,9 @@
             showModal('craftsmanModal');
         }
         
-        // RETTET: Håndværker dropdown populeres FØRST, så værdien kan sættes korrekt
         function openTaskModal(taskId = null) {
             app.currentEditingTask = taskId;
             
-            // VIGTIG: Populer dropdown FØRST
             populateTaskCraftsmanSelect();
             
             if (taskId) {
@@ -1219,10 +1271,7 @@
                     document.getElementById('taskDuration').value = task.duration;
                     document.getElementById('taskStartDate').value = task.date;
                     document.getElementById('deleteTaskBtn').style.display = 'block';
-                    
-                    // RETTET: Sæt håndværker EFTER dropdown er populeret
                     document.getElementById('taskCraftsman').value = task.craftsman;
-                    
                     updateTaskDayInfo();
                 }
             } else {
@@ -1310,14 +1359,12 @@
             };
             
             if (app.currentEditingTask) {
-                // Update existing task
                 const taskIndex = app.tasks.findIndex(t => t.id === app.currentEditingTask);
                 if (taskIndex !== -1) {
                     app.tasks[taskIndex] = { ...app.tasks[taskIndex], ...taskData };
                     showToast('✅ Opgave opdateret', 'success');
                 }
             } else {
-                // Create new task
                 const newTask = {
                     id: 't' + Date.now(),
                     ...taskData
@@ -1331,7 +1378,6 @@
         }
         
         function createTask(craftsmanId, date) {
-            // Pre-populate form
             setTimeout(() => {
                 document.getElementById('taskCraftsman').value = craftsmanId;
                 document.getElementById('taskStartDate').value = date;
@@ -1437,12 +1483,9 @@
             }
         }
         
-        // RETTET: Kunde rapport funktionalitet med bedre state management
+        // RETTET: Report Functions with better handling
         function generateCustomerReport() {
-            // Skjul først report container
             const reportContainer = document.getElementById('reportContainer');
-            reportContainer.style.display = 'none';
-            
             const reportTitle = document.getElementById('reportTitle');
             const reportSubtitle = document.getElementById('reportSubtitle');
             const reportDate = document.getElementById('reportDate');
@@ -1452,7 +1495,6 @@
             reportSubtitle.innerHTML = `<strong>${app.project.name}</strong> - ${app.project.customer}`;
             reportDate.textContent = formatDate(new Date(), 'DD/MM/YYYY');
             
-            // RETTET: Beregn korrekte statistikker
             const totalTasks = app.tasks.length;
             const completedTasks = app.tasks.filter(t => t.status === 'completed').length;
             const inProgressTasks = app.tasks.filter(t => t.status === 'in-progress').length;
@@ -1547,21 +1589,11 @@
                 </div>
             `;
             
-            // RETTET: Vis rapport og print med korrekt delay
-            reportContainer.style.display = 'block';
-            setTimeout(() => {
-                window.print();
-                // Skjul igen efter print
-                setTimeout(() => {
-                    reportContainer.style.display = 'none';
-                }, 1000);
-            }, 200);
+            showReport();
         }
         
         function generateCraftsmanReport() {
             const reportContainer = document.getElementById('reportContainer');
-            reportContainer.style.display = 'none';
-            
             const reportTitle = document.getElementById('reportTitle');
             const reportSubtitle = document.getElementById('reportSubtitle');
             const reportDate = document.getElementById('reportDate');
@@ -1639,14 +1671,16 @@
             }
             
             reportContent.innerHTML = contentHtml;
-            
-            reportContainer.style.display = 'block';
-            setTimeout(() => {
-                window.print();
-                setTimeout(() => {
-                    reportContainer.style.display = 'none';
-                }, 1000);
-            }, 200);
+            showReport();
+        }
+        
+        // RETTET: Report display functions
+        function showReport() {
+            document.getElementById('reportContainer').style.display = 'block';
+        }
+        
+        function closeReport() {
+            document.getElementById('reportContainer').style.display = 'none';
         }
         
         // Toast Function
@@ -1671,30 +1705,31 @@
         document.addEventListener('DOMContentLoaded', function() {
             initApp();
             
-            // Auto-save every 30 seconds
             setInterval(saveProject, 30000);
-            
-            // Load project on startup
             loadProject();
             
-            // Task date change listener
             document.getElementById('taskStartDate').addEventListener('change', updateTaskDayInfo);
             
-            // Close modals when clicking outside
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('modal')) {
                     const modalId = e.target.id;
                     closeModal(modalId);
                 }
             });
+            
+            // Escape key to close reports
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeReport();
+                }
+            });
         });
         
-        // Prevent accidental page leave
         window.addEventListener('beforeunload', function(e) {
             saveProject();
         });
         
-        console.log('🎯 SWITZEA Projektplanlægning - Rettet Version Loaded!');
+        console.log('🎯 SWITZEA Final Version Loaded - Multi-day tasks + Working reports!');
     </script>
 </body>
 </html>
