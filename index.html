@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SWITZEA Projektplanlægning - Auto Refresh Rapport</title>
+    <title>SWITZEA Projekt</title>
     <style>
         /* Reset og base styling */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,9 +11,14 @@
         :root {
             --primary-color: #2563eb;
             --primary-dark: #1d4ed8;
-            --success-color: #059669;
-            --warning-color: #d97706;
-            --danger-color: #dc2626;
+            --primary-light: #dbeafe;
+            
+            /* Professionelle status farver */
+            --status-planned: #6b7280;     /* Neutral grå */
+            --status-progress: #3b82f6;    /* Professionel blå */
+            --status-completed: #10b981;   /* Blød grøn */
+            
+            /* Behagelige grå nuancer */
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
@@ -24,6 +29,11 @@
             --gray-700: #374151;
             --gray-800: #1f2937;
             --gray-900: #111827;
+            
+            /* Sekundære farver */
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
         }
         
         html, body {
@@ -40,7 +50,7 @@
             flex-direction: column;
         }
         
-        /* Header */
+        /* Header med projekt info */
         .header {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
@@ -53,25 +63,41 @@
             width: 100%;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             gap: 2rem;
+        }
+        
+        .header-left {
+            flex: 1;
         }
         
         .header-left h1 {
             font-size: 1.75rem;
             font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+        
+        .project-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .project-info p {
             margin-bottom: 0.25rem;
         }
         
-        .header-left .subtitle {
-            opacity: 0.9;
-            font-size: 0.95rem;
+        .project-info strong {
+            color: rgba(255, 255, 255, 0.9);
         }
         
         .header-actions {
             display: flex;
             gap: 0.75rem;
             flex-wrap: wrap;
+            align-items: flex-start;
         }
         
         /* Buttons */
@@ -96,7 +122,7 @@
         .btn-primary:hover { background: var(--primary-dark); }
         
         .btn-success { background: var(--success-color); color: white; }
-        .btn-success:hover { background: #047857; }
+        .btn-success:hover { background: #059669; }
         
         .btn-outline { 
             background: transparent; 
@@ -112,7 +138,7 @@
         .btn-secondary:hover { background: var(--gray-700); }
         
         .btn-danger { background: var(--danger-color); color: white; }
-        .btn-danger:hover { background: #b91c1c; }
+        .btn-danger:hover { background: #dc2626; }
         
         /* Main layout */
         .main-container {
@@ -188,7 +214,7 @@
         }
         
         .delete-btn:hover {
-            background: #b91c1c;
+            background: #dc2626;
             transform: scale(1.1);
         }
         
@@ -318,7 +344,7 @@
         
         .day-header.today {
             color: var(--primary-color);
-            background: rgba(37, 99, 235, 0.1);
+            background: var(--primary-light);
             border-radius: 0.25rem;
         }
         
@@ -370,27 +396,27 @@
         }
         
         .day-cell.today {
-            background: rgba(37, 99, 235, 0.05);
+            background: var(--primary-light);
             border-left: 3px solid var(--primary-color);
         }
         
         .day-cell.drop-zone {
-            background: rgba(5, 150, 105, 0.1) !important;
+            background: rgba(16, 185, 129, 0.1) !important;
             border: 2px dashed var(--success-color) !important;
         }
         
-        /* Task farver baseret på status */
+        /* Professionelle task farver */
         .task {
             position: absolute;
             top: 4px;
             left: 4px;
             color: white;
             padding: 0.5rem;
-            border-radius: 0.375rem;
+            border-radius: 0.5rem;
             font-size: 0.8rem;
             cursor: move;
             transition: all 0.2s;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
             height: 72px;
             display: flex;
             flex-direction: column;
@@ -400,7 +426,7 @@
         
         .task:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.15);
             z-index: 6;
         }
         
@@ -410,23 +436,18 @@
             z-index: 1000;
         }
         
-        /* Status farver - Planlagt=rød, I gang=orange, Udført=grøn */
-        .task.planned { background: #dc2626; } /* Rød */
-        .task.in-progress { background: #ea580c; } /* Orange */
-        .task.completed { background: #059669; } /* Grøn */
-        
-        /* Priority farver som sekundær indikator */
-        .task.high-priority { 
-            border-left: 4px solid #7f1d1d; 
-            box-shadow: 0 1px 3px 0 rgba(127, 29, 29, 0.3);
+        /* Professionelle status farver */
+        .task.planned { 
+            background: var(--status-planned);
+            border-left: 4px solid #4b5563;
         }
-        .task.medium-priority { 
-            border-left: 4px solid #92400e; 
-            box-shadow: 0 1px 3px 0 rgba(146, 64, 14, 0.3);
+        .task.in-progress { 
+            background: var(--status-progress);
+            border-left: 4px solid #1d4ed8;
         }
-        .task.low-priority { 
-            border-left: 4px solid #065f46; 
-            box-shadow: 0 1px 3px 0 rgba(6, 95, 70, 0.3);
+        .task.completed { 
+            background: var(--status-completed);
+            border-left: 4px solid #059669;
         }
         
         .task-title {
@@ -511,6 +532,11 @@
             margin-bottom: 1.25rem;
         }
         
+        /* Skjul prioritet funktionalitet */
+        .form-group.priority-hidden {
+            display: none;
+        }
+        
         .form-label {
             display: block;
             font-weight: 500;
@@ -576,6 +602,50 @@
         .toast.warning { background: var(--warning-color); }
         .toast.info { background: var(--primary-color); }
         
+        /* Timeline oversigt i rapporter */
+        .report-timeline {
+            background: var(--gray-50);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .report-timeline h3 {
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .timeline-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .timeline-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .timeline-item.planned { border-left-color: var(--status-planned); }
+        .timeline-item.in-progress { border-left-color: var(--status-progress); }
+        .timeline-item.completed { border-left-color: var(--status-completed); }
+        
+        .timeline-item-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+        
+        .timeline-item-meta {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+        }
+        
         /* Print styles */
         @media print {
             * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
@@ -613,10 +683,6 @@
             .report-table td {
                 border: 1px solid #333 !important;
                 padding: 8px !important;
-            }
-            
-            .priority-badge {
-                border: 1px solid #333 !important;
             }
             
             .report-controls {
@@ -671,16 +737,17 @@
             color: var(--gray-700);
         }
         
-        .priority-badge {
+        .status-badge {
             padding: 0.25rem 0.5rem;
             border-radius: 0.25rem;
             font-size: 0.75rem;
             font-weight: 500;
+            color: white;
         }
         
-        .priority-high { background: #fef2f2; color: var(--danger-color); }
-        .priority-medium { background: #fef3c7; color: var(--warning-color); }
-        .priority-low { background: #f0fdf4; color: var(--success-color); }
+        .status-planned { background: var(--status-planned); }
+        .status-progress { background: var(--status-progress); }
+        .status-completed { background: var(--status-completed); }
         
         /* Close button for reports */
         .report-close {
@@ -700,7 +767,7 @@
         }
         
         .report-close:hover {
-            background: #b91c1c;
+            background: #dc2626;
         }
         
         .report-controls {
@@ -732,16 +799,21 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header med projekt info -->
     <header class="header">
         <div class="header-content">
             <div class="header-left">
-                <h1>SWITZEA Projektplanlægning</h1>
-                <div class="subtitle">Auto-refresh rapport - Ingen F5 nødvendig! 🚀</div>
+                <h1>SWITZEA Projekt</h1>
+                <div class="project-info" id="projectInfoDisplay">
+                    <p><strong>Projekt:</strong> <span id="displayProjectName">Totalrenovering Villa</span></p>
+                    <p><strong>Kunde:</strong> <span id="displayCustomerName">Lars og Mette Andersen</span></p>
+                    <p><strong>Adresse:</strong> <span id="displayProjectAddress">Rosenvej 42, 2800 Lyngby</span></p>
+                    <p><strong>Kontakt:</strong> <span id="displayCustomerPhone">+45 12 34 56 78</span></p>
+                </div>
             </div>
             <div class="header-actions">
                 <button class="btn btn-outline" onclick="openProjectModal()">
-                    📋 Projekt Info
+                    📋 Redigér Projekt
                 </button>
                 <button class="btn btn-outline" onclick="generateCustomerReport()">
                     📊 Kunde Rapport
@@ -875,7 +947,7 @@
         </div>
     </div>
 
-    <!-- Task Modal -->
+    <!-- Task Modal (prioritet skjult) -->
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -898,33 +970,25 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Prioritet</label>
-                        <select class="form-control form-select" id="taskPriority">
-                            <option value="low">Lav</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="high">Høj</option>
+                        <label class="form-label">Status</label>
+                        <select class="form-control form-select" id="taskStatus">
+                            <option value="planned" selected>📋 Planlagt</option>
+                            <option value="in-progress">🔄 I gang</option>
+                            <option value="completed">✅ Udført</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Status</label>
-                        <select class="form-control form-select" id="taskStatus">
-                            <option value="planned" selected>Planlagt 🔴</option>
-                            <option value="in-progress">I gang 🟠</option>
-                            <option value="completed">Udført 🟢</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
                         <label class="form-label">Varighed (dage)</label>
                         <input type="number" class="form-control" id="taskDuration" min="0.5" step="0.5" value="1">
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Start Dato</label>
+                        <input type="date" class="form-control" id="taskStartDate">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Start Dato</label>
-                    <input type="date" class="form-control" id="taskStartDate">
-                    <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;" id="taskDayInfo"></div>
-                </div>
+                <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;" id="taskDayInfo"></div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-danger" id="deleteTaskBtn" onclick="deleteCurrentTask()" style="display: none;">Slet</button>
@@ -953,16 +1017,16 @@
     </div>
 
     <script>
-        // 🎯 SWITZEA Projektplanlægning - Auto-refresh Rapport
+        // 🎯 SWITZEA Projekt - Professionel version
         
         // Application State
         const app = {
             project: {
-                name: "",
-                customer: "",
-                address: "",
-                phone: "",
-                email: "",
+                name: "Totalrenovering Villa",
+                customer: "Lars og Mette Andersen",
+                address: "Rosenvej 42, 2800 Lyngby",
+                phone: "+45 12 34 56 78",
+                email: "lars@email.dk",
                 startDate: "2025-09-16"
             },
             craftsmen: [],
@@ -1046,25 +1110,26 @@
         function initApp() {
             loadTestData();
             renderAll();
-            showToast('🚀 SWITZEA med auto-refresh rapport klar!', 'success');
+            updateProjectDisplay();
+            showToast('🎯 SWITZEA Projekt klar - Professionel version!', 'success');
         }
         
         function loadTestData() {
             app.craftsmen = [
                 { id: 'c1', name: 'Projektleder', color: '#2563eb' },
-                { id: 'c2', name: 'Elektriker', color: '#dc2626' },
-                { id: 'c3', name: 'VVS-montør', color: '#059669' }
+                { id: 'c2', name: 'Elektriker', color: '#ef4444' },
+                { id: 'c3', name: 'VVS-montør', color: '#10b981' }
             ];
             
-            // Test opgaver med forskellige status for at vise de nye farver
+            // Test opgaver med professionelle farver (ingen prioritet)
             app.tasks = [
                 {
                     id: 't1',
                     title: 'Projekt opstart',
                     description: 'Planlægning og forberedelse',
                     craftsman: 'c1',
-                    priority: 'high',
-                    status: 'completed', // GRØN
+                    priority: 'medium', // Skjult men stadig gemt
+                    status: 'completed',
                     duration: 1,
                     date: '2025-09-16'
                 },
@@ -1074,7 +1139,7 @@
                     description: 'Opsætning af ny el-tavle og ledninger',
                     craftsman: 'c2',
                     priority: 'medium',
-                    status: 'in-progress', // ORANGE
+                    status: 'in-progress',
                     duration: 3,
                     date: '2025-09-17'
                 },
@@ -1084,20 +1149,19 @@
                     description: 'Nye rør og afløb',
                     craftsman: 'c3',
                     priority: 'medium',
-                    status: 'planned', // RØD
+                    status: 'planned',
                     duration: 2,
                     date: '2025-09-20'
                 }
             ];
-            
-            app.project = {
-                name: "Totalrenovering Villa",
-                customer: "Lars og Mette Andersen",
-                address: "Rosenvej 42, 2800 Lyngby",
-                phone: "+45 12 34 56 78",
-                email: "lars@email.dk",
-                startDate: "2025-09-16"
-            };
+        }
+        
+        // Update project display in header
+        function updateProjectDisplay() {
+            document.getElementById('displayProjectName').textContent = app.project.name || 'Ikke defineret';
+            document.getElementById('displayCustomerName').textContent = app.project.customer || 'Ikke defineret';
+            document.getElementById('displayProjectAddress').textContent = app.project.address || 'Ikke defineret';
+            document.getElementById('displayCustomerPhone').textContent = app.project.phone || 'Ikke defineret';
         }
         
         // Render Functions
@@ -1105,6 +1169,7 @@
             renderCraftsmen();
             renderTimeline();
             updateWeekDisplay();
+            updateProjectDisplay();
         }
         
         function renderCraftsmen() {
@@ -1232,9 +1297,8 @@
             });
         }
         
-        // Task rendering med nye status farver
+        // Task rendering med professionelle farver
         function renderTask(task, dayIndex) {
-            const priorityClass = `${task.priority}-priority`;
             const statusClass = task.status; // planned, in-progress, completed
             
             // Calculate width based on duration
@@ -1242,7 +1306,7 @@
             const taskWidth = (task.duration * cellWidth) - 4;
             
             return `
-                <div class="task ${priorityClass} ${statusClass}" 
+                <div class="task ${statusClass}" 
                      data-task-id="${task.id}"
                      ondblclick="editTask('${task.id}')"
                      draggable="true"
@@ -1291,7 +1355,6 @@
                     document.getElementById('taskModalTitle').textContent = 'Redigér Opgave';
                     document.getElementById('taskTitle').value = task.title;
                     document.getElementById('taskDescription').value = task.description || '';
-                    document.getElementById('taskPriority').value = task.priority;
                     document.getElementById('taskStatus').value = task.status;
                     document.getElementById('taskDuration').value = task.duration;
                     document.getElementById('taskStartDate').value = task.date;
@@ -1304,7 +1367,6 @@
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskDescription').value = '';
                 document.getElementById('taskCraftsman').value = '';
-                document.getElementById('taskPriority').value = 'medium';
                 document.getElementById('taskStatus').value = 'planned';
                 document.getElementById('taskDuration').value = '1';
                 document.getElementById('taskStartDate').value = '';
@@ -1335,6 +1397,7 @@
             app.project.email = document.getElementById('customerEmail').value;
             
             closeModal('projectModal');
+            updateProjectDisplay();
             showToast('✅ Projekt information gemt', 'success');
         }
         
@@ -1363,7 +1426,6 @@
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
             const craftsman = document.getElementById('taskCraftsman').value;
-            const priority = document.getElementById('taskPriority').value;
             const status = document.getElementById('taskStatus').value;
             const duration = parseFloat(document.getElementById('taskDuration').value);
             const date = document.getElementById('taskStartDate').value;
@@ -1377,7 +1439,7 @@
                 title,
                 description,
                 craftsman,
-                priority,
+                priority: 'medium', // Standard prioritet (skjult)
                 status,
                 duration,
                 date
@@ -1500,6 +1562,7 @@
                 if (saved) {
                     Object.assign(app, JSON.parse(saved));
                     renderAll();
+                    updateProjectDisplay();
                     document.getElementById('startDate').value = app.project.startDate;
                     showToast('📂 Projekt indlæst', 'success');
                 }
@@ -1508,18 +1571,46 @@
             }
         }
         
-        // 🚀 RETTET: Auto-refresh rapport funktionalitet - INGEN F5 nødvendig!
+        // Timeline oversigt generator
+        function generateTimelineOverview() {
+            const sortedTasks = [...app.tasks].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            return `
+                <div class="report-timeline">
+                    <h3>📅 Timeline Oversigt</h3>
+                    <div class="timeline-overview">
+                        ${sortedTasks.map(task => {
+                            const craftsman = app.craftsmen.find(c => c.id === task.craftsman);
+                            const statusText = {
+                                'planned': '📋 Planlagt',
+                                'in-progress': '🔄 I gang',
+                                'completed': '✅ Udført'
+                            }[task.status];
+                            
+                            return `
+                                <div class="timeline-item ${task.status}">
+                                    <div class="timeline-item-title">${task.title}</div>
+                                    <div class="timeline-item-meta">
+                                        <strong>${craftsman ? craftsman.name : 'Ikke tildelt'}</strong><br>
+                                        ${formatDate(task.date, 'DD/MM/YYYY')} - ${task.duration} dag${task.duration !== 1 ? 'e' : ''}<br>
+                                        <span style="color: var(--status-${task.status})">${statusText}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Report Functions med timeline oversigt
         function generateCustomerReport() {
-            console.log('🔄 Generating customer report - auto refresh mode');
+            console.log('🔄 Generating customer report with timeline overview');
             
-            // Force clean slate - complete reset
             const reportContainer = document.getElementById('reportContainer');
-            
-            // Hide and force browser to process
             reportContainer.style.display = 'none';
-            reportContainer.innerHTML = ''; // Clear everything
+            reportContainer.innerHTML = '';
             
-            // Recreate the entire structure
             reportContainer.innerHTML = `
                 <button class="report-close" onclick="closeReport()">×</button>
                 <div class="report-header">
@@ -1537,7 +1628,6 @@
                 </div>
             `;
             
-            // Use requestAnimationFrame to ensure clean DOM state
             requestAnimationFrame(() => {
                 const reportTitle = document.getElementById('reportTitle');
                 const reportSubtitle = document.getElementById('reportSubtitle');
@@ -1556,11 +1646,16 @@
                 const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
                 
                 reportContent.innerHTML = `
+                    <!-- Timeline Oversigt først -->
+                    ${generateTimelineOverview()}
+                    
                     <div style="margin-bottom: 2rem;">
                         <h3 style="color: var(--gray-800); margin-bottom: 1rem;">Projekt Information</h3>
                         <div style="background: var(--gray-50); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                             <p><strong>Projekt:</strong> ${app.project.name}</p>
+                            <p><strong>Kunde:</strong> ${app.project.customer}</p>
                             <p><strong>Adresse:</strong> ${app.project.address}</p>
+                            <p><strong>Kontakt:</strong> ${app.project.phone}</p>
                             <p><strong>Start dato:</strong> ${formatDate(app.project.startDate, 'DD/MM/YYYY')}</p>
                             <p><strong>Varighed:</strong> ${app.weeks} uger</p>
                         </div>
@@ -1574,16 +1669,16 @@
                                 <div>Total opgaver</div>
                             </div>
                             <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                                <div style="font-size: 2rem; font-weight: bold; color: var(--success-color);">${completedTasks}</div>
-                                <div>Udført 🟢</div>
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--status-completed);">${completedTasks}</div>
+                                <div>✅ Udført</div>
                             </div>
                             <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #ea580c;">${inProgressTasks}</div>
-                                <div>I gang 🟠</div>
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--status-progress);">${inProgressTasks}</div>
+                                <div>🔄 I gang</div>
                             </div>
                             <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #dc2626;">${plannedTasks}</div>
-                                <div>Planlagt 🔴</div>
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--status-planned);">${plannedTasks}</div>
+                                <div>📋 Planlagt</div>
                             </div>
                         </div>
                         <div style="background: var(--primary-color); color: white; padding: 1rem; border-radius: 0.5rem; text-align: center;">
@@ -1599,7 +1694,6 @@
                                     <th>Opgave</th>
                                     <th>Håndværker</th>
                                     <th>Status</th>
-                                    <th>Prioritet</th>
                                     <th>Dato</th>
                                     <th>Varighed</th>
                                 </tr>
@@ -1608,16 +1702,10 @@
                                 ${app.tasks.map(task => {
                                     const craftsman = app.craftsmen.find(c => c.id === task.craftsman);
                                     const statusText = {
-                                        'planned': 'Planlagt 🔴',
-                                        'in-progress': 'I gang 🟠',
-                                        'completed': 'Udført 🟢'
+                                        'planned': '📋 Planlagt',
+                                        'in-progress': '🔄 I gang',
+                                        'completed': '✅ Udført'
                                     }[task.status];
-                                    
-                                    const priorityText = {
-                                        'low': 'Lav',
-                                        'medium': 'Medium',
-                                        'high': 'Høj'
-                                    }[task.priority];
                                     
                                     return `
                                         <tr>
@@ -1626,10 +1714,9 @@
                                                 ${task.description ? `<br><small style="color: var(--gray-500);">${task.description}</small>` : ''}
                                             </td>
                                             <td>${craftsman ? craftsman.name : 'Ikke tildelt'}</td>
-                                            <td>${statusText}</td>
                                             <td>
-                                                <span class="priority-badge priority-${task.priority}">
-                                                    ${priorityText}
+                                                <span class="status-badge status-${task.status}">
+                                                    ${statusText}
                                                 </span>
                                             </td>
                                             <td>${formatDate(task.date, 'DD/MM/YYYY')}</td>
@@ -1642,21 +1729,18 @@
                     </div>
                 `;
                 
-                // Show with another animation frame to ensure rendering
                 requestAnimationFrame(() => {
                     reportContainer.style.display = 'block';
                     reportContainer.scrollTop = 0;
-                    showToast('📊 Kunde rapport genereret - ingen F5 nødvendig!', 'success');
+                    showToast('📊 Kunde rapport med timeline genereret!', 'success');
                 });
             });
         }
         
         function generateCraftsmanReport() {
-            console.log('🔄 Generating craftsman report - auto refresh mode');
+            console.log('🔄 Generating craftsman report with timeline overview');
             
             const reportContainer = document.getElementById('reportContainer');
-            
-            // Complete reset
             reportContainer.style.display = 'none';
             reportContainer.innerHTML = `
                 <button class="report-close" onclick="closeReport()">×</button>
@@ -1685,7 +1769,10 @@
                 reportSubtitle.innerHTML = `<strong>${app.project.name}</strong> - Opgave oversigt per håndværker`;
                 reportDate.textContent = formatDate(new Date(), 'DD/MM/YYYY');
                 
-                let contentHtml = '';
+                let contentHtml = `
+                    <!-- Timeline Oversigt først -->
+                    ${generateTimelineOverview()}
+                `;
                 
                 app.craftsmen.forEach(craftsman => {
                     const craftsmanTasks = app.tasks.filter(t => t.craftsman === craftsman.id);
@@ -1701,7 +1788,6 @@
                                         <tr>
                                             <th>Opgave</th>
                                             <th>Status</th>
-                                            <th>Prioritet</th>
                                             <th>Dato</th>
                                             <th>Varighed</th>
                                         </tr>
@@ -1709,16 +1795,10 @@
                                     <tbody>
                                         ${craftsmanTasks.map(task => {
                                             const statusText = {
-                                                'planned': 'Planlagt 🔴',
-                                                'in-progress': 'I gang 🟠',
-                                                'completed': 'Udført 🟢'
+                                                'planned': '📋 Planlagt',
+                                                'in-progress': '🔄 I gang',
+                                                'completed': '✅ Udført'
                                             }[task.status];
-                                            
-                                            const priorityText = {
-                                                'low': 'Lav',
-                                                'medium': 'Medium',
-                                                'high': 'Høj'
-                                            }[task.priority];
                                             
                                             return `
                                                 <tr>
@@ -1726,10 +1806,9 @@
                                                         <strong>${task.title}</strong>
                                                         ${task.description ? `<br><small style="color: var(--gray-500);">${task.description}</small>` : ''}
                                                     </td>
-                                                    <td>${statusText}</td>
                                                     <td>
-                                                        <span class="priority-badge priority-${task.priority}">
-                                                            ${priorityText}
+                                                        <span class="status-badge status-${task.status}">
+                                                            ${statusText}
                                                         </span>
                                                     </td>
                                                     <td>${formatDate(task.date, 'DD/MM/YYYY')}</td>
@@ -1744,8 +1823,8 @@
                     }
                 });
                 
-                if (!contentHtml) {
-                    contentHtml = `
+                if (contentHtml === `${generateTimelineOverview()}`) {
+                    contentHtml += `
                         <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
                             <p>Ingen opgaver at vise endnu.</p>
                         </div>
@@ -1757,7 +1836,7 @@
                 requestAnimationFrame(() => {
                     reportContainer.style.display = 'block';
                     reportContainer.scrollTop = 0;
-                    showToast('🔨 Håndværker rapport genereret!', 'success');
+                    showToast('🔨 Håndværker rapport med timeline genereret!', 'success');
                 });
             });
         }
@@ -1766,7 +1845,6 @@
         function closeReport() {
             const reportContainer = document.getElementById('reportContainer');
             reportContainer.style.display = 'none';
-            console.log('📄 Report closed');
         }
         
         // Toast Function
@@ -1815,7 +1893,7 @@
             saveProject();
         });
         
-        console.log('🚀 SWITZEA Auto-refresh Version Loaded - Ingen F5 nødvendig!');
+        console.log('🎯 SWITZEA Projekt Professionel Version Loaded!');
     </script>
 </body>
 </html>
