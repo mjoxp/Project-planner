@@ -646,7 +646,7 @@
             color: var(--gray-600);
         }
         
-        /* 🎨 LÆKKER PRINT STYLING - Business Rapport Look! */
+        /* 🎨 FLOT FORSIDE - PÆN PDF RAPPORT! */
         @media print {
             * { 
                 -webkit-print-color-adjust: exact !important; 
@@ -655,8 +655,9 @@
             }
             
             @page {
-                margin: 12mm 15mm;
+                margin: 0 !important;
                 size: A4;
+                /* INGEN sidehoved eller sidefod */
             }
             
             html, body {
@@ -696,173 +697,219 @@
                 overflow: visible !important;
             }
             
-            /* 🎨 FLOT HEADER MED BRANDING */
+            /* 🎨 FLOT FORSIDE MED BRANDING */
             .report-header {
-                margin-bottom: 20mm !important;
-                padding: 15mm 0 10mm 0 !important;
+                margin: 0 !important;
+                padding: 25mm 20mm 15mm 20mm !important;
                 border-bottom: none !important;
-                text-align: left !important;
+                text-align: center !important;
                 position: relative;
-                background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%) !important;
+                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
                 color: white !important;
-                margin: -12mm -15mm 20mm -15mm !important;
-                padding: 20mm 15mm 15mm 15mm !important;
-                -webkit-print-color-adjust: exact !important;
+                page-break-after: avoid;
+                height: 80mm !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
             }
             
             .report-header::after {
                 content: '';
                 position: absolute;
-                bottom: -10mm;
+                bottom: -8mm;
                 left: 0;
                 width: 100%;
-                height: 10mm;
-                background: linear-gradient(180deg, rgba(37, 99, 235, 0.1) 0%, transparent 100%);
+                height: 8mm;
+                background: linear-gradient(180deg, rgba(37, 99, 235, 0.15) 0%, transparent 100%);
             }
             
             .report-logo {
-                font-size: 28pt !important;
-                font-weight: 800 !important;
+                font-size: 36pt !important;
+                font-weight: 900 !important;
                 color: white !important;
                 margin-bottom: 8mm !important;
-                letter-spacing: 1px !important;
+                letter-spacing: 2px !important;
                 text-transform: uppercase !important;
+                text-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
             }
             
             #reportTitle {
-                font-size: 18pt !important;
+                font-size: 20pt !important;
                 font-weight: 600 !important;
                 color: white !important;
-                margin-bottom: 3mm !important;
-                letter-spacing: 0.5px !important;
+                margin-bottom: 4mm !important;
+                letter-spacing: 0.8px !important;
+                text-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
             }
             
             #reportSubtitle {
-                font-size: 12pt !important;
-                color: rgba(255, 255, 255, 0.9) !important;
-                font-weight: 400 !important;
+                font-size: 13pt !important;
+                color: rgba(255, 255, 255, 0.95) !important;
+                font-weight: 300 !important;
+                letter-spacing: 0.5px !important;
             }
             
-            /* 📊 FLOTTE SEKTIONER */
-            h3 {
-                font-size: 14pt !important;
-                font-weight: 700 !important;
-                color: #1a1a1a !important;
-                margin: 15mm 0 5mm 0 !important;
-                padding: 5mm 0 3mm 8mm !important;
-                border-left: 4mm solid #2563eb !important;
-                background: linear-gradient(90deg, rgba(37, 99, 235, 0.08) 0%, transparent 50%) !important;
+            /* 🏢 PROJEKT INFO PÅ FORSIDEN */
+            .front-page-project-info {
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+                border: 2px solid #cbd5e1 !important;
+                border-radius: 12px !important;
+                padding: 12mm !important;
+                margin: 15mm 20mm 20mm 20mm !important;
+                position: relative;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
                 page-break-after: avoid;
-                position: relative;
             }
             
-            h3::before {
-                content: '';
-                position: absolute;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                background: #1d4ed8;
-            }
-            
-            /* 🏢 PROJEKT INFO BOX */
-            div[style*="background: var(--gray-50)"] {
-                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
-                border: 2px solid #e2e8f0 !important;
-                border-radius: 8px !important;
-                padding: 8mm !important;
-                margin: 5mm 0 !important;
-                position: relative;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-            }
-            
-            div[style*="background: var(--gray-50)"]::before {
+            .front-page-project-info::before {
                 content: '📋';
                 position: absolute;
-                top: 8mm;
-                right: 8mm;
-                font-size: 16pt;
-                opacity: 0.3;
+                top: 12mm;
+                right: 12mm;
+                font-size: 20pt;
+                opacity: 0.4;
             }
             
-            /* 📈 STATUS OVERSIGT CARDS */
-            div[style*="display: grid; grid-template-columns: repeat(4, 1fr)"] {
+            .front-page-project-info h3 {
+                font-size: 16pt !important;
+                font-weight: 700 !important;
+                color: #1e293b !important;
+                margin: 0 0 8mm 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                background: none !important;
+                text-align: center !important;
+            }
+            
+            .front-page-project-info .project-details {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 4mm !important;
+                font-size: 11pt !important;
+                line-height: 1.6 !important;
+            }
+            
+            .front-page-project-info .project-details p {
+                margin-bottom: 3mm !important;
+                padding: 2mm 0 !important;
+                border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+            }
+            
+            /* 📊 STATUS OVERSIGT - FØRST */
+            .status-section {
+                margin: 10mm 20mm !important;
+                page-break-inside: avoid;
+            }
+            
+            .status-section h3 {
+                font-size: 16pt !important;
+                font-weight: 700 !important;
+                color: #1e293b !important;
+                margin: 0 0 8mm 0 !important;
+                padding: 6mm 0 4mm 10mm !important;
+                border-left: 5mm solid #2563eb !important;
+                background: linear-gradient(90deg, rgba(37, 99, 235, 0.08) 0%, transparent 50%) !important;
+                page-break-after: avoid;
+            }
+            
+            /* Status cards */
+            .status-grid {
                 display: flex !important;
                 justify-content: space-between !important;
                 margin: 8mm 0 !important;
-                gap: 3mm !important;
+                gap: 4mm !important;
             }
             
-            div[style*="display: grid; grid-template-columns: repeat(4, 1fr)"] > div {
+            .status-card {
                 flex: 1 !important;
                 background: white !important;
                 border: 2px solid #e2e8f0 !important;
-                border-radius: 8px !important;
-                padding: 6mm !important;
+                border-radius: 10px !important;
+                padding: 8mm !important;
                 text-align: center !important;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.1) !important;
                 position: relative;
             }
             
-            div[style*="display: grid; grid-template-columns: repeat(4, 1fr)"] > div:nth-child(1) {
-                border-top: 4px solid #2563eb !important;
+            .status-card:nth-child(1) {
+                border-top: 5px solid #2563eb !important;
             }
             
-            div[style*="display: grid; grid-template-columns: repeat(4, 1fr)"] > div:nth-child(2) {
-                border-top: 4px solid #10b981 !important;
+            .status-card:nth-child(2) {
+                border-top: 5px solid #10b981 !important;
             }
             
-            div[style*="display: grid; grid-template-columns: repeat(4, 1fr)"] > div:nth-child(3) {
-                border-top: 4px solid #3b82f6 !important;
+            .status-card:nth-child(3) {
+                border-top: 5px solid #3b82f6 !important;
             }
             
-            div[style*="display: grid; grid-template-columns: repeat(4, 1fr)"] > div:nth-child(4) {
-                border-top: 4px solid #6b7280 !important;
+            .status-card:nth-child(4) {
+                border-top: 5px solid #6b7280 !important;
             }
             
-            div[style*="font-size: 2rem"] {
-                font-size: 20pt !important;
-                font-weight: 800 !important;
-                margin-bottom: 2mm !important;
+            .status-number {
+                font-size: 24pt !important;
+                font-weight: 900 !important;
+                margin-bottom: 3mm !important;
+                color: #1e293b !important;
+            }
+            
+            .status-label {
+                font-size: 10pt !important;
+                font-weight: 600 !important;
+                color: #64748b !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
             }
             
             /* 📊 FREMGANGS BAR */
-            div[style*="background: var(--primary-color)"] {
+            .progress-bar {
                 background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%) !important;
                 color: white !important;
-                padding: 6mm !important;
-                border-radius: 8px !important;
+                padding: 8mm !important;
+                border-radius: 10px !important;
                 text-align: center !important;
-                font-size: 12pt !important;
-                font-weight: 600 !important;
-                margin: 8mm 0 !important;
-                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+                font-size: 14pt !important;
+                font-weight: 700 !important;
+                margin: 10mm 0 !important;
+                box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4) !important;
                 -webkit-print-color-adjust: exact !important;
             }
             
-            /* 📅 TIMELINE OVERSIGT */
+            /* 📅 TIDSPLAN OVERSIGT */
             .report-timeline {
                 background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
-                border: 2px solid #0ea5e9 !important;
-                border-radius: 10px !important;
-                padding: 8mm !important;
-                margin: 8mm 0 !important;
+                border: 3px solid #0ea5e9 !important;
+                border-radius: 12px !important;
+                padding: 10mm !important;
+                margin: 15mm 20mm !important;
                 position: relative;
                 page-break-inside: avoid;
             }
             
             .report-timeline::before {
-                content: '📅 TIMELINE OVERSIGT';
+                content: '📅 TIDSPLAN';
                 position: absolute;
-                top: -8pt;
-                left: 6mm;
+                top: -10pt;
+                left: 8mm;
                 background: white;
-                padding: 0 3mm;
-                font-size: 9pt;
-                font-weight: 700;
+                padding: 0 4mm;
+                font-size: 11pt;
+                font-weight: 800;
                 color: #0ea5e9;
-                letter-spacing: 1px;
+                letter-spacing: 1.5px;
+            }
+            
+            .report-timeline h3 {
+                font-size: 14pt !important;
+                font-weight: 700 !important;
+                color: #0369a1 !important;
+                margin: 0 0 6mm 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                background: none !important;
+                text-align: center !important;
             }
             
             .timeline-overview {
@@ -871,13 +918,13 @@
             
             .timeline-item {
                 background: white !important;
-                border: 1px solid #cbd5e1 !important;
-                border-radius: 6px !important;
-                margin-bottom: 4mm !important;
-                padding: 4mm !important;
+                border: 2px solid #cbd5e1 !important;
+                border-radius: 8px !important;
+                margin-bottom: 5mm !important;
+                padding: 5mm !important;
                 page-break-inside: avoid;
-                box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
-                border-left-width: 4px !important;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
+                border-left-width: 5px !important;
             }
             
             .timeline-item.planned { border-left-color: #6b7280 !important; }
@@ -885,10 +932,16 @@
             .timeline-item.completed { border-left-color: #10b981 !important; }
             
             .timeline-item-title {
-                font-size: 11pt !important;
+                font-size: 12pt !important;
                 font-weight: 700 !important;
                 color: #1e293b !important;
-                margin-bottom: 2mm !important;
+                margin-bottom: 3mm !important;
+            }
+            
+            .timeline-item-meta {
+                font-size: 10pt !important;
+                color: #64748b !important;
+                line-height: 1.5 !important;
             }
             
             /* 📋 PROFESSIONEL TABEL */
@@ -896,11 +949,11 @@
                 width: 100% !important;
                 border-collapse: separate !important;
                 border-spacing: 0 !important;
-                margin: 8mm 0 !important;
-                border: 2px solid #334155 !important;
-                border-radius: 8px !important;
+                margin: 10mm 20mm !important;
+                border: 3px solid #334155 !important;
+                border-radius: 12px !important;
                 overflow: hidden !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
             }
             
             .report-table thead {
@@ -911,13 +964,13 @@
             .report-table th {
                 background: transparent !important;
                 color: white !important;
-                padding: 4mm !important;
-                font-size: 10pt !important;
+                padding: 5mm !important;
+                font-size: 11pt !important;
                 font-weight: 700 !important;
                 text-align: left !important;
                 border: none !important;
-                border-right: 1px solid rgba(255,255,255,0.2) !important;
-                letter-spacing: 0.5px !important;
+                border-right: 1px solid rgba(255,255,255,0.3) !important;
+                letter-spacing: 0.8px !important;
                 text-transform: uppercase !important;
             }
             
@@ -926,8 +979,8 @@
             }
             
             .report-table td {
-                padding: 4mm !important;
-                font-size: 9pt !important;
+                padding: 5mm !important;
+                font-size: 10pt !important;
                 border: none !important;
                 border-bottom: 1px solid #e2e8f0 !important;
                 border-right: 1px solid #f1f5f9 !important;
@@ -943,21 +996,17 @@
                 background: #f8fafc !important;
             }
             
-            .report-table tr:hover td {
-                background: #f1f5f9 !important;
-            }
-            
             /* 🏷️ STATUS BADGES */
             .status-badge {
-                padding: 2mm 3mm !important;
-                border-radius: 12px !important;
-                font-size: 8pt !important;
+                padding: 2mm 4mm !important;
+                border-radius: 15px !important;
+                font-size: 9pt !important;
                 font-weight: 700 !important;
                 color: white !important;
                 letter-spacing: 0.5px !important;
                 text-transform: uppercase !important;
                 display: inline-block !important;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
             }
             
             .status-planned { 
@@ -970,21 +1019,17 @@
                 background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
             }
             
-            /* 🔤 TYPOGRAPHY FORBEDRINGER */
-            strong {
+            /* 📝 SEKTIONER MED DANSK SKRIVEREGLER */
+            h3 {
+                font-size: 14pt !important;
                 font-weight: 700 !important;
                 color: #1e293b !important;
-            }
-            
-            p {
-                margin-bottom: 2mm !important;
-                line-height: 1.5 !important;
-            }
-            
-            small {
-                font-size: 8pt !important;
-                color: #64748b !important;
-                line-height: 1.3 !important;
+                margin: 15mm 20mm 6mm 20mm !important;
+                padding: 6mm 0 4mm 10mm !important;
+                border-left: 5mm solid #2563eb !important;
+                background: linear-gradient(90deg, rgba(37, 99, 235, 0.08) 0%, transparent 50%) !important;
+                page-break-after: avoid;
+                position: relative;
             }
             
             /* 📄 PAGE BREAKS */
@@ -996,18 +1041,21 @@
                 page-break-before: always !important;
             }
             
-            /* 👤 FOOTER BRANDING */
-            .report-container::after {
-                content: "Genereret af SWITZEA Projektplanlægning | " attr(data-date);
-                position: fixed;
-                bottom: 5mm;
-                left: 15mm;
-                right: 15mm;
-                text-align: center;
-                font-size: 8pt;
-                color: #64748b;
-                border-top: 1px solid #e2e8f0;
-                padding-top: 2mm;
+            /* 🔤 TYPOGRAPHY FORBEDRINGER */
+            strong {
+                font-weight: 700 !important;
+                color: #1e293b !important;
+            }
+            
+            p {
+                margin-bottom: 3mm !important;
+                line-height: 1.5 !important;
+            }
+            
+            small {
+                font-size: 9pt !important;
+                color: #64748b !important;
+                line-height: 1.4 !important;
             }
         }
         
@@ -1320,25 +1368,25 @@
     </div>
 
     <!-- Report Container -->
-    <div class="report-container" id="reportContainer" data-date="">
+    <div class="report-container" id="reportContainer">
         <button class="report-close" onclick="closeReport()">×</button>
         <div class="report-header">
             <div class="report-logo">SWITZEA ApS</div>
-            <h2 id="reportTitle">Projekt Rapport</h2>
+            <h2 id="reportTitle">Kunde status rapport</h2>
             <p id="reportSubtitle">Genereret den <span id="reportDate"></span></p>
         </div>
         <div id="reportContent">
             <!-- Generated by JavaScript -->
         </div>
         <div class="report-controls">
-            <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;" id="regenerateBtn">🔄 Generer Ny Rapport</button>
-            <button class="btn btn-primary" onclick="window.print()">📄 Print Lækker Rapport</button>
+            <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;" id="regenerateBtn">🔄 Generer ny rapport</button>
+            <button class="btn btn-primary" onclick="window.print()">📄 Print flot rapport</button>
             <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
         </div>
     </div>
 
     <script>
-        // SWITZEA Projekt - LÆKKER PRINT VERSION
+        // SWITZEA Projekt - FLOT FORSIDE VERSION
         
         // Application State - Helt ren start
         const app = {
@@ -1425,7 +1473,7 @@
             let current = new Date(startDate);
             let currentWorkDay = 1;
             
-            if (workDay === 1) return current;
+            if workDay === 1) return current;
             
             while (currentWorkDay < workDay) {
                 current.setDate(current.getDate() + 1);
@@ -1437,7 +1485,7 @@
             return current;
         }
         
-        // Initialize App - Helt ren start INGEN AUTO-LOADING
+        // Initialize App
         function initApp() {
             renderAll();
             updateProjectDisplay();
@@ -1551,14 +1599,12 @@
             app.craftsmen.forEach(craftsman => {
                 bodyHtml += '<div class="grid-row">';
                 
-                // Craftsman name cell
                 bodyHtml += `
                     <div class="craftsman-cell" style="border-left-color: ${craftsman.color}">
                         ${craftsman.name}
                     </div>
                 `;
                 
-                // Day cells
                 for (let i = 0; i < totalDays; i++) {
                     const date = getDateFromWorkDay(startDate, i + 1);
                     const dateStr = formatDate(date);
@@ -1575,7 +1621,6 @@
                              onclick="createTask('${craftsman.id}', '${dateStr}')">
                     `;
                     
-                    // Check if there's a task that STARTS on this date
                     const task = app.tasks.find(t => 
                         t.craftsman === craftsman.id && t.date === dateStr
                     );
@@ -1600,8 +1645,6 @@
         // Task rendering
         function renderTask(task, dayIndex) {
             const statusClass = task.status;
-            
-            // Calculate width based on duration
             const cellWidth = 120;
             const taskWidth = (task.duration * cellWidth) - 4;
             
@@ -1856,7 +1899,6 @@
             }
         }
         
-        // MANUEL loading - IKKE automatisk
         function loadProject() {
             if (confirm('Vil du indlæse et gemt projekt? Dette vil overskrive det nuværende projekt.')) {
                 try {
@@ -1877,12 +1919,12 @@
             }
         }
         
-        // Timeline oversigt generator
+        // Tidsplan oversigt generator - DANSK NAVN
         function generateTimelineOverview() {
             if (app.tasks.length === 0) {
                 return `
                     <div class="report-timeline no-break">
-                        <h3>Timeline Oversigt</h3>
+                        <h3>Tidsplan oversigt</h3>
                         <div style="text-align: center; padding: 2rem; color: var(--gray-500);">
                             <p>Ingen opgaver at vise endnu.</p>
                         </div>
@@ -1894,7 +1936,7 @@
             
             return `
                 <div class="report-timeline no-break">
-                    <h3>Timeline Oversigt</h3>
+                    <h3>Tidsplan oversigt</h3>
                     <div class="timeline-overview">
                         ${sortedTasks.map(task => {
                             const craftsman = app.craftsmen.find(c => c.id === task.craftsman);
@@ -1920,7 +1962,7 @@
             `;
         }
         
-        // Report Functions - LÆKKER PRINT VERSION
+        // Report Functions - FLOT FORSIDE + DANSK SKRIVEREGLER
         function generateCustomerReport() {
             app.lastReportType = 'customer';
             
@@ -1928,22 +1970,19 @@
             reportContainer.style.display = 'none';
             reportContainer.innerHTML = '';
             
-            // Set date attribute for footer
-            reportContainer.setAttribute('data-date', formatDate(new Date(), 'DD/MM/YYYY'));
-            
             reportContainer.innerHTML = `
                 <button class="report-close" onclick="closeReport()">×</button>
                 <div class="report-header">
                     <div class="report-logo">SWITZEA ApS</div>
-                    <h2 id="reportTitle">Projekt Rapport</h2>
+                    <h2 id="reportTitle">Kunde status rapport</h2>
                     <p id="reportSubtitle">Genereret den <span id="reportDate"></span></p>
                 </div>
                 <div id="reportContent">
                     <!-- Generated by JavaScript -->
                 </div>
                 <div class="report-controls">
-                    <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;">🔄 Generer Ny Rapport</button>
-                    <button class="btn btn-primary" onclick="window.print()">📄 Print Lækker Rapport</button>
+                    <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;">🔄 Generer ny rapport</button>
+                    <button class="btn btn-primary" onclick="window.print()">📄 Print flot rapport</button>
                     <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
                 </div>
             `;
@@ -1954,7 +1993,7 @@
                 const reportDate = document.getElementById('reportDate');
                 const reportContent = document.getElementById('reportContent');
                 
-                reportTitle.textContent = 'Kunde Status Rapport';
+                reportTitle.textContent = 'Kunde status rapport';
                 reportSubtitle.innerHTML = `<strong>${app.project.name || 'Projekt'}</strong> - ${app.project.customer || 'Kunde'}`;
                 reportDate.textContent = formatDate(new Date(), 'DD/MM/YYYY');
                 
@@ -1965,15 +2004,13 @@
                 
                 const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
                 
-                // SORTÉR opgaver efter dato ligesom i timeline
                 const sortedTasks = [...app.tasks].sort((a, b) => new Date(a.date) - new Date(b.date));
                 
                 reportContent.innerHTML = `
-                    ${generateTimelineOverview()}
-                    
-                    <div class="no-break" style="margin-bottom: 2rem;">
-                        <h3>Projekt Information</h3>
-                        <div style="background: var(--gray-50); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                    <!-- PROJEKT INFO PÅ FORSIDEN -->
+                    <div class="front-page-project-info">
+                        <h3>Projekt information</h3>
+                        <div class="project-details">
                             <p><strong>Projekt:</strong> ${app.project.name || 'Ikke defineret'}</p>
                             <p><strong>Kunde:</strong> ${app.project.customer || 'Ikke defineret'}</p>
                             <p><strong>Adresse:</strong> ${app.project.address || 'Ikke defineret'}</p>
@@ -1983,34 +2020,37 @@
                         </div>
                     </div>
                     
-                    <div class="no-break" style="margin-bottom: 2rem;">
-                        <h3>Status Oversigt</h3>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
-                            <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                                <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">${totalTasks}</div>
-                                <div>Total opgaver</div>
+                    <!-- STATUS OVERSIGT - FØRST -->
+                    <div class="status-section">
+                        <h3>Status oversigt</h3>
+                        <div class="status-grid">
+                            <div class="status-card">
+                                <div class="status-number">${totalTasks}</div>
+                                <div class="status-label">Total opgaver</div>
                             </div>
-                            <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                                <div style="font-size: 2rem; font-weight: bold; color: var(--status-completed);">${completedTasks}</div>
-                                <div>Udført</div>
+                            <div class="status-card">
+                                <div class="status-number">${completedTasks}</div>
+                                <div class="status-label">Udført</div>
                             </div>
-                            <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                                <div style="font-size: 2rem; font-weight: bold; color: var(--status-progress);">${inProgressTasks}</div>
-                                <div>I gang</div>
+                            <div class="status-card">
+                                <div class="status-number">${inProgressTasks}</div>
+                                <div class="status-label">I gang</div>
                             </div>
-                            <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                                <div style="font-size: 2rem; font-weight: bold; color: var(--status-planned);">${plannedTasks}</div>
-                                <div>Planlagt</div>
+                            <div class="status-card">
+                                <div class="status-number">${plannedTasks}</div>
+                                <div class="status-label">Planlagt</div>
                             </div>
                         </div>
-                        <div style="background: var(--primary-color); color: white; padding: 1rem; border-radius: 0.5rem; text-align: center;">
-                            <strong>Fremgang: ${progressPercentage}% gennemført</strong>
+                        <div class="progress-bar">
+                            Fremgang: ${progressPercentage}% gennemført
                         </div>
                     </div>
                     
+                    ${generateTimelineOverview()}
+                    
                     ${totalTasks > 0 ? `
                         <div class="no-break">
-                            <h3>Alle Opgaver</h3>
+                            <h3>Alle opgaver</h3>
                             <table class="report-table">
                                 <thead>
                                     <tr>
@@ -2056,7 +2096,7 @@
                 requestAnimationFrame(() => {
                     reportContainer.style.display = 'block';
                     reportContainer.scrollTop = 0;
-                    showToast('🎨 Lækker kunde rapport genereret!', 'success');
+                    showToast('🎨 Flot kunde rapport genereret!', 'success');
                 });
             });
         }
@@ -2070,15 +2110,15 @@
                 <button class="report-close" onclick="closeReport()">×</button>
                 <div class="report-header">
                     <div class="report-logo">SWITZEA ApS</div>
-                    <h2 id="reportTitle">Projekt Rapport</h2>
+                    <h2 id="reportTitle">Håndværker opgave rapport</h2>
                     <p id="reportSubtitle">Genereret den <span id="reportDate"></span></p>
                 </div>
                 <div id="reportContent">
                     <!-- Generated by JavaScript -->
                 </div>
                 <div class="report-controls">
-                    <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;">🔄 Generer Ny Rapport</button>
-                    <button class="btn btn-primary" onclick="window.print()">📄 Print Lækker Rapport</button>
+                    <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;">🔄 Generer ny rapport</button>
+                    <button class="btn btn-primary" onclick="window.print()">📄 Print flot rapport</button>
                     <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
                 </div>
             `;
@@ -2089,8 +2129,8 @@
                 const reportDate = document.getElementById('reportDate');
                 const reportContent = document.getElementById('reportContent');
                 
-                reportTitle.textContent = 'Håndværker Opgave Rapport';
-                reportSubtitle.innerHTML = `<strong>${app.project.name || 'Projekt'}</strong> - Opgave oversigt per håndværker`;
+                reportTitle.textContent = 'Håndværker opgave rapport';
+                reportSubtitle.innerHTML = `<strong>${app.project.name || 'Projekt'}</strong> - opgave oversigt per håndværker`;
                 reportDate.textContent = formatDate(new Date(), 'DD/MM/YYYY');
                 
                 let contentHtml = generateTimelineOverview();
@@ -2104,9 +2144,7 @@
                             
                             contentHtml += `
                                 <div class="no-break" style="margin-bottom: 2.5rem;">
-                                    <h3 style="color: ${craftsman.color}; border-left-color: ${craftsman.color};">
-                                        ${craftsman.name}
-                                    </h3>
+                                    <h3 style="border-left-color: ${craftsman.color};">${craftsman.name}</h3>
                                     <table class="report-table">
                                         <thead>
                                             <tr>
@@ -2153,7 +2191,7 @@
                 requestAnimationFrame(() => {
                     reportContainer.style.display = 'block';
                     reportContainer.scrollTop = 0;
-                    showToast('🔨 Lækker håndværker rapport genereret!', 'success');
+                    showToast('🔨 Flot håndværker rapport genereret!', 'success');
                 });
             });
         }
@@ -2166,7 +2204,6 @@
             }
         }
         
-        // Report display functions
         function closeReport() {
             const reportContainer = document.getElementById('reportContainer');
             reportContainer.style.display = 'none';
@@ -2230,7 +2267,7 @@
             }
         });
         
-        console.log('🎨 SWITZEA LÆKKER PRINT - Business kvalitet rapporten!');
+        console.log('🎨 SWITZEA FLOT FORSIDE - Perfekt dansk rapport!');
     </script>
 </body>
 </html>
