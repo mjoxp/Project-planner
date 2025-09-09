@@ -646,7 +646,7 @@
             color: var(--gray-600);
         }
         
-        /* 🎨 FLOT FORSIDE - PÆN PDF RAPPORT! */
+        /* 🎨 PERFEKT PDF RAPPORT MED SIDEHOVED OG SIDEFOD! */
         @media print {
             * { 
                 -webkit-print-color-adjust: exact !important; 
@@ -655,9 +655,43 @@
             }
             
             @page {
-                margin: 0 !important;
+                margin: 20mm 15mm;
                 size: A4;
-                /* INGEN sidehoved eller sidefod */
+                
+                /* 📋 SIDEHOVED */
+                @top-center {
+                    content: "SWITZEA ApS - " var(--project-name);
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    font-size: 10pt;
+                    font-weight: 600;
+                    color: #2563eb;
+                    border-bottom: 1px solid #e2e8f0;
+                    padding-bottom: 2mm;
+                    margin-bottom: 5mm;
+                }
+                
+                /* 📄 SIDEFOD */
+                @bottom-left {
+                    content: "Genereret den " counter(page);
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    font-size: 9pt;
+                    color: #64748b;
+                }
+                
+                @bottom-center {
+                    content: "Side " counter(page) " af " counter(pages);
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    font-size: 9pt;
+                    font-weight: 600;
+                    color: #1e293b;
+                }
+                
+                @bottom-right {
+                    content: "SWITZEA ApS";
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    font-size: 9pt;
+                    color: #64748b;
+                }
             }
             
             html, body {
@@ -697,10 +731,10 @@
                 overflow: visible !important;
             }
             
-            /* 🎨 FLOT FORSIDE MED BRANDING */
+            /* 🎨 FLOT FORSIDE MED BRANDING - FØRSTE SIDE UDEN SIDEHOVED */
             .report-header {
                 margin: 0 !important;
-                padding: 25mm 20mm 15mm 20mm !important;
+                padding: 25mm 0 15mm 0 !important;
                 border-bottom: none !important;
                 text-align: center !important;
                 position: relative;
@@ -712,6 +746,9 @@
                 flex-direction: column !important;
                 justify-content: center !important;
                 align-items: center !important;
+                margin-left: -15mm !important;
+                margin-right: -15mm !important;
+                margin-top: -20mm !important;
             }
             
             .report-header::after {
@@ -756,7 +793,7 @@
                 border: 2px solid #cbd5e1 !important;
                 border-radius: 12px !important;
                 padding: 12mm !important;
-                margin: 15mm 20mm 20mm 20mm !important;
+                margin: 15mm 0 20mm 0 !important;
                 position: relative;
                 box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
                 page-break-after: avoid;
@@ -796,10 +833,11 @@
                 border-bottom: 1px solid rgba(0,0,0,0.1) !important;
             }
             
-            /* 📊 STATUS OVERSIGT - FØRST */
+            /* 📊 STATUS OVERSIGT - NYE SIDER HAR SIDEHOVED */
             .status-section {
-                margin: 10mm 20mm !important;
+                margin: 15mm 0 !important;
                 page-break-inside: avoid;
+                page-break-before: always;
             }
             
             .status-section h3 {
@@ -813,99 +851,104 @@
                 page-break-after: avoid;
             }
             
-            /* Status cards */
+            /* Status cards - FORBEDRET LAYOUT */
             .status-grid {
                 display: flex !important;
                 justify-content: space-between !important;
-                margin: 8mm 0 !important;
-                gap: 4mm !important;
+                margin: 10mm 0 !important;
+                gap: 5mm !important;
             }
             
             .status-card {
                 flex: 1 !important;
                 background: white !important;
                 border: 2px solid #e2e8f0 !important;
-                border-radius: 10px !important;
-                padding: 8mm !important;
+                border-radius: 12px !important;
+                padding: 10mm !important;
                 text-align: center !important;
-                box-shadow: 0 3px 10px rgba(0,0,0,0.1) !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
                 position: relative;
             }
             
             .status-card:nth-child(1) {
-                border-top: 5px solid #2563eb !important;
+                border-top: 6px solid #2563eb !important;
             }
             
             .status-card:nth-child(2) {
-                border-top: 5px solid #10b981 !important;
+                border-top: 6px solid #10b981 !important;
             }
             
             .status-card:nth-child(3) {
-                border-top: 5px solid #3b82f6 !important;
+                border-top: 6px solid #3b82f6 !important;
             }
             
             .status-card:nth-child(4) {
-                border-top: 5px solid #6b7280 !important;
+                border-top: 6px solid #6b7280 !important;
             }
             
             .status-number {
-                font-size: 24pt !important;
+                font-size: 28pt !important;
                 font-weight: 900 !important;
-                margin-bottom: 3mm !important;
+                margin-bottom: 4mm !important;
                 color: #1e293b !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
             }
             
             .status-label {
                 font-size: 10pt !important;
-                font-weight: 600 !important;
+                font-weight: 700 !important;
                 color: #64748b !important;
                 text-transform: uppercase !important;
-                letter-spacing: 0.5px !important;
+                letter-spacing: 1px !important;
             }
             
-            /* 📊 FREMGANGS BAR */
+            /* 📊 FREMGANGS BAR - FORBEDRET */
             .progress-bar {
                 background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%) !important;
                 color: white !important;
-                padding: 8mm !important;
-                border-radius: 10px !important;
+                padding: 10mm !important;
+                border-radius: 12px !important;
                 text-align: center !important;
-                font-size: 14pt !important;
+                font-size: 16pt !important;
                 font-weight: 700 !important;
-                margin: 10mm 0 !important;
-                box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4) !important;
+                margin: 12mm 0 !important;
+                box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
                 -webkit-print-color-adjust: exact !important;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
             }
             
-            /* 📅 TIDSPLAN OVERSIGT */
+            /* 📅 TIDSPLAN OVERSIGT - FORBEDRET */
             .report-timeline {
                 background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
                 border: 3px solid #0ea5e9 !important;
-                border-radius: 12px !important;
-                padding: 10mm !important;
-                margin: 15mm 20mm !important;
+                border-radius: 15px !important;
+                padding: 12mm !important;
+                margin: 15mm 0 !important;
                 position: relative;
                 page-break-inside: avoid;
+                box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2) !important;
             }
             
             .report-timeline::before {
-                content: '📅 TIDSPLAN';
+                content: '📅 TIDSPLAN OVERSIGT';
                 position: absolute;
-                top: -10pt;
-                left: 8mm;
+                top: -12pt;
+                left: 10mm;
                 background: white;
-                padding: 0 4mm;
-                font-size: 11pt;
+                padding: 2mm 6mm;
+                font-size: 12pt;
                 font-weight: 800;
                 color: #0ea5e9;
                 letter-spacing: 1.5px;
+                border-radius: 20px;
+                box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2) !important;
             }
             
             .report-timeline h3 {
                 font-size: 14pt !important;
                 font-weight: 700 !important;
                 color: #0369a1 !important;
-                margin: 0 0 6mm 0 !important;
+                margin: 0 0 8mm 0 !important;
                 padding: 0 !important;
                 border: none !important;
                 background: none !important;
@@ -919,12 +962,12 @@
             .timeline-item {
                 background: white !important;
                 border: 2px solid #cbd5e1 !important;
-                border-radius: 8px !important;
-                margin-bottom: 5mm !important;
-                padding: 5mm !important;
+                border-radius: 10px !important;
+                margin-bottom: 6mm !important;
+                padding: 6mm !important;
                 page-break-inside: avoid;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
-                border-left-width: 5px !important;
+                box-shadow: 0 3px 8px rgba(0,0,0,0.1) !important;
+                border-left-width: 6px !important;
             }
             
             .timeline-item.planned { border-left-color: #6b7280 !important; }
@@ -941,19 +984,36 @@
             .timeline-item-meta {
                 font-size: 10pt !important;
                 color: #64748b !important;
-                line-height: 1.5 !important;
+                line-height: 1.6 !important;
             }
             
-            /* 📋 PROFESSIONEL TABEL */
+            /* 📋 MIDTERSTILLET TABEL - FIXED! */
+            .tasks-section {
+                margin: 15mm 0 !important;
+                page-break-inside: avoid;
+            }
+            
+            .tasks-section h3 {
+                font-size: 16pt !important;
+                font-weight: 700 !important;
+                color: #1e293b !important;
+                margin: 0 0 10mm 0 !important;
+                padding: 6mm 0 4mm 10mm !important;
+                border-left: 5mm solid #2563eb !important;
+                background: linear-gradient(90deg, rgba(37, 99, 235, 0.08) 0%, transparent 50%) !important;
+                page-break-after: avoid;
+            }
+            
             .report-table {
-                width: 100% !important;
+                width: calc(100% - 40mm) !important; /* MIDTERSTILLET MED MARGENER */
+                margin: 10mm 20mm !important; /* CENTRERET POSITION */
                 border-collapse: separate !important;
                 border-spacing: 0 !important;
-                margin: 10mm 20mm !important;
                 border: 3px solid #334155 !important;
-                border-radius: 12px !important;
+                border-radius: 15px !important;
                 overflow: hidden !important;
-                box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+                page-break-inside: auto;
             }
             
             .report-table thead {
@@ -964,14 +1024,15 @@
             .report-table th {
                 background: transparent !important;
                 color: white !important;
-                padding: 5mm !important;
+                padding: 6mm !important;
                 font-size: 11pt !important;
                 font-weight: 700 !important;
                 text-align: left !important;
                 border: none !important;
                 border-right: 1px solid rgba(255,255,255,0.3) !important;
-                letter-spacing: 0.8px !important;
+                letter-spacing: 1px !important;
                 text-transform: uppercase !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
             }
             
             .report-table th:last-child {
@@ -979,13 +1040,14 @@
             }
             
             .report-table td {
-                padding: 5mm !important;
+                padding: 6mm !important;
                 font-size: 10pt !important;
                 border: none !important;
                 border-bottom: 1px solid #e2e8f0 !important;
                 border-right: 1px solid #f1f5f9 !important;
                 vertical-align: top !important;
                 background: white !important;
+                line-height: 1.5 !important;
             }
             
             .report-table td:last-child {
@@ -996,17 +1058,22 @@
                 background: #f8fafc !important;
             }
             
-            /* 🏷️ STATUS BADGES */
+            .report-table tr {
+                page-break-inside: avoid;
+            }
+            
+            /* 🏷️ STATUS BADGES - FORBEDRET */
             .status-badge {
-                padding: 2mm 4mm !important;
-                border-radius: 15px !important;
+                padding: 3mm 5mm !important;
+                border-radius: 20px !important;
                 font-size: 9pt !important;
                 font-weight: 700 !important;
                 color: white !important;
-                letter-spacing: 0.5px !important;
+                letter-spacing: 0.8px !important;
                 text-transform: uppercase !important;
                 display: inline-block !important;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+                box-shadow: 0 3px 8px rgba(0,0,0,0.25) !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
             }
             
             .status-planned { 
@@ -1024,7 +1091,7 @@
                 font-size: 14pt !important;
                 font-weight: 700 !important;
                 color: #1e293b !important;
-                margin: 15mm 20mm 6mm 20mm !important;
+                margin: 15mm 0 8mm 0 !important;
                 padding: 6mm 0 4mm 10mm !important;
                 border-left: 5mm solid #2563eb !important;
                 background: linear-gradient(90deg, rgba(37, 99, 235, 0.08) 0%, transparent 50%) !important;
@@ -1032,7 +1099,7 @@
                 position: relative;
             }
             
-            /* 📄 PAGE BREAKS */
+            /* 📄 PAGE BREAKS - FORBEDRET */
             .no-break {
                 page-break-inside: avoid !important;
             }
@@ -1049,13 +1116,18 @@
             
             p {
                 margin-bottom: 3mm !important;
-                line-height: 1.5 !important;
+                line-height: 1.6 !important;
             }
             
             small {
                 font-size: 9pt !important;
                 color: #64748b !important;
                 line-height: 1.4 !important;
+            }
+            
+            /* 📋 BEDRE SPACING */
+            .report-content > div {
+                margin-bottom: 15mm !important;
             }
         }
         
@@ -1380,15 +1452,15 @@
         </div>
         <div class="report-controls">
             <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;" id="regenerateBtn">🔄 Generer ny rapport</button>
-            <button class="btn btn-primary" onclick="window.print()">📄 Print flot rapport</button>
+            <button class="btn btn-primary" onclick="window.print()">📄 Print professionel rapport</button>
             <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
         </div>
     </div>
 
     <script>
-        // SWITZEA Projekt - FIXED VERSION - Syntaksfejl rettet
+        // SWITZEA Projekt - PERFEKT PDF VERSION
         
-        // Application State - Helt ren start
+        // Application State
         const app = {
             project: {
                 name: "",
@@ -1473,7 +1545,6 @@
             let current = new Date(startDate);
             let currentWorkDay = 1;
             
-            // RETTET: Manglende parentes var her!
             if (workDay === 1) return current;
             
             while (currentWorkDay < workDay) {
@@ -1920,7 +1991,7 @@
             }
         }
         
-        // Tidsplan oversigt generator - DANSK NAVN
+        // Tidsplan oversigt generator
         function generateTimelineOverview() {
             if (app.tasks.length === 0) {
                 return `
@@ -1963,7 +2034,7 @@
             `;
         }
         
-        // Report Functions - FLOT FORSIDE + DANSK SKRIVEREGLER
+        // Report Functions - PERFEKT PDF MED SIDEHOVED OG SIDEFOD
         function generateCustomerReport() {
             app.lastReportType = 'customer';
             
@@ -1983,7 +2054,7 @@
                 </div>
                 <div class="report-controls">
                     <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;">🔄 Generer ny rapport</button>
-                    <button class="btn btn-primary" onclick="window.print()">📄 Print flot rapport</button>
+                    <button class="btn btn-primary" onclick="window.print()">📄 Print professionel rapport</button>
                     <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
                 </div>
             `;
@@ -2050,7 +2121,7 @@
                     ${generateTimelineOverview()}
                     
                     ${totalTasks > 0 ? `
-                        <div class="no-break">
+                        <div class="tasks-section">
                             <h3>Alle opgaver</h3>
                             <table class="report-table">
                                 <thead>
@@ -2097,7 +2168,7 @@
                 requestAnimationFrame(() => {
                     reportContainer.style.display = 'block';
                     reportContainer.scrollTop = 0;
-                    showToast('🎨 Flot kunde rapport genereret!', 'success');
+                    showToast('🎨 Professionel rapport genereret!', 'success');
                 });
             });
         }
@@ -2119,7 +2190,7 @@
                 </div>
                 <div class="report-controls">
                     <button class="btn btn-success" onclick="generateCurrentReport()" style="margin-right: 1rem;">🔄 Generer ny rapport</button>
-                    <button class="btn btn-primary" onclick="window.print()">📄 Print flot rapport</button>
+                    <button class="btn btn-primary" onclick="window.print()">📄 Print professionel rapport</button>
                     <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
                 </div>
             `;
@@ -2144,7 +2215,7 @@
                             const sortedCraftsmanTasks = craftsmanTasks.sort((a, b) => new Date(a.date) - new Date(b.date));
                             
                             contentHtml += `
-                                <div class="no-break" style="margin-bottom: 2.5rem;">
+                                <div class="tasks-section">
                                     <h3 style="border-left-color: ${craftsman.color};">${craftsman.name}</h3>
                                     <table class="report-table">
                                         <thead>
@@ -2192,7 +2263,7 @@
                 requestAnimationFrame(() => {
                     reportContainer.style.display = 'block';
                     reportContainer.scrollTop = 0;
-                    showToast('🔨 Flot håndværker rapport genereret!', 'success');
+                    showToast('🔨 Professionel rapport genereret!', 'success');
                 });
             });
         }
@@ -2268,7 +2339,7 @@
             }
         });
         
-        console.log('🎨 SWITZEA FIXED - Applikationen virker nu!');
+        console.log('🎨 SWITZEA PERFEKT PDF - Sidehoved, sidefod og midterstillet tabel!');
     </script>
 </body>
 </html>
