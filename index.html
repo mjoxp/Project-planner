@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SWITZEA Projektplanlægning - Final Version</title>
+    <title>SWITZEA Projektplanlægning - Rettet Farver & Rapport</title>
     <style>
         /* Reset og base styling */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -379,12 +379,11 @@
             border: 2px dashed var(--success-color) !important;
         }
         
-        /* RETTET: Tasks spanning multiple days */
+        /* RETTET: Task farver baseret på status */
         .task {
             position: absolute;
             top: 4px;
             left: 4px;
-            background: var(--primary-color);
             color: white;
             padding: 0.5rem;
             border-radius: 0.375rem;
@@ -411,13 +410,23 @@
             z-index: 1000;
         }
         
-        .task.high-priority { background: var(--danger-color); }
-        .task.medium-priority { background: var(--warning-color); }
-        .task.low-priority { background: var(--success-color); }
+        /* RETTET: Status farver - Planlagt=rød, I gang=orange, Udført=grøn */
+        .task.planned { background: #dc2626; } /* Rød */
+        .task.in-progress { background: #ea580c; } /* Orange */
+        .task.completed { background: #059669; } /* Grøn */
         
-        .task.completed { 
-            background: var(--gray-500); 
-            opacity: 0.8;
+        /* Priority farver som sekundær indikator */
+        .task.high-priority { 
+            border-left: 4px solid #7f1d1d; 
+            box-shadow: 0 1px 3px 0 rgba(127, 29, 29, 0.3);
+        }
+        .task.medium-priority { 
+            border-left: 4px solid #92400e; 
+            box-shadow: 0 1px 3px 0 rgba(146, 64, 14, 0.3);
+        }
+        .task.low-priority { 
+            border-left: 4px solid #065f46; 
+            box-shadow: 0 1px 3px 0 rgba(6, 95, 70, 0.3);
         }
         
         .task-title {
@@ -580,16 +589,20 @@
             .header, 
             .main-container, 
             .modal,
-            .toast { 
+            .toast,
+            .report-close { 
                 display: none !important; 
             }
             
             .report-container { 
                 display: block !important; 
+                position: static !important;
                 box-shadow: none !important; 
                 margin: 0 !important; 
                 max-width: none !important;
                 padding: 20px !important;
+                height: auto !important;
+                overflow: visible !important;
             }
             
             .report-table {
@@ -605,9 +618,13 @@
             .priority-badge {
                 border: 1px solid #333 !important;
             }
+            
+            .report-controls {
+                display: none !important;
+            }
         }
         
-        /* Report styles */
+        /* RETTET: Report styles med bedre state management */
         .report-container {
             display: none;
             position: fixed;
@@ -686,6 +703,13 @@
             background: #b91c1c;
         }
         
+        .report-controls {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-200);
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 1200px) {
             .main-container {
@@ -713,7 +737,7 @@
         <div class="header-content">
             <div class="header-left">
                 <h1>SWITZEA Projektplanlægning</h1>
-                <div class="subtitle">Final version - Multi-dag opgaver + Fungerende rapporter</div>
+                <div class="subtitle">Rettet version - Nye status farver + Fungerende kunde rapport</div>
             </div>
             <div class="header-actions">
                 <button class="btn btn-outline" onclick="openProjectModal()">
@@ -886,9 +910,9 @@
                     <div class="form-group">
                         <label class="form-label">Status</label>
                         <select class="form-control form-select" id="taskStatus">
-                            <option value="planned" selected>Planlagt</option>
-                            <option value="in-progress">I gang</option>
-                            <option value="completed">Udført</option>
+                            <option value="planned" selected>Planlagt 🔴</option>
+                            <option value="in-progress">I gang 🟠</option>
+                            <option value="completed">Udført 🟢</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -910,7 +934,7 @@
         </div>
     </div>
 
-    <!-- Report Container -->
+    <!-- RETTET: Report Container med forbedret state handling -->
     <div class="report-container" id="reportContainer">
         <button class="report-close" onclick="closeReport()">×</button>
         <div class="report-header">
@@ -921,14 +945,14 @@
         <div id="reportContent">
             <!-- Generated by JavaScript -->
         </div>
-        <div style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+        <div class="report-controls">
             <button class="btn btn-primary" onclick="window.print()">📄 Print Rapport</button>
             <button class="btn btn-secondary" onclick="closeReport()" style="margin-left: 1rem;">Luk</button>
         </div>
     </div>
 
     <script>
-        // 🎯 SWITZEA Projektplanlægning - Final Version
+        // 🎯 SWITZEA Projektplanlægning - Rettet Farver & Rapport
         
         // Application State
         const app = {
@@ -1021,7 +1045,7 @@
         function initApp() {
             loadTestData();
             renderAll();
-            showToast('🎯 SWITZEA Final Version klar!', 'success');
+            showToast('🎯 SWITZEA med nye farver klar!', 'success');
         }
         
         function loadTestData() {
@@ -1031,7 +1055,7 @@
                 { id: 'c3', name: 'VVS-montør', color: '#059669' }
             ];
             
-            // Test opgaver med forskellige varigheder
+            // Test opgaver med forskellige status for at vise de nye farver
             app.tasks = [
                 {
                     id: 't1',
@@ -1039,7 +1063,7 @@
                     description: 'Planlægning og forberedelse',
                     craftsman: 'c1',
                     priority: 'high',
-                    status: 'completed',
+                    status: 'completed', // GRØN
                     duration: 1,
                     date: '2025-09-16'
                 },
@@ -1049,8 +1073,8 @@
                     description: 'Opsætning af ny el-tavle og ledninger',
                     craftsman: 'c2',
                     priority: 'medium',
-                    status: 'planned',
-                    duration: 3, // Strækker sig over 3 dage
+                    status: 'in-progress', // ORANGE
+                    duration: 3,
                     date: '2025-09-17'
                 },
                 {
@@ -1059,8 +1083,8 @@
                     description: 'Nye rør og afløb',
                     craftsman: 'c3',
                     priority: 'medium',
-                    status: 'planned',
-                    duration: 2, // Strækker sig over 2 dage
+                    status: 'planned', // RØD
+                    duration: 2,
                     date: '2025-09-20'
                 }
             ];
@@ -1185,7 +1209,7 @@
                              onclick="createTask('${craftsman.id}', '${dateStr}')">
                     `;
                     
-                    // RETTET: Check if there's a task that STARTS on this date
+                    // Check if there's a task that STARTS on this date
                     const task = app.tasks.find(t => 
                         t.craftsman === craftsman.id && t.date === dateStr
                     );
@@ -1207,12 +1231,12 @@
             });
         }
         
-        // RETTET: Task rendering with multi-day spanning
+        // RETTET: Task rendering med nye status farver
         function renderTask(task, dayIndex) {
             const priorityClass = `${task.priority}-priority`;
-            const statusClass = task.status === 'completed' ? 'completed' : '';
+            const statusClass = task.status; // planned, in-progress, completed
             
-            // Calculate width based on duration (120px per day - 4px for padding)
+            // Calculate width based on duration
             const cellWidth = 120;
             const taskWidth = (task.duration * cellWidth) - 4;
             
@@ -1483,204 +1507,235 @@
             }
         }
         
-        // RETTET: Report Functions with better handling
+        // RETTET: Report Functions med komplet state reset
+        let reportInProgress = false;
+        
         function generateCustomerReport() {
+            // Forhindre multiple samtidig calls
+            if (reportInProgress) {
+                console.log('Report generation already in progress');
+                return;
+            }
+            
+            reportInProgress = true;
+            
+            // Force reset report container state
             const reportContainer = document.getElementById('reportContainer');
-            const reportTitle = document.getElementById('reportTitle');
-            const reportSubtitle = document.getElementById('reportSubtitle');
-            const reportDate = document.getElementById('reportDate');
-            const reportContent = document.getElementById('reportContent');
+            reportContainer.style.display = 'none';
             
-            reportTitle.textContent = 'Kunde Status Rapport';
-            reportSubtitle.innerHTML = `<strong>${app.project.name}</strong> - ${app.project.customer}`;
-            reportDate.textContent = formatDate(new Date(), 'DD/MM/YYYY');
-            
-            const totalTasks = app.tasks.length;
-            const completedTasks = app.tasks.filter(t => t.status === 'completed').length;
-            const inProgressTasks = app.tasks.filter(t => t.status === 'in-progress').length;
-            const plannedTasks = app.tasks.filter(t => t.status === 'planned').length;
-            
-            const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-            
-            reportContent.innerHTML = `
-                <div style="margin-bottom: 2rem;">
-                    <h3 style="color: var(--gray-800); margin-bottom: 1rem;">Projekt Information</h3>
-                    <div style="background: var(--gray-50); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
-                        <p><strong>Projekt:</strong> ${app.project.name}</p>
-                        <p><strong>Adresse:</strong> ${app.project.address}</p>
-                        <p><strong>Start dato:</strong> ${formatDate(app.project.startDate, 'DD/MM/YYYY')}</p>
-                        <p><strong>Varighed:</strong> ${app.weeks} uger</p>
-                    </div>
-                </div>
+            // Small delay to ensure clean state
+            setTimeout(() => {
+                const reportTitle = document.getElementById('reportTitle');
+                const reportSubtitle = document.getElementById('reportSubtitle');
+                const reportDate = document.getElementById('reportDate');
+                const reportContent = document.getElementById('reportContent');
                 
-                <div style="margin-bottom: 2rem;">
-                    <h3 style="color: var(--gray-800); margin-bottom: 1rem;">Status Oversigt</h3>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
-                        <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                            <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">${totalTasks}</div>
-                            <div>Total opgaver</div>
-                        </div>
-                        <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                            <div style="font-size: 2rem; font-weight: bold; color: var(--success-color);">${completedTasks}</div>
-                            <div>Udført</div>
-                        </div>
-                        <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                            <div style="font-size: 2rem; font-weight: bold; color: var(--warning-color);">${inProgressTasks}</div>
-                            <div>I gang</div>
-                        </div>
-                        <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
-                            <div style="font-size: 2rem; font-weight: bold; color: var(--gray-500);">${plannedTasks}</div>
-                            <div>Planlagt</div>
-                        </div>
-                    </div>
-                    <div style="background: var(--primary-color); color: white; padding: 1rem; border-radius: 0.5rem; text-align: center;">
-                        <strong>Fremgang: ${progressPercentage}% gennemført</strong>
-                    </div>
-                </div>
+                reportTitle.textContent = 'Kunde Status Rapport';
+                reportSubtitle.innerHTML = `<strong>${app.project.name}</strong> - ${app.project.customer}`;
+                reportDate.textContent = formatDate(new Date(), 'DD/MM/YYYY');
                 
-                <div>
-                    <h3 style="color: var(--gray-800); margin-bottom: 1rem;">Alle Opgaver</h3>
-                    <table class="report-table">
-                        <thead>
-                            <tr>
-                                <th>Opgave</th>
-                                <th>Håndværker</th>
-                                <th>Status</th>
-                                <th>Prioritet</th>
-                                <th>Dato</th>
-                                <th>Varighed</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${app.tasks.map(task => {
-                                const craftsman = app.craftsmen.find(c => c.id === task.craftsman);
-                                const statusText = {
-                                    'planned': 'Planlagt',
-                                    'in-progress': 'I gang',
-                                    'completed': 'Udført'
-                                }[task.status];
-                                
-                                const priorityText = {
-                                    'low': 'Lav',
-                                    'medium': 'Medium',
-                                    'high': 'Høj'
-                                }[task.priority];
-                                
-                                return `
-                                    <tr>
-                                        <td>
-                                            <strong>${task.title}</strong>
-                                            ${task.description ? `<br><small style="color: var(--gray-500);">${task.description}</small>` : ''}
-                                        </td>
-                                        <td>${craftsman ? craftsman.name : 'Ikke tildelt'}</td>
-                                        <td>${statusText}</td>
-                                        <td>
-                                            <span class="priority-badge priority-${task.priority}">
-                                                ${priorityText}
-                                            </span>
-                                        </td>
-                                        <td>${formatDate(task.date, 'DD/MM/YYYY')}</td>
-                                        <td>${task.duration} dag${task.duration !== 1 ? 'e' : ''}</td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            
-            showReport();
+                const totalTasks = app.tasks.length;
+                const completedTasks = app.tasks.filter(t => t.status === 'completed').length;
+                const inProgressTasks = app.tasks.filter(t => t.status === 'in-progress').length;
+                const plannedTasks = app.tasks.filter(t => t.status === 'planned').length;
+                
+                const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                
+                reportContent.innerHTML = `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--gray-800); margin-bottom: 1rem;">Projekt Information</h3>
+                        <div style="background: var(--gray-50); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                            <p><strong>Projekt:</strong> ${app.project.name}</p>
+                            <p><strong>Adresse:</strong> ${app.project.address}</p>
+                            <p><strong>Start dato:</strong> ${formatDate(app.project.startDate, 'DD/MM/YYYY')}</p>
+                            <p><strong>Varighed:</strong> ${app.weeks} uger</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--gray-800); margin-bottom: 1rem;">Status Oversigt</h3>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">${totalTasks}</div>
+                                <div>Total opgaver</div>
+                            </div>
+                            <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--success-color);">${completedTasks}</div>
+                                <div>Udført</div>
+                            </div>
+                            <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--warning-color);">${inProgressTasks}</div>
+                                <div>I gang</div>
+                            </div>
+                            <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 0.5rem;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--gray-500);">${plannedTasks}</div>
+                                <div>Planlagt</div>
+                            </div>
+                        </div>
+                        <div style="background: var(--primary-color); color: white; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                            <strong>Fremgang: ${progressPercentage}% gennemført</strong>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 style="color: var(--gray-800); margin-bottom: 1rem;">Alle Opgaver</h3>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Opgave</th>
+                                    <th>Håndværker</th>
+                                    <th>Status</th>
+                                    <th>Prioritet</th>
+                                    <th>Dato</th>
+                                    <th>Varighed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${app.tasks.map(task => {
+                                    const craftsman = app.craftsmen.find(c => c.id === task.craftsman);
+                                    const statusText = {
+                                        'planned': 'Planlagt 🔴',
+                                        'in-progress': 'I gang 🟠',
+                                        'completed': 'Udført 🟢'
+                                    }[task.status];
+                                    
+                                    const priorityText = {
+                                        'low': 'Lav',
+                                        'medium': 'Medium',
+                                        'high': 'Høj'
+                                    }[task.priority];
+                                    
+                                    return `
+                                        <tr>
+                                            <td>
+                                                <strong>${task.title}</strong>
+                                                ${task.description ? `<br><small style="color: var(--gray-500);">${task.description}</small>` : ''}
+                                            </td>
+                                            <td>${craftsman ? craftsman.name : 'Ikke tildelt'}</td>
+                                            <td>${statusText}</td>
+                                            <td>
+                                                <span class="priority-badge priority-${task.priority}">
+                                                    ${priorityText}
+                                                </span>
+                                            </td>
+                                            <td>${formatDate(task.date, 'DD/MM/YYYY')}</td>
+                                            <td>${task.duration} dag${task.duration !== 1 ? 'e' : ''}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                showReport();
+                reportInProgress = false;
+                
+            }, 50);
         }
         
         function generateCraftsmanReport() {
+            if (reportInProgress) return;
+            reportInProgress = true;
+            
             const reportContainer = document.getElementById('reportContainer');
-            const reportTitle = document.getElementById('reportTitle');
-            const reportSubtitle = document.getElementById('reportSubtitle');
-            const reportDate = document.getElementById('reportDate');
-            const reportContent = document.getElementById('reportContent');
+            reportContainer.style.display = 'none';
             
-            reportTitle.textContent = 'Håndværker Opgave Rapport';
-            reportSubtitle.innerHTML = `<strong>${app.project.name}</strong> - Opgave oversigt per håndværker`;
-            reportDate.textContent = formatDate(new Date(), 'DD/MM/YYYY');
-            
-            let contentHtml = '';
-            
-            app.craftsmen.forEach(craftsman => {
-                const craftsmanTasks = app.tasks.filter(t => t.craftsman === craftsman.id);
+            setTimeout(() => {
+                const reportTitle = document.getElementById('reportTitle');
+                const reportSubtitle = document.getElementById('reportSubtitle');
+                const reportDate = document.getElementById('reportDate');
+                const reportContent = document.getElementById('reportContent');
                 
-                if (craftsmanTasks.length > 0) {
-                    contentHtml += `
-                        <div style="margin-bottom: 2.5rem; break-inside: avoid;">
-                            <h3 style="color: ${craftsman.color}; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${craftsman.color};">
-                                🔨 ${craftsman.name}
-                            </h3>
-                            <table class="report-table">
-                                <thead>
-                                    <tr>
-                                        <th>Opgave</th>
-                                        <th>Status</th>
-                                        <th>Prioritet</th>
-                                        <th>Dato</th>
-                                        <th>Varighed</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${craftsmanTasks.map(task => {
-                                        const statusText = {
-                                            'planned': 'Planlagt',
-                                            'in-progress': 'I gang',
-                                            'completed': 'Udført'
-                                        }[task.status];
-                                        
-                                        const priorityText = {
-                                            'low': 'Lav',
-                                            'medium': 'Medium',
-                                            'high': 'Høj'
-                                        }[task.priority];
-                                        
-                                        return `
-                                            <tr>
-                                                <td>
-                                                    <strong>${task.title}</strong>
-                                                    ${task.description ? `<br><small style="color: var(--gray-500);">${task.description}</small>` : ''}
-                                                </td>
-                                                <td>${statusText}</td>
-                                                <td>
-                                                    <span class="priority-badge priority-${task.priority}">
-                                                        ${priorityText}
-                                                    </span>
-                                                </td>
-                                                <td>${formatDate(task.date, 'DD/MM/YYYY')}</td>
-                                                <td>${task.duration} dag${task.duration !== 1 ? 'e' : ''}</td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
-                                </tbody>
-                            </table>
+                reportTitle.textContent = 'Håndværker Opgave Rapport';
+                reportSubtitle.innerHTML = `<strong>${app.project.name}</strong> - Opgave oversigt per håndværker`;
+                reportDate.textContent = formatDate(new Date(), 'DD/MM/YYYY');
+                
+                let contentHtml = '';
+                
+                app.craftsmen.forEach(craftsman => {
+                    const craftsmanTasks = app.tasks.filter(t => t.craftsman === craftsman.id);
+                    
+                    if (craftsmanTasks.length > 0) {
+                        contentHtml += `
+                            <div style="margin-bottom: 2.5rem; break-inside: avoid;">
+                                <h3 style="color: ${craftsman.color}; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${craftsman.color};">
+                                    🔨 ${craftsman.name}
+                                </h3>
+                                <table class="report-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Opgave</th>
+                                            <th>Status</th>
+                                            <th>Prioritet</th>
+                                            <th>Dato</th>
+                                            <th>Varighed</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${craftsmanTasks.map(task => {
+                                            const statusText = {
+                                                'planned': 'Planlagt 🔴',
+                                                'in-progress': 'I gang 🟠',
+                                                'completed': 'Udført 🟢'
+                                            }[task.status];
+                                            
+                                            const priorityText = {
+                                                'low': 'Lav',
+                                                'medium': 'Medium',
+                                                'high': 'Høj'
+                                            }[task.priority];
+                                            
+                                            return `
+                                                <tr>
+                                                    <td>
+                                                        <strong>${task.title}</strong>
+                                                        ${task.description ? `<br><small style="color: var(--gray-500);">${task.description}</small>` : ''}
+                                                    </td>
+                                                    <td>${statusText}</td>
+                                                    <td>
+                                                        <span class="priority-badge priority-${task.priority}">
+                                                            ${priorityText}
+                                                        </span>
+                                                    </td>
+                                                    <td>${formatDate(task.date, 'DD/MM/YYYY')}</td>
+                                                    <td>${task.duration} dag${task.duration !== 1 ? 'e' : ''}</td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+                });
+                
+                if (!contentHtml) {
+                    contentHtml = `
+                        <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                            <p>Ingen opgaver at vise endnu.</p>
                         </div>
                     `;
                 }
-            });
-            
-            if (!contentHtml) {
-                contentHtml = `
-                    <div style="text-align: center; padding: 3rem; color: var(--gray-500);">
-                        <p>Ingen opgaver at vise endnu.</p>
-                    </div>
-                `;
-            }
-            
-            reportContent.innerHTML = contentHtml;
-            showReport();
+                
+                reportContent.innerHTML = contentHtml;
+                showReport();
+                reportInProgress = false;
+                
+            }, 50);
         }
         
-        // RETTET: Report display functions
+        // Report display functions
         function showReport() {
-            document.getElementById('reportContainer').style.display = 'block';
+            const reportContainer = document.getElementById('reportContainer');
+            reportContainer.style.display = 'block';
+            reportContainer.scrollTop = 0; // Scroll to top
         }
         
         function closeReport() {
-            document.getElementById('reportContainer').style.display = 'none';
+            const reportContainer = document.getElementById('reportContainer');
+            reportContainer.style.display = 'none';
+            reportInProgress = false; // Ensure flag is reset
         }
         
         // Toast Function
@@ -1729,7 +1784,7 @@
             saveProject();
         });
         
-        console.log('🎯 SWITZEA Final Version Loaded - Multi-day tasks + Working reports!');
+        console.log('🎯 SWITZEA Rettet Version - Nye farver + Fungerende kunde rapport!');
     </script>
 </body>
 </html>
